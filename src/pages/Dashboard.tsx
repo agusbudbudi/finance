@@ -25,7 +25,7 @@ export const Dashboard = () => {
   } = useDashboardData();
 
   return (
-    <div className="space-y-8 animate-in fade-in duration-700">
+    <div className="space-y-6 animate-in fade-in duration-700">
       {/* Central Balance Display */}
       <BalanceHero
         totalBalance={totalBalance}
@@ -42,7 +42,7 @@ export const Dashboard = () => {
         savingsRate={savingsRate}
       />
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {/* Upcoming Recurring Payments */}
         <UpcomingBillsList unpostedRecurring={unpostedRecurring} />
 
@@ -56,12 +56,12 @@ export const Dashboard = () => {
       </div>
 
       {/* Smart System Insights */}
-      <SystemInsightCards insights={insights} profile={profile} />
+      <SystemInsightCards insights={insights} profile={profile || undefined} />
 
       {/* Floating Action Menu */}
       <div className="fixed bottom-10 left-1/2 -translate-x-1/2 z-50">
         <button className="btn btn-primary px-8 py-4 rounded-full shadow-2xl shadow-primary-500/40 border-4 border-white dark:border-gray-900 flex items-center gap-3 active:scale-95 transition-all">
-          <div className="p-1 bg-white/20 rounded-lg">
+          <div className="p-1 bg-white/20 rounded-xl">
             <Zap className="w-5 h-5" />
           </div>
           <span className="text-base font-bold">Quick Log</span>

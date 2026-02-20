@@ -32,7 +32,7 @@ export const Modal = ({ isOpen, onClose, title, children }: ModalProps) => {
       onClick={onClose}
     >
       <div
-        className="bg-white dark:bg-gray-950 w-full max-w-md rounded-2xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200 border border-gray-100 dark:border-gray-800"
+        className="bg-white dark:bg-gray-950 w-full max-w-md rounded-xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200 border border-gray-100 dark:border-gray-800"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="px-6 py-5 border-b border-gray-50 dark:border-gray-900 flex items-center justify-between bg-gray-50/50 dark:bg-gray-900/50">

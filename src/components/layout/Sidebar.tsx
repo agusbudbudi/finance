@@ -14,6 +14,7 @@ import {
   Receipt,
   Zap,
 } from "lucide-react";
+import { useAuthStore } from "../../stores/useAuthStore";
 
 const navigation = [
   { name: "Overview", to: "/dashboard", icon: LayoutDashboard },
@@ -26,9 +27,16 @@ const navigation = [
   { name: "Wealth Growth", to: "/investment", icon: TrendingUp },
 ];
 
+import { useUIStore } from "../../stores/useUIStore";
+
 export const Sidebar = () => {
+  const { isSidebarOpen } = useUIStore();
+
   return (
-    <div className="hidden lg:flex w-56 flex-col bg-white dark:bg-gray-950 border-r border-gray-100 dark:border-gray-900 z-30 transition-all duration-300">
+    <div className={`
+      fixed inset-y-0 left-0 z-50 lg:static lg:flex w-64 flex-col bg-white dark:bg-gray-950 border-r border-gray-100 dark:border-gray-900 transition-transform duration-300 ease-in-out
+      ${isSidebarOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"}
+    `}>
       {/* Brand Section */}
       <div className="flex items-center gap-2.5 px-4 py-5">
         <img
@@ -58,7 +66,7 @@ export const Sidebar = () => {
             className={({ isActive }) =>
               `group flex items-center justify-between px-3 py-3 rounded-xl transition-all duration-300 border-2 ${
                 isActive
-                  ? "bg-primary-500 border-primary-500 text-white shadow-xl shadow-primary-500/20"
+                  ? "bg-primary-500 border-primary-500 text-white shadow-lg shadow-primary-500/20 "
                   : "text-gray-500 border-transparent hover:bg-gray-50 dark:hover:bg-gray-900 hover:text-gray-900 dark:hover:text-white"
               }`
             }
@@ -80,15 +88,15 @@ export const Sidebar = () => {
       <div className="p-4 space-y-4">
         <div className="bg-primary-50 dark:bg-primary-900/10 rounded-xl p-4 border border-primary-100 dark:border-primary-900/20">
           <div className="flex items-center gap-2 mb-2">
-            <div className="w-7 h-7 rounded-lg bg-primary-500 flex items-center justify-center text-white shadow-sm">
+            <div className="w-7 h-7 rounded-xl bg-primary-500 flex items-center justify-center text-white shadow-sm">
               <ShieldCheck className="w-3.5 h-3.5" />
             </div>
             <span className="text-[10px] font-black text-primary-900 dark:text-primary-100 uppercase tracking-tight">
-              Security On
+              Sync Active
             </span>
           </div>
           <p className="text-[9px] text-primary-700/70 dark:text-primary-300/50 font-medium leading-relaxed">
-            Your financial data is encrypted and stored locally.
+            Your data is E2E encrypted and securely synced to the cloud.
           </p>
         </div>
 
@@ -106,7 +114,10 @@ export const Sidebar = () => {
             <Settings className="w-4 h-4" />
             <span>Settings</span>
           </NavLink>
-          <button className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/10 transition-all font-bold text-sm">
+          <button 
+            onClick={() => useAuthStore.getState().signOut()}
+            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/10 transition-all font-bold text-sm"
+          >
             <LogOut className="w-4 h-4" />
             <span>Logout</span>
           </button>

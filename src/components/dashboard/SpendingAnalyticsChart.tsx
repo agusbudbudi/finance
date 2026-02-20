@@ -71,7 +71,7 @@ export const SpendingAnalyticsChart = ({
               content={({ active, payload }) => {
                 if (active && payload && payload.length) {
                   return (
-                    <div className="bg-gray-900 text-white px-3 py-2 rounded-xl text-[10px] font-black shadow-xl border border-white/10 uppercase tracking-widest">
+                    <div className="bg-gray-900 text-white px-3 py-2 rounded-xl text-[10px] font-black shadow-lg border border-white/10 uppercase tracking-widest">
                       Spent: {formatCurrency(payload[0].value as number)}
                     </div>
                   );
@@ -99,7 +99,7 @@ export const SpendingAnalyticsChart = ({
         </ResponsiveContainer>
       </div>
 
-      <div className="mt-8 p-6 bg-primary-500 rounded-3xl text-white flex items-center justify-between shadow-lg shadow-primary-500/20">
+      <div className="mt-8 p-6 bg-primary-500 rounded-xl text-white flex items-center justify-between shadow-lg  shadow-primary-500/20">
         <div className="flex items-center gap-4">
           <div className="w-12 h-12 rounded-xl bg-white/20 flex items-center justify-center">
             <Target className="w-6 h-6 text-white" />

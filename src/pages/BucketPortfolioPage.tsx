@@ -159,8 +159,8 @@ export const BucketPortfolioPage = () => {
   };
 
   return (
-    <div className="space-y-8 animate-in fade-in duration-700 pb-20">
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 mb-8">
+    <div className="space-y-6 animate-in fade-in duration-700 pb-10">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 mb-6">
         <div>
           <h2 className="text-3xl font-black text-gray-900 dark:text-white tracking-tight">
             Liquid Assets
@@ -202,7 +202,7 @@ export const BucketPortfolioPage = () => {
       </div>
 
       {!hasSalaryAccount && accounts.length > 0 && (
-        <div className="mb-8 p-4 bg-amber-50 dark:bg-amber-900/10 rounded-2xl border border-amber-200 dark:border-amber-900/20 flex items-center gap-4">
+        <div className="mb-6 p-4 bg-amber-50 dark:bg-amber-900/10 rounded-xl border border-amber-200 dark:border-amber-900/20 flex items-center gap-4">
           <div className="w-10 h-10 bg-amber-100 dark:bg-amber-900/10 rounded-xl flex items-center justify-center text-amber-600">
             <AlertCircle className="w-5 h-5" />
           </div>
@@ -218,9 +218,9 @@ export const BucketPortfolioPage = () => {
         </div>
       )}
 
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
         {/* Left Column: Sticky Summary */}
-        <div className="lg:col-span-4 space-y-6 lg:sticky lg:top-8">
+        <div className="lg:col-span-4 space-y-6 lg:sticky lg:top-6">
           <Card
             variant="blue"
             className="border-none relative overflow-hidden group shadow-2xl shadow-primary-500/20"
@@ -241,7 +241,7 @@ export const BucketPortfolioPage = () => {
                         ? "text-2xl"
                         : formatCurrency(totalBalance).length > 12
                           ? "text-3xl"
-                          : "text-4xl lg:text-5xl"
+                          : "text-4xl"
                     }`}
                   >
                     {formatCurrency(totalBalance)}
@@ -303,7 +303,7 @@ export const BucketPortfolioPage = () => {
             </Card>
           )}
 
-          <div className="bg-gray-100/50 dark:bg-white/5 rounded-3xl p-6 border border-gray-100 dark:border-white/5">
+          <div className="bg-gray-100/50 dark:bg-white/5 rounded-xl p-6 border border-gray-100 dark:border-white/5">
             <div className="flex items-center gap-4">
               <div className="w-12 h-12 rounded-xl bg-white dark:bg-gray-800 flex items-center justify-center border border-gray-100 dark:border-gray-700 shadow-sm shrink-0">
                 <ShieldCheck className="w-6 h-6 text-green-500" />
@@ -328,7 +328,7 @@ export const BucketPortfolioPage = () => {
                 <Card
                   key={account.id}
                   bodyClassName="p-6"
-                  className="group relative hover:border-primary-400/50 hover:shadow-xl transition-all duration-300 border-2"
+                  className="group relative hover:border-primary-400/50 hover:shadow-lg transition-all duration-300 border-2"
                 >
                   <div className="flex justify-between items-center">
                     <div className="flex items-center gap-4">
@@ -513,7 +513,7 @@ export const BucketPortfolioPage = () => {
             />
           </div>
 
-          <div className="flex items-center gap-3 p-4 bg-primary-50 dark:bg-primary-900/10 rounded-2xl border border-primary-100 dark:border-primary-900/20 group cursor-pointer hover:bg-primary-100 dark:hover:bg-primary-900/20 transition-all">
+          <div className="flex items-center gap-3 p-4 bg-primary-50 dark:bg-primary-900/10 rounded-xl border border-primary-100 dark:border-primary-900/20 group cursor-pointer hover:bg-primary-100 dark:hover:bg-primary-900/20 transition-all">
             <label className="flex items-center gap-3 w-full cursor-pointer">
               <div className="relative flex items-center justify-center">
                 <input
@@ -525,7 +525,7 @@ export const BucketPortfolioPage = () => {
                       isSalaryAccount: e.target.checked,
                     })
                   }
-                  className="peer appearance-none w-6 h-6 rounded-lg border-2 border-primary-200 dark:border-primary-800 checked:bg-primary-500 checked:border-primary-500 transition-all outline-none"
+                  className="peer appearance-none w-6 h-6 rounded-xl border-2 border-primary-200 dark:border-primary-800 checked:bg-primary-500 checked:border-primary-500 transition-all outline-none"
                 />
                 <CheckCircle2 className="w-4 h-4 text-white absolute scale-0 peer-checked:scale-100 transition-transform duration-200" />
               </div>

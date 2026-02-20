@@ -43,9 +43,9 @@ export const MonthSelector: React.FC<MonthSelectorProps> = ({
 
   return (
     <div
-      className={`flex items-center gap-3 bg-white dark:bg-white/5 backdrop-blur-md px-2 py-2 pr-4 rounded-xl border border-gray-200 dark:border-white/10 shadow-lg shadow-black/5 ${className}`}
+      className={`flex items-center gap-3 bg-white dark:bg-white/5 backdrop-blur-md px-2 py-2 pr-4 rounded-xl border border-gray-200 dark:border-white/10 shadow-lg  shadow-black/5 ${className}`}
     >
-      <div className="w-8 h-8 rounded-lg bg-primary-50 dark:bg-primary-900/20 flex items-center justify-center">
+      <div className="w-8 h-8 rounded-xl bg-primary-50 dark:bg-primary-900/20 flex items-center justify-center">
         <Calendar className="w-4 h-4 text-primary-500" />
       </div>
       <div className="flex items-center gap-2">

@@ -121,7 +121,7 @@ export const ExpensePage = () => {
   };
 
   return (
-    <div className="space-y-8 animate-in fade-in duration-700 pb-20">
+    <div className="space-y-6 animate-in fade-in duration-700 pb-10">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
         <div>
           <h2 className="text-3xl font-black text-gray-900 dark:text-white tracking-tight">
@@ -136,7 +136,7 @@ export const ExpensePage = () => {
           <MonthSelector value={selectedMonth} onChange={setSelectedMonth} />
           <button
             onClick={() => setIsAddModalOpen(true)}
-            className="btn bg-primary-500 dark:bg-white text-white dark:text-primary-500 hover:opacity-90 shadow-xl shadow-black/10"
+            className="btn bg-primary-500 dark:bg-white text-white dark:text-primary-500 hover:opacity-90 shadow-lg shadow-black/10"
           >
             <Plus className="w-5 h-5" />
             Log Transaction
@@ -144,13 +144,13 @@ export const ExpensePage = () => {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
         {/* Left Column: Sticky Summary */}
-        <div className="lg:col-span-4 space-y-6 lg:sticky lg:top-8">
+        <div className="lg:col-span-4 space-y-6 lg:sticky lg:top-6">
           <Card
             variant="blue"
             className="border-none relative overflow-hidden group shadow-2xl shadow-primary-500/20"
-            bodyClassName="p-8"
+            bodyClassName="p-6"
           >
             <div className="absolute -right-4 -bottom-4 w-32 h-32 bg-white/10 rounded-full blur-2xl group-hover:scale-150 transition-all duration-700"></div>
             <div className="relative z-10 space-y-8 text-white">
@@ -174,7 +174,7 @@ export const ExpensePage = () => {
             </div>
           </Card>
 
-          <Card className="flex flex-col justify-between" bodyClassName="p-8">
+          <Card className="flex flex-col justify-between" bodyClassName="p-6">
             <div className="flex justify-between items-start">
               <div>
                 <p className="text-gray-500 dark:text-white/40 text-[10px] font-black uppercase tracking-[0.2em] mb-2">
@@ -213,25 +213,25 @@ export const ExpensePage = () => {
               <table className="w-full text-left">
                 <thead>
                   <tr className="border-b border-gray-100 dark:border-gray-800">
-                    <th className="px-6 pt-6 pb-6 font-black text-[10px] text-gray-500 dark:text-gray-400 uppercase tracking-widest">
+                    <th className="px-6 pt-4 pb-4 font-black text-[10px] text-gray-500 dark:text-gray-400 uppercase tracking-widest">
                       Type
                     </th>
-                    <th className="px-6 pt-6 pb-6 font-black text-[10px] text-gray-500 dark:text-gray-400 uppercase tracking-widest">
+                    <th className="px-6 pt-4 pb-4 font-black text-[10px] text-gray-500 dark:text-gray-400 uppercase tracking-widest">
                       Date
                     </th>
-                    <th className="px-6 pt-6 pb-6 font-black text-[10px] text-gray-500 dark:text-gray-400 uppercase tracking-widest">
+                    <th className="px-6 pt-4 pb-4 font-black text-[10px] text-gray-500 dark:text-gray-400 uppercase tracking-widest">
                       Category
                     </th>
-                    <th className="px-6 pt-6 pb-6 font-black text-[10px] text-gray-500 dark:text-gray-400 uppercase tracking-widest">
+                    <th className="px-6 pt-4 pb-4 font-black text-[10px] text-gray-500 dark:text-gray-400 uppercase tracking-widest">
                       Account
                     </th>
-                    <th className="px-6 pt-6 pb-6 font-black text-[10px] text-gray-500 dark:text-gray-400 uppercase tracking-widest">
+                    <th className="px-6 pt-4 pb-4 font-black text-[10px] text-gray-500 dark:text-gray-400 uppercase tracking-widest">
                       Note
                     </th>
-                    <th className="px-6 pt-6 pb-6 font-black text-[10px] text-gray-500 dark:text-gray-400 uppercase tracking-widest text-right">
+                    <th className="px-6 pt-4 pb-4 font-black text-[10px] text-gray-500 dark:text-gray-400 uppercase tracking-widest text-right">
                       Amount
                     </th>
-                    <th className="px-6 pt-6 pb-6 font-black text-[10px] text-gray-500 dark:text-gray-400 uppercase tracking-widest text-right"></th>
+                    <th className="px-6 pt-4 pb-4 font-black text-[10px] text-gray-500 dark:text-gray-400 uppercase tracking-widest text-right"></th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-100 dark:divide-gray-800">
@@ -240,7 +240,7 @@ export const ExpensePage = () => {
                       key={expense.id}
                       className="group/row hover:bg-gray-50 dark:hover:bg-gray-800/30 transition-all duration-300"
                     >
-                      <td className="px-6 py-6">
+                      <td className="px-6 py-4">
                         <div
                           className={`w-10 h-10 rounded-xl flex items-center justify-center border transition-all duration-500 group-hover/row:scale-110 ${
                             expense.type === "allocation"
@@ -260,12 +260,12 @@ export const ExpensePage = () => {
                           )}
                         </div>
                       </td>
-                      <td className="px-6 py-6 text-sm font-bold text-gray-500 dark:text-gray-400">
+                      <td className="px-6 py-4 text-sm font-bold text-gray-500 dark:text-gray-400">
                         {formatDate(expense.date, "short")}
                       </td>
-                      <td className="px-6 py-6 font-bold text-gray-900 dark:text-white">
+                      <td className="px-6 py-4 font-bold text-gray-900 dark:text-white">
                         <span
-                          className={`px-2.5 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-wider border transition-colors ${
+                          className={`px-2.5 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-wider border transition-colors ${
                             expense.category === "Food & Drink"
                               ? "bg-orange-50 text-orange-600 border-orange-100 dark:bg-orange-900/10 dark:text-orange-400 dark:border-orange-900/20"
                               : expense.category === "Transportation"
@@ -287,10 +287,10 @@ export const ExpensePage = () => {
                             expense.category}
                         </span>
                       </td>
-                      <td className="px-6 py-6">
+                      <td className="px-6 py-4">
                         <div className="flex items-center gap-3">
                           <div
-                            className={`w-8 h-8 rounded-lg flex items-center justify-center ${expense.accountType === "bank" ? "bg-primary-50 dark:bg-primary-900/20 text-primary-500" : "bg-purple-50 dark:bg-purple-900/20 text-purple-500"}`}
+                            className={`w-8 h-8 rounded-xl flex items-center justify-center ${expense.accountType === "bank" ? "bg-primary-50 dark:bg-primary-900/20 text-primary-500" : "bg-purple-50 dark:bg-purple-900/20 text-purple-500"}`}
                           >
                             {expense.accountType === "bank" ? (
                               <Wallet className="w-4 h-4" />
@@ -307,13 +307,13 @@ export const ExpensePage = () => {
                           </span>
                         </div>
                       </td>
-                      <td className="px-6 py-6 text-sm font-medium text-gray-500 dark:text-gray-400 italic">
+                      <td className="px-6 py-4 text-sm font-medium text-gray-500 dark:text-gray-400 italic">
                         {expense.note || "-"}
                       </td>
-                      <td className="px-6 py-6 text-right font-black text-gray-900 dark:text-white text-lg tabular-nums">
+                      <td className="px-6 py-4 text-right font-black text-gray-900 dark:text-white text-lg tabular-nums">
                         {formatCurrency(expense.amount)}
                       </td>
-                      <td className="px-6 py-6 text-right">
+                      <td className="px-6 py-4 text-right">
                         <button
                           onClick={() => deleteExpense(expense.id)}
                           className="p-2 rounded-xl text-gray-300 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/10 transition-all opacity-0 group-hover/row:opacity-100"

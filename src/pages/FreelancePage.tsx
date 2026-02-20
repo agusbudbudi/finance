@@ -125,7 +125,7 @@ export const FreelancePage = () => {
   };
 
   return (
-    <div className="space-y-8 animate-in slide-in-from-left-4 duration-700 pb-20">
+    <div className="space-y-6 animate-in slide-in-from-left-4 duration-700 pb-10">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4">
         <div>
           <h2 className="text-3xl font-black text-gray-900 dark:text-white tracking-tight">
@@ -137,16 +137,16 @@ export const FreelancePage = () => {
         </div>
         <button
           onClick={() => setIsAddModalOpen(true)}
-          className="btn bg-primary-500 dark:bg-white text-white dark:text-primary-500 hover:opacity-90 shadow-xl shadow-black/10"
+          className="btn bg-primary-500 dark:bg-white text-white dark:text-primary-500 hover:opacity-90 shadow-lg shadow-black/10"
         >
           <Plus className="w-5 h-5" />
           Add Additional Income
         </button>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
         {/* Left Column: Sticky Summary */}
-        <div className="lg:col-span-4 space-y-6 lg:sticky lg:top-8">
+        <div className="lg:col-span-4 space-y-6 lg:sticky lg:top-6">
           <Card
             variant="blue"
             className="border-none relative overflow-hidden group shadow-2xl shadow-primary-500/20"
@@ -215,7 +215,7 @@ export const FreelancePage = () => {
               ].map((item) => (
                 <div
                   key={item.label}
-                  className="group relative p-4 bg-gray-50/50 dark:bg-gray-950 rounded-2xl border border-gray-100 dark:border-gray-800 hover:border-primary-500/30 transition-all duration-500 flex items-center gap-4"
+                  className="group relative p-4 bg-gray-50/50 dark:bg-gray-950 rounded-xl border border-gray-100 dark:border-gray-800 hover:border-primary-500/30 transition-all duration-500 flex items-center gap-4"
                 >
                   <div
                     className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 shadow-sm ${
@@ -296,7 +296,7 @@ export const FreelancePage = () => {
                       </td>
                       <td className="px-6 py-6">
                         <span
-                          className={`px-2 py-1 rounded-lg text-[9px] font-black uppercase tracking-wider border ${
+                          className={`px-2 py-1 rounded-xl text-[9px] font-black uppercase tracking-wider border ${
                             income.category === "Freelance"
                               ? "bg-blue-50 text-blue-500 border-blue-100 dark:bg-blue-900/10 dark:text-blue-400 dark:border-blue-900/20"
                               : income.category === "Bonus"
@@ -368,7 +368,7 @@ export const FreelancePage = () => {
                                 setActiveIncome(income);
                                 setIsAllocModalOpen(true);
                               }}
-                              className="px-4 py-1.5 rounded-full bg-amber-500 hover:bg-amber-600 text-white text-[10px] font-black uppercase tracking-wider flex items-center gap-1.5 shadow-lg shadow-amber-500/20 transition-all active:scale-95"
+                              className="px-4 py-1.5 rounded-full bg-amber-500 hover:bg-amber-600 text-white text-[10px] font-black uppercase tracking-wider flex items-center gap-1.5 shadow-lg  shadow-amber-500/20 transition-all active:scale-95"
                             >
                               <Zap className="w-3.5 h-3.5" /> Allocate
                             </button>
@@ -543,7 +543,7 @@ export const FreelancePage = () => {
                             savings: Math.min(100, val),
                           });
                         }}
-                        className="w-12 px-1 py-0.5 rounded-lg border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 text-right text-xs font-black text-primary-500 outline-none"
+                        className="w-12 px-1 py-0.5 rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 text-right text-xs font-black text-primary-500 outline-none"
                       />
                       <span className="text-[10px] font-black text-gray-400 ml-1">
                         %
@@ -587,7 +587,7 @@ export const FreelancePage = () => {
                             spending: Math.min(100, val),
                           });
                         }}
-                        className="w-12 px-1 py-0.5 rounded-lg border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 text-right text-xs font-black text-primary-500 outline-none"
+                        className="w-12 px-1 py-0.5 rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 text-right text-xs font-black text-primary-500 outline-none"
                       />
                       <span className="text-[10px] font-black text-gray-400 ml-1">
                         %
@@ -631,7 +631,7 @@ export const FreelancePage = () => {
                             investment: Math.min(100, val),
                           });
                         }}
-                        className="w-12 px-1 py-0.5 rounded-lg border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 text-right text-xs font-black text-primary-500 outline-none"
+                        className="w-12 px-1 py-0.5 rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 text-right text-xs font-black text-primary-500 outline-none"
                       />
                       <span className="text-[10px] font-black text-gray-400 ml-1">
                         %

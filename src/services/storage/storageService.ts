@@ -1,50 +1,107 @@
 import { SCHEMA_VERSIONS, StorageSchema } from "./schemas";
+import { SupabaseStorageService } from "../supabase/supabaseStorageService";
+import { useAuthStore } from "../../stores/useAuthStore";
+import { EncryptionService } from "./encryptionService";
 
 export class StorageService {
   private static STORAGE_PREFIX = "finance_";
+  private static sessionCache: Record<string, any> = {};
 
   /**
-   * Get data from LocalStorage with type safety
+   * Unlock the local session by decrypting and caching data in memory.
+   */
+  static async unlockSession(password: string): Promise<void> {
+    const keys = this.getAllKeys();
+    for (const key of keys) {
+      try {
+        const item = localStorage.getItem(this.STORAGE_PREFIX + key);
+        if (!item) continue;
+
+        const parsed: any = JSON.parse(item);
+        
+        // If it's an encrypted blob (has ciphertext directly)
+        if (parsed && typeof parsed === 'object' && 'ciphertext' in parsed && 'iv' in parsed) {
+          const decrypted = await EncryptionService.decrypt(parsed, password);
+          const decryptedSchema: StorageSchema<any> = JSON.parse(decrypted);
+          this.sessionCache[key] = decryptedSchema.data;
+        } else if (parsed && parsed.data !== undefined) {
+          // Plain data (legacy or unencrypted)
+          this.sessionCache[key] = parsed.data;
+        }
+      } catch (error) {
+        console.error(`Failed to decrypt ${key} during session unlock:`, error);
+      }
+    }
+  }
+
+  /**
+   * Get data from Session Cache (Synchronous)
    */
   static get<T>(key: string): T | null {
+    if (this.sessionCache[key] !== undefined) {
+      return this.sessionCache[key] as T;
+    }
+    
+    // Fallback if not in cache (e.g. settings that might not be encrypted)
     try {
       const item = localStorage.getItem(this.STORAGE_PREFIX + key);
       if (!item) return null;
 
-      const parsed: StorageSchema<T> = JSON.parse(item);
-
-      // Version check
-      const expectedVersion =
-        SCHEMA_VERSIONS[key as keyof typeof SCHEMA_VERSIONS];
-      if (expectedVersion && parsed.version !== expectedVersion) {
-        console.warn(
-          `Schema version mismatch for ${key}. Expected: ${expectedVersion}, Got: ${parsed.version}`,
-        );
-        // In a real app, trigger migration here
+      const parsed: any = JSON.parse(item);
+      
+      // If it looks encrypted and we don't have it in cache, we can't return it
+      if (parsed && typeof parsed === 'object' && 'ciphertext' in parsed && 'iv' in parsed) {
+        return null;
       }
 
-      return parsed.data;
+      // Legacy plain data
+      if (parsed && typeof parsed === 'object' && 'data' in parsed) {
+        return parsed.data as T;
+      }
+
+      return null;
     } catch (error) {
-      console.error(`Error reading ${key}:`, error);
       return null;
     }
   }
 
   /**
-   * Set data to LocalStorage
+   * Set data to LocalStorage (encrypted) and update cache
    */
-  static set<T>(key: string, data: T): boolean {
+  static async set<T>(key: string, data: T): Promise<boolean> {
     try {
+      this.sessionCache[key] = data; // Update memory cache
+      
+      const { masterPassword, isUnlocked } = useAuthStore.getState();
       const schemaVersion =
         SCHEMA_VERSIONS[key as keyof typeof SCHEMA_VERSIONS] || "1.0.0";
-      const item: StorageSchema<T> = {
+      
+      const schemaItem: StorageSchema<T> = {
         schema: key,
         version: schemaVersion,
         data,
         updatedAt: new Date().toISOString(),
       };
 
-      localStorage.setItem(this.STORAGE_PREFIX + key, JSON.stringify(item));
+      let finalItemToStore: string;
+
+      if (isUnlocked && masterPassword) {
+        // Encrypt for local storage
+        const encrypted = await EncryptionService.encrypt(JSON.stringify(schemaItem), masterPassword);
+        finalItemToStore = JSON.stringify(encrypted);
+
+        // Also sync to Supabase in background
+        SupabaseStorageService.set(key, data, masterPassword).catch((err) =>
+          console.error(`Cloud sync failed for ${key}:`, err),
+        );
+      } else {
+        // If not unlocked, we shouldn't really be saving sensitive financial data in plain text
+        // But for things like 'settings' (unencrypted), we could allow it.
+        // For now, let's just save it as is but wrap it.
+        finalItemToStore = JSON.stringify(schemaItem);
+      }
+
+      localStorage.setItem(this.STORAGE_PREFIX + key, finalItemToStore);
       return true;
     } catch (error) {
       console.error(`Error writing ${key}:`, error);
@@ -53,10 +110,18 @@ export class StorageService {
   }
 
   /**
-   * Remove item from LocalStorage
+   * Remove item from LocalStorage and Supabase
    */
   static remove(key: string): void {
     localStorage.removeItem(this.STORAGE_PREFIX + key);
+
+    // Trigger sync to Supabase if unlocked
+    const { isUnlocked } = useAuthStore.getState();
+    if (isUnlocked) {
+      SupabaseStorageService.remove(key).catch((err) =>
+        console.error(`Cloud remove failed for ${key}:`, err),
+      );
+    }
   }
 
   /**

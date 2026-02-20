@@ -9,13 +9,23 @@ import { ExpensePage } from "./pages/ExpensePage";
 import { BucketPortfolioPage } from "./pages/BucketPortfolioPage";
 import { RecurringPage } from "./pages/RecurringPage";
 import { SettingsPage } from "./pages/SettingsPage";
+import { MasterPasswordGuard } from "./components/auth/MasterPasswordGuard";
+import { AuthScreen } from "./components/auth/AuthScreen";
+import { useAuthStore } from "./stores/useAuthStore";
 import "./index.css";
 
 function App() {
+  const { user } = useAuthStore();
+
+  if (!user) {
+    return <AuthScreen />;
+  }
+
   return (
     <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<AppLayout />}>
+      <MasterPasswordGuard>
+        <Routes>
+          <Route path="/" element={<AppLayout />}>
           <Route index element={<Navigate to="dashboard" replace />} />
           <Route path="dashboard" element={<Dashboard />} />
           <Route path="planner" element={<MonthlyPlanner />} />
@@ -27,7 +37,8 @@ function App() {
           <Route path="recurring" element={<RecurringPage />} />
           <Route path="settings" element={<SettingsPage />} />
         </Route>
-      </Routes>
+        </Routes>
+      </MasterPasswordGuard>
     </BrowserRouter>
   );
 }

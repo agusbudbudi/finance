@@ -150,7 +150,7 @@ export const RecurringPage = () => {
   };
 
   return (
-    <div className="space-y-8 animate-in fade-in duration-700 pb-20">
+    <div className="space-y-6 animate-in fade-in duration-700 pb-10">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
         <div>
           <h2 className="text-3xl font-black text-gray-900 dark:text-white tracking-tight">
@@ -167,7 +167,7 @@ export const RecurringPage = () => {
               setEditingId(null);
               setIsModalOpen(true);
             }}
-            className="btn bg-primary-500 dark:bg-white text-white dark:text-primary-500 hover:opacity-90 shadow-xl shadow-black/10"
+            className="btn bg-primary-500 dark:bg-white text-white dark:text-primary-500 hover:opacity-90 shadow-lg shadow-black/10"
           >
             <Plus className="w-5 h-5" />
             Add Recurring
@@ -175,13 +175,13 @@ export const RecurringPage = () => {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
         {/* Left Column: Sticky Summary */}
-        <div className="lg:col-span-4 space-y-6 lg:sticky lg:top-8">
+        <div className="lg:col-span-4 space-y-6 lg:sticky lg:top-6">
           <Card
             variant="blue"
             className="border-none relative overflow-hidden group shadow-2xl shadow-primary-500/20"
-            bodyClassName="p-8"
+            bodyClassName="p-6"
           >
             <div className="absolute -right-4 -bottom-4 w-32 h-32 bg-white/10 rounded-full blur-2xl group-hover:scale-150 transition-all duration-700"></div>
             <div className="relative z-10 text-white">
@@ -210,7 +210,7 @@ export const RecurringPage = () => {
             </div>
           </Card>
 
-          <Card className="flex flex-col justify-center" bodyClassName="p-8">
+          <Card className="flex flex-col justify-center" bodyClassName="p-6">
             <div className="flex items-center gap-4">
               <div
                 className={`w-14 h-14 rounded-xl flex items-center justify-center ${stats.pendingThisMonth > 0 ? "bg-amber-50 dark:bg-amber-900/10 text-amber-600 dark:text-amber-400 border border-amber-100 dark:border-amber-900/20" : "bg-green-50 dark:bg-green-900/10 text-green-600 dark:text-green-400 border border-green-100 dark:border-green-900/20"}`}
@@ -263,7 +263,7 @@ export const RecurringPage = () => {
               {filteredSubs.map((sub) => (
                 <div
                   key={sub.id}
-                  className={`relative group bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 rounded-2xl p-6 flex flex-col md:flex-row md:items-center justify-between gap-6 transition-all duration-300 hover:border-primary-200`}
+                  className={`relative group bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 rounded-xl p-6 flex flex-col md:flex-row md:items-center justify-between gap-6 transition-all duration-300 hover:border-primary-200`}
                 >
                   <div className="flex items-center gap-5">
                     <div
@@ -355,7 +355,7 @@ export const RecurringPage = () => {
                           setPendingPostId(sub.id);
                           setIsPostConfirmOpen(true);
                         }}
-                        className="btn btn-primary bg-primary-500 text-white shadow-lg shadow-primary-500/20 px-6 py-2.5 rounded-xl flex items-center gap-2 active:scale-95 transition-all"
+                        className="btn btn-primary bg-primary-500 text-white shadow-lg  shadow-primary-500/20 px-6 py-2.5 rounded-xl flex items-center gap-2 active:scale-95 transition-all"
                       >
                         <Zap className="w-4 h-4" />
                         Post
@@ -526,8 +526,8 @@ export const RecurringPage = () => {
         <div className="space-y-6">
           {pendingPostId &&
             subscriptions.find((s) => s.id === pendingPostId) && (
-              <div className="flex items-center gap-4 p-4 bg-primary-50 dark:bg-primary-900/10 rounded-2xl border border-primary-100 dark:border-primary-900/20">
-                <div className="w-12 h-12 rounded-xl bg-primary-500 text-white flex items-center justify-center shadow-lg">
+              <div className="flex items-center gap-4 p-4 bg-primary-50 dark:bg-primary-900/10 rounded-xl border border-primary-100 dark:border-primary-900/20">
+                <div className="w-12 h-12 rounded-xl bg-primary-500 text-white flex items-center justify-center shadow-lg ">
                   <Zap className="w-6 h-6" />
                 </div>
                 <div>

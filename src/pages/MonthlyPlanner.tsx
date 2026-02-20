@@ -247,7 +247,7 @@ export const MonthlyPlanner = () => {
   };
 
   return (
-    <div className="space-y-8 animate-in slide-in-from-bottom-4 duration-700 pb-32">
+    <div className="space-y-6 animate-in slide-in-from-bottom-4 duration-700 pb-10">
       {/* Header Section */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
         <div>
@@ -263,7 +263,7 @@ export const MonthlyPlanner = () => {
           <MonthSelector value={selectedMonth} onChange={setSelectedMonth} />
           <button
             onClick={openAddModal}
-            className="btn bg-primary-500 dark:bg-white text-white dark:text-primary-500 hover:opacity-90 shadow-xl shadow-black/10"
+            className="btn bg-primary-500 dark:bg-white text-white dark:text-primary-500 hover:opacity-90 shadow-lg shadow-black/10"
           >
             <Plus className="w-5 h-5" />
             Add Item
@@ -276,7 +276,7 @@ export const MonthlyPlanner = () => {
           to="/buckets"
           className="block transform active:scale-[0.99] transition-transform"
         >
-          <div className="p-4 bg-amber-50 dark:bg-amber-900/10 rounded-2xl border border-amber-200 dark:border-amber-900/20 flex items-center gap-4 hover:bg-amber-100/50 dark:hover:bg-amber-900/20 transition-colors">
+          <div className="p-4 bg-amber-50 dark:bg-amber-900/10 rounded-xl border border-amber-200 dark:border-amber-900/20 flex items-center gap-4 hover:bg-amber-100/50 dark:hover:bg-amber-900/20 transition-colors">
             <div className="w-10 h-10 bg-amber-100 dark:bg-amber-900/20 rounded-xl flex items-center justify-center text-amber-600">
               <AlertCircle className="w-5 h-5" />
             </div>
@@ -297,7 +297,7 @@ export const MonthlyPlanner = () => {
 
       {/* Warning Alert */}
       {remainingToAllocate < 0 && (
-        <div className="p-4 bg-red-50 dark:bg-red-900/10 rounded-2xl border border-red-200 dark:border-red-900/20 flex items-center gap-4">
+        <div className="p-4 bg-red-50 dark:bg-red-900/10 rounded-xl border border-red-200 dark:border-red-900/20 flex items-center gap-4">
           <div className="w-10 h-10 bg-red-100 dark:bg-red-900/20 rounded-xl flex items-center justify-center text-red-600">
             <AlertCircle className="w-5 h-5" />
           </div>
@@ -313,7 +313,7 @@ export const MonthlyPlanner = () => {
         </div>
       )}
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Allocation Checklist Card */}
         <div className="lg:col-span-2 lg:order-last space-y-6">
           <Card
@@ -345,7 +345,7 @@ export const MonthlyPlanner = () => {
                 activeBudget.allocations.map((alloc) => (
                   <div
                     key={alloc.id}
-                    className={`group flex items-center justify-between p-5 rounded-3xl border-2 transition-all ${
+                    className={`group flex items-center justify-between p-5 rounded-xl border-2 transition-all ${
                       alloc.isCompleted
                         ? "bg-green-50/50 dark:bg-green-900/5 border-green-100 dark:border-green-900/20"
                         : "bg-white dark:bg-gray-900 border-gray-50 dark:border-gray-800"
@@ -356,7 +356,7 @@ export const MonthlyPlanner = () => {
                         onClick={() => handleToggleAllocation(alloc.id)}
                         className={`w-12 h-12 rounded-xl flex items-center justify-center transition-all ${
                           alloc.isCompleted
-                            ? "bg-green-500 text-white shadow-lg shadow-green-500/20"
+                            ? "bg-green-500 text-white shadow-lg  shadow-green-500/20"
                             : "bg-gray-100 dark:bg-gray-900 text-gray-400 hover:bg-primary-500 hover:text-white"
                         }`}
                       >
@@ -448,7 +448,7 @@ export const MonthlyPlanner = () => {
                       />
                       <button
                         onClick={handleSaveSalary}
-                        className="p-1 bg-white/20 rounded-lg"
+                        className="p-1 bg-white/20 rounded-xl"
                       >
                         <Check className="w-4 h-4" />
                       </button>
@@ -463,7 +463,7 @@ export const MonthlyPlanner = () => {
                           setIsEditingSalary(true);
                           setTempSalary(activeBudget.income.salary.toString());
                         }}
-                        className="p-1 hover:bg-white/10 rounded-lg text-white/50"
+                        className="p-1 hover:bg-white/10 rounded-xl text-white/50"
                       >
                         <Edit2 className="w-4 h-4" />
                       </button>
@@ -543,8 +543,8 @@ export const MonthlyPlanner = () => {
         title="Confirm Distribution"
       >
         <div className="space-y-6">
-          <div className="flex items-center gap-4 p-4 bg-primary-50 dark:bg-primary-900/10 rounded-2xl border border-primary-100 dark:border-primary-900/20">
-            <div className="w-12 h-12 rounded-xl bg-primary-500 text-white flex items-center justify-center shadow-lg">
+          <div className="flex items-center gap-4 p-4 bg-primary-50 dark:bg-primary-900/10 rounded-xl border border-primary-100 dark:border-primary-900/20">
+            <div className="w-12 h-12 rounded-xl bg-primary-500 text-white flex items-center justify-center shadow-lg ">
               <Banknote className="w-6 h-6" />
             </div>
             <div>

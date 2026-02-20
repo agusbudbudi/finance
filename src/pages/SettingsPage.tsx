@@ -87,7 +87,7 @@ export const SettingsPage = () => {
   };
 
   return (
-    <div className="space-y-8 animate-in fade-in duration-700 max-w-4xl">
+    <div className="space-y-6 animate-in fade-in duration-700 max-w-4xl">
       <div className="flex flex-col gap-2">
         <h1 className="text-4xl font-black text-gray-900 dark:text-white tracking-tight">
           System Settings
@@ -97,7 +97,7 @@ export const SettingsPage = () => {
         </p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Data Persistence Section */}
         <Card
           title="Data Portability"
@@ -105,7 +105,7 @@ export const SettingsPage = () => {
           className="md:col-span-2"
         >
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mt-6">
-            <div className="p-6 bg-gray-50 dark:bg-gray-900 rounded-[32px] border border-gray-100 dark:border-gray-800 space-y-4">
+            <div className="p-6 bg-gray-50 dark:bg-gray-900 rounded-xl border border-gray-100 dark:border-gray-800 space-y-4">
               <div className="w-12 h-12 rounded-xl bg-primary-50 dark:bg-primary-900/10 flex items-center justify-center text-primary-500 border border-primary-100 dark:border-primary-900/20">
                 <Download className="w-6 h-6" />
               </div>
@@ -121,7 +121,7 @@ export const SettingsPage = () => {
               <button
                 onClick={handleExport}
                 disabled={isExporting}
-                className="w-full py-3 bg-primary-500 hover:bg-primary-600 disabled:bg-primary-300 text-white rounded-2xl font-bold flex items-center justify-center gap-2 transition-all active:scale-95 shadow-lg shadow-primary-500/20"
+                className="w-full py-3 bg-primary-500 hover:bg-primary-600 disabled:bg-primary-300 text-white rounded-xl font-bold flex items-center justify-center gap-2 transition-all active:scale-95 shadow-lg  shadow-primary-500/20"
               >
                 {isExporting ? (
                   <RefreshCcw className="w-4 h-4 animate-spin" />
@@ -132,7 +132,7 @@ export const SettingsPage = () => {
               </button>
             </div>
 
-            <div className="p-6 bg-gray-50 dark:bg-gray-900 rounded-[32px] border border-gray-100 dark:border-gray-800 space-y-4">
+            <div className="p-6 bg-gray-50 dark:bg-gray-900 rounded-xl border border-gray-100 dark:border-gray-800 space-y-4">
               <div
                 className={`w-12 h-12 rounded-xl flex items-center justify-center border transition-colors ${
                   importStatus === "success"
@@ -159,7 +159,7 @@ export const SettingsPage = () => {
                   file.
                 </p>
               </div>
-              <label className="w-full py-3 bg-purple-500 hover:bg-purple-600 text-white rounded-2xl font-bold flex items-center justify-center gap-2 transition-all active:scale-95 shadow-lg shadow-purple-500/20 cursor-pointer">
+              <label className="w-full py-3 bg-purple-500 hover:bg-purple-600 text-white rounded-xl font-bold flex items-center justify-center gap-2 transition-all active:scale-95 shadow-lg  shadow-purple-500/20 cursor-pointer">
                 <Upload className="w-4 h-4" />
                 {importStatus === "success"
                   ? "Restored!"
@@ -185,7 +185,7 @@ export const SettingsPage = () => {
         {/* Security & System Section */}
         <Card title="System Integrity" variant="white">
           <div className="space-y-4 mt-4">
-            <div className="flex items-center justify-between p-4 rounded-3xl bg-amber-50 dark:bg-amber-900/10 border border-amber-100 dark:border-amber-900/20">
+            <div className="flex items-center justify-between p-4 rounded-xl bg-amber-50 dark:bg-amber-900/10 border border-amber-100 dark:border-amber-900/20">
               <div className="flex items-center gap-4">
                 <div className="w-10 h-10 rounded-xl bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center text-amber-600">
                   <ShieldCheck className="w-5 h-5" />
@@ -201,7 +201,7 @@ export const SettingsPage = () => {
               </div>
             </div>
 
-            <div className="flex items-center justify-between p-4 rounded-3xl bg-gray-50 dark:bg-gray-900/50 border border-gray-100 dark:border-gray-800">
+            <div className="flex items-center justify-between p-4 rounded-xl bg-gray-50 dark:bg-gray-900/50 border border-gray-100 dark:border-gray-800">
               <div className="flex items-center gap-4">
                 <div className="w-10 h-10 rounded-xl bg-gray-200 dark:bg-gray-800 flex items-center justify-center text-gray-500">
                   <Database className="w-5 h-5" />
@@ -228,7 +228,7 @@ export const SettingsPage = () => {
             </p>
             <button
               onClick={handleClearData}
-              className="w-full py-4 border-2 border-red-100 hover:bg-red-50 text-red-500 rounded-2xl font-black text-sm uppercase tracking-widest transition-all active:scale-95 flex items-center justify-center gap-2 group"
+              className="w-full py-4 border-2 border-red-100 hover:bg-red-50 text-red-500 rounded-xl font-black text-sm uppercase tracking-widest transition-all active:scale-95 flex items-center justify-center gap-2 group"
             >
               <Trash2 className="w-4 h-4 group-hover:shake" />
               Reset All System Data
@@ -237,9 +237,9 @@ export const SettingsPage = () => {
         </Card>
       </div>
 
-      <div className="p-8 bg-blue-600 rounded-[40px] text-white overflow-hidden relative group">
+      <div className="p-6 bg-blue-600 rounded-xl text-white overflow-hidden relative group">
         <div className="absolute -right-20 -top-20 w-64 h-64 bg-white/10 rounded-full blur-3xl group-hover:scale-110 transition-transform"></div>
-        <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-8">
+        <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-6">
           <div className="space-y-4">
             <div className="flex items-center gap-3">
               <div className="p-2 bg-white/20 rounded-xl">

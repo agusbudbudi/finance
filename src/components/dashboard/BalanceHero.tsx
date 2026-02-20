@@ -17,7 +17,7 @@ export const BalanceHero = ({
   return (
     <Card
       variant="blue"
-      className="relative overflow-hidden group border-none shadow-2xl rounded-[40px]"
+      className="relative overflow-hidden group border-none shadow-2xl rounded-xl"
       bodyClassName="px-8 py-12 md:py-12"
     >
       <div className="absolute -right-20 -top-20 w-64 h-64 bg-white/10 rounded-full blur-3xl group-hover:bg-white/20 transition-colors"></div>
@@ -32,9 +32,9 @@ export const BalanceHero = ({
         </h1>
         <div
           onClick={() => navigate("/buckets")}
-          className="flex items-center gap-3 px-6 py-3 bg-white/10 hover:bg-white/20 rounded-2xl border border-white/10 text-white transition-all cursor-pointer group/btn active:scale-95"
+          className="flex items-center gap-3 px-6 py-3 bg-white/10 hover:bg-white/20 rounded-xl border border-white/10 text-white transition-all cursor-pointer group/btn active:scale-95"
         >
-          <div className="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center text-white">
+          <div className="w-8 h-8 rounded-xl bg-white/20 flex items-center justify-center text-white">
             <Zap className="w-4 h-4" />
           </div>
           <span className="text-sm font-bold">

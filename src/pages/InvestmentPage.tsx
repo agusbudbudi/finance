@@ -58,9 +58,9 @@ export const InvestmentPage = () => {
     );
 
   return (
-    <div className="space-y-8 animate-in slide-in-from-bottom-4 duration-700 pb-20">
+    <div className="space-y-6 animate-in slide-in-from-bottom-4 duration-700 pb-10">
       {/* Header & Config Section */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 bg-gray-50 dark:bg-white/5 p-8 rounded-[40px] border border-gray-100 dark:border-white/10 backdrop-blur-xl">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 bg-gray-50 dark:bg-white/5 p-6 rounded-xl border border-gray-100 dark:border-white/10 backdrop-blur-xl">
         <div className="space-y-2">
           <div className="flex items-center gap-3">
             <div className="p-2 bg-primary-500 rounded-xl">
@@ -110,14 +110,14 @@ export const InvestmentPage = () => {
           </div>
           <button
             onClick={handleUpdateConfig}
-            className="p-4 bg-primary-500 hover:bg-primary-600 rounded-xl text-white shadow-xl shadow-primary-500/20 transition-all active:scale-95"
+            className="p-4 bg-primary-500 hover:bg-primary-600 rounded-xl text-white shadow-lg shadow-primary-500/20 transition-all active:scale-95"
           >
             <Settings2 className="w-5 h-5" />
           </button>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <Card className="hover:scale-[1.02] transition-transform duration-300 relative overflow-hidden group">
           <div className="absolute -right-4 -top-4 w-24 h-24 bg-primary-500/5 rounded-full blur-2xl group-hover:scale-150 transition-all"></div>
           <div className="flex items-center gap-4 mb-4">
@@ -269,7 +269,7 @@ export const InvestmentPage = () => {
       </Card>
 
       {/* Snapshot Section */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 pb-10">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pb-10">
         <Card title="Strategy Mechanics" variant="white">
           <div className="space-y-4">
             {[
@@ -297,7 +297,7 @@ export const InvestmentPage = () => {
             ].map((feature, idx) => (
               <div
                 key={idx}
-                className="flex items-center justify-between p-4 rounded-3xl border border-gray-50 dark:bg-gray-950/50 dark:border-gray-800"
+                className="flex items-center justify-between p-4 rounded-xl border border-gray-50 dark:bg-gray-950/50 dark:border-gray-800"
               >
                 <div className="flex items-center gap-4">
                   <div
@@ -318,7 +318,7 @@ export const InvestmentPage = () => {
         </Card>
 
         <Card title="Portfolio Growth" variant="white">
-          <div className="flex flex-col h-full bg-primary-500 rounded-3xl p-8 text-white relative overflow-hidden group">
+          <div className="flex flex-col h-full bg-primary-500 rounded-xl p-6 text-white relative overflow-hidden group">
             <div className="absolute -right-10 -top-10 w-40 h-40 bg-white/10 rounded-full blur-3xl group-hover:scale-125 transition-all"></div>
             <p className="text-[10px] font-black uppercase tracking-[0.2em] text-white/60 mb-2">
               Total Wealth Acceleration

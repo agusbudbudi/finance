@@ -66,7 +66,7 @@ export const DashboardMetricGrid = ({
       {metrics.map((w, i) => (
         <div
           key={i}
-          className={`relative group bg-white dark:bg-gray-900/50 backdrop-blur-xl border border-gray-100 dark:border-gray-800 rounded-[32px] p-6 flex items-center gap-5 transition-all duration-500 hover:shadow-2xl hover:shadow-black/5 hover:-translate-y-1`}
+          className={`relative group bg-white dark:bg-gray-900/50 backdrop-blur-xl border border-gray-100 dark:border-gray-800 rounded-xl p-6 flex items-center gap-5 transition-all duration-500 hover:shadow-2xl hover:shadow-black/5 hover:-translate-y-1`}
         >
           <div
             className={`absolute -right-2 -bottom-2 w-16 h-16 ${w.glow} rounded-full blur-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-700`}

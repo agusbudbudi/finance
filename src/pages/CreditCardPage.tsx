@@ -106,7 +106,7 @@ export const CreditCardPage = () => {
   };
 
   return (
-    <div className="space-y-8 animate-in slide-in-from-right-4 duration-700">
+    <div className="space-y-6 animate-in slide-in-from-right-4 duration-700">
       {!card ? (
         <EmptyState
           icon={CardIcon}
@@ -136,14 +136,14 @@ export const CreditCardPage = () => {
             <div className="flex gap-3">
               <button
                 onClick={() => setIsProfileModalOpen(true)}
-                className="btn bg-primary-50 dark:bg-white/10 text-primary-600 dark:text-white hover:bg-primary-100 dark:hover:bg-white/20 shadow-lg border border-primary-100 dark:border-white/10"
+                className="btn bg-primary-50 dark:bg-white/10 text-primary-600 dark:text-white hover:bg-primary-100 dark:hover:bg-white/20 shadow-lg  border border-primary-100 dark:border-white/10"
               >
                 <Edit2 className="w-4 h-4" />
                 Edit Profile
               </button>
               <button
                 onClick={() => setIsUsageModalOpen(true)}
-                className="btn bg-primary-500 dark:bg-white text-white dark:text-primary-500 hover:opacity-90 shadow-lg shadow-black/10"
+                className="btn bg-primary-500 dark:bg-white text-white dark:text-primary-500 hover:opacity-90 shadow-lg  shadow-black/10"
               >
                 <Zap className="w-4 h-4" />
                 Input Usage
@@ -151,21 +151,21 @@ export const CreditCardPage = () => {
             </div>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            <div className="lg:col-span-2 space-y-8">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div className="lg:col-span-2 space-y-6">
               <Card
                 key={card.id}
                 className="p-0 border-none overflow-hidden hover:shadow-2xl transition-all duration-500"
               >
                 {/* Modern Card Visual */}
-                <div className="relative h-64 bg-gradient-to-br from-gray-900 to-black p-8 flex flex-col justify-between group overflow-hidden rounded-2xl">
+                <div className="relative h-64 bg-gradient-to-br from-gray-900 to-black p-6 flex flex-col justify-between group overflow-hidden rounded-xl">
                   <div className="absolute top-0 right-0 w-96 h-96 bg-primary-500/20 rounded-full blur-3xl -mr-20 -mt-20 group-hover:scale-125 transition-transform duration-1000"></div>
                   <div className="absolute bottom-0 left-0 w-64 h-64 bg-blue-500/10 rounded-full blur-3xl -ml-20 -mb-20"></div>
 
                   <div className="relative z-10 flex justify-between items-start">
                     <div className="flex items-center gap-3">
                       <div className="w-10 h-6 bg-white/20 rounded-md backdrop-blur-sm border border-white/20"></div>
-                      <span className="text-white text-xs font-black uppercase tracking-widest bg-primary-500 px-3 py-1 rounded-full shadow-lg">
+                      <span className="text-white text-xs font-black uppercase tracking-widest bg-primary-500 px-3 py-1 rounded-full shadow-lg ">
                         {card.bank.toUpperCase()}
                       </span>
                     </div>
@@ -187,7 +187,7 @@ export const CreditCardPage = () => {
                   </div>
 
                   <div className="relative z-10 flex justify-between items-end">
-                    <div className="flex gap-8">
+                    <div className="flex gap-6">
                       <div>
                         <p className="text-white/30 text-[8px] font-black uppercase mb-1 whitespace-nowrap">
                           Statement Date
@@ -214,8 +214,8 @@ export const CreditCardPage = () => {
                   </div>
                 </div>
 
-                <div className="p-8 bg-white dark:bg-gray-900 text-gray-900">
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-8 py-4">
+                <div className="p-6 bg-white dark:bg-gray-900 text-gray-900">
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6 py-4">
                     <div className="space-y-1">
                       <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">
                         Current Cycle Usage
@@ -320,9 +320,9 @@ export const CreditCardPage = () => {
                           return (
                             <div
                               key={stmt.id}
-                              className={`flex items-center justify-between p-5 rounded-3xl group transition-all border ${
+                              className={`flex items-center justify-between p-5 rounded-xl group transition-all border ${
                                 isNear
-                                  ? "bg-red-50 dark:bg-red-900/5 border-red-100 dark:border-red-900/20 shadow-lg shadow-red-500/5"
+                                  ? "bg-red-50 dark:bg-red-900/5 border-red-100 dark:border-red-900/20 shadow-lg  shadow-red-500/5"
                                   : "bg-gray-50 dark:bg-gray-950 border-transparent hover:bg-gray-100 dark:hover:bg-gray-900"
                               }`}
                             >
@@ -394,7 +394,7 @@ export const CreditCardPage = () => {
               </Card>
             </div>
 
-            <div className="space-y-8">
+            <div className="space-y-6">
               <Card title="Billing Config" variant="white">
                 <div className="space-y-6">
                   <div className="flex gap-4 p-5 bg-amber-50 dark:bg-amber-900/10 rounded-xl border border-amber-100 dark:border-amber-900/20">

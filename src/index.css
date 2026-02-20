@@ -44,15 +44,15 @@ body {
 
 @layer components {
   .card {
-    @apply bg-white dark:bg-gray-900 rounded-3xl shadow-sm border border-gray-100 dark:border-gray-800 overflow-hidden;
+    @apply bg-white dark:bg-gray-900 rounded-xl shadow-sm border border-gray-100 dark:border-gray-800 overflow-hidden;
   }
 
   .glass-card {
-    @apply bg-white/80 dark:bg-gray-900/80 backdrop-blur-md rounded-3xl border border-white/20 dark:border-white/5 shadow-lg;
+    @apply bg-white/80 dark:bg-gray-900/80 backdrop-blur-md rounded-xl border border-white/20 dark:border-white/5 shadow-lg ;
   }
 
   .btn {
-    @apply px-6 py-3 rounded-2xl font-semibold transition-all duration-200 active:scale-95 flex items-center justify-center gap-2;
+    @apply px-6 py-3 rounded-xl font-semibold transition-all duration-200 active:scale-95 flex items-center justify-center gap-2;
   }
 
   .btn-pill {
@@ -60,7 +60,7 @@ body {
   }
 
   .btn-primary {
-    @apply bg-primary-500 hover:bg-primary-600 text-white shadow-lg shadow-primary-500/20;
+    @apply bg-primary-500 hover:bg-primary-600 text-white shadow-lg  shadow-primary-500/20;
   }
 
   .btn-secondary {

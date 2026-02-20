@@ -15,25 +15,25 @@ export const Card = ({
   title,
   subtitle,
   className = "",
-  bodyClassName = "px-6 py-6",
+  bodyClassName = "p-5",
   action,
   variant = "white",
 }: CardProps) => {
   const variantClasses = {
     white:
-      "bg-white dark:bg-gray-900 border-gray-100 dark:border-gray-800 shadow-xl shadow-black/2",
+      "bg-white dark:bg-gray-900 border-gray-100 dark:border-gray-800 shadow-lg shadow-black/2",
     glass:
-      "bg-white/10 dark:bg-black/20 backdrop-blur-lg border-white/20 text-white shadow-xl shadow-black/2",
-    blue: "bg-primary-500 border-primary-400 text-white shadow-xl shadow-primary-500/20",
+      "bg-white/10 dark:bg-black/20 backdrop-blur-lg border-white/20 text-white shadow-lg shadow-black/2",
+    blue: "bg-primary-500 border-primary-400 text-white shadow-lg shadow-primary-500/20",
   };
 
   return (
     <div
-      className={`rounded-2xl border transition-all duration-300 ${variantClasses[variant]} ${className}`}
+      className={`rounded-xl border transition-all duration-300 ${variantClasses[variant]} ${className}`}
     >
       {(title || subtitle || action) && (
         <div
-          className={`px-6 py-5 flex justify-between items-center ${variant === "glass" ? "border-b border-white/10" : "border-b border-gray-50 dark:border-gray-800"}`}
+          className={`px-6 py-4 flex justify-between items-center ${variant === "glass" ? "border-b border-white/10" : "border-b border-gray-50 dark:border-gray-800"}`}
         >
           <div>
             {title && (
