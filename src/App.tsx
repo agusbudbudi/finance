@@ -13,7 +13,7 @@ import "./index.css";
 
 function App() {
   return (
-    <BrowserRouter basename={import.meta.env.BASE_URL}>
+    <BrowserRouter>
       <Routes>
         <Route path="/" element={<AppLayout />}>
           <Route index element={<Navigate to="dashboard" replace />} />
