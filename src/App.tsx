@@ -12,14 +12,11 @@ import { SettingsPage } from "./pages/SettingsPage";
 import "./index.css";
 
 function App() {
-  // Normalize basename: ensures no trailing slash unless it's just "/"
-  const basename = import.meta.env.BASE_URL.replace(/\/$/, "") || "/";
-
   return (
-    <BrowserRouter basename={basename}>
+    <BrowserRouter basename={import.meta.env.BASE_URL}>
       <Routes>
         <Route path="/" element={<AppLayout />}>
-          <Route index element={<Navigate to="/dashboard" replace />} />
+          <Route index element={<Navigate to="dashboard" replace />} />
           <Route path="dashboard" element={<Dashboard />} />
           <Route path="planner" element={<MonthlyPlanner />} />
           <Route path="credit-card" element={<CreditCardPage />} />
