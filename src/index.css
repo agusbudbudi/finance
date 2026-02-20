@@ -1,0 +1,96 @@
+@import "tailwindcss";
+@variant dark (&:where(.dark, .dark *));
+
+@theme {
+  --color-primary-50: #f5f8ff;
+  --color-primary-100: #ebf1ff;
+  --color-primary-200: #d6e3ff;
+  --color-primary-300: #adc6ff;
+  --color-primary-400: #85a9ff;
+  --color-primary-500: #3069fe; /* Modern Vibrant Blue */
+  --color-primary-600: #2655cc;
+  --color-primary-700: #1c3e99;
+  --color-primary-800: #122a66;
+  --color-primary-900: #091533;
+
+  --radius-xl: 1rem;
+  --radius-2xl: 1.5rem;
+  --radius-3xl: 2rem;
+  --radius-4xl: 2.5rem;
+}
+
+:root {
+  font-size: 15px;
+  font-family:
+    "Inter",
+    system-ui,
+    -apple-system,
+    sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  @apply bg-gray-50 dark:bg-gray-950 text-gray-900 dark:text-gray-100 antialiased;
+}
+
+@layer base {
+  * {
+    @apply border-gray-200 dark:border-gray-800;
+  }
+}
+
+@layer components {
+  .card {
+    @apply bg-white dark:bg-gray-900 rounded-3xl shadow-sm border border-gray-100 dark:border-gray-800 overflow-hidden;
+  }
+
+  .glass-card {
+    @apply bg-white/80 dark:bg-gray-900/80 backdrop-blur-md rounded-3xl border border-white/20 dark:border-white/5 shadow-lg;
+  }
+
+  .btn {
+    @apply px-6 py-3 rounded-2xl font-semibold transition-all duration-200 active:scale-95 flex items-center justify-center gap-2;
+  }
+
+  .btn-pill {
+    @apply px-4 py-1.5 rounded-full text-sm font-medium transition-all;
+  }
+
+  .btn-primary {
+    @apply bg-primary-500 hover:bg-primary-600 text-white shadow-lg shadow-primary-500/20;
+  }
+
+  .btn-secondary {
+    @apply bg-white dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-900 dark:text-white border border-gray-100 dark:border-gray-700;
+  }
+
+  .input {
+    @apply w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all;
+  }
+
+  .pill-nav {
+    @apply flex items-center bg-gray-100 dark:bg-gray-800 rounded-full p-1;
+  }
+
+  .pill-nav-item {
+    @apply px-4 py-2 rounded-full text-sm font-medium transition-all;
+  }
+
+  .pill-nav-item.active {
+    @apply bg-white dark:bg-gray-700 text-primary-500 dark:text-primary-400 shadow-sm;
+  }
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  @apply bg-transparent;
+}
+::-webkit-scrollbar-thumb {
+  @apply bg-gray-200 dark:bg-gray-800 rounded-full hover:bg-gray-300 dark:hover:bg-gray-700;
+}
