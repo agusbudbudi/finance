@@ -23,7 +23,7 @@ export const SystemInsightCards = ({
   profile,
 }: SystemInsightCardsProps) => {
   return (
-    <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+    <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
       <div className="md:col-span-1 flex flex-col justify-center px-2">
         <h3 className="text-2xl font-black text-gray-900 dark:text-white uppercase tracking-tighter leading-none">
           System Insights
@@ -70,7 +70,8 @@ export const SystemInsightCards = ({
           </p>
           <p className="text-[9px] font-bold text-primary-500 uppercase mt-1.5 flex items-center gap-1">
             <span className="w-1 h-1 bg-primary-500 rounded-full"></span>
-            {profile?.salaryBank} • Day {profile?.salaryDay}
+            {profile?.salaryBank && <span>{profile.salaryBank} • </span>}
+            {profile?.salaryDay ? `Day ${profile.salaryDay}` : "Transfer Schedule"}
           </p>
         </div>
       </Card>

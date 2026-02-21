@@ -21,6 +21,9 @@
 
 :root {
   font-size: 15px;
+  @media (max-width: 768px) {
+    font-size: 14px;
+  }
   font-family:
     "Inter",
     system-ui,
@@ -30,15 +33,33 @@
   font-weight: 400;
 }
 
+html, body {
+  height: 100dvh;
+  overflow: hidden;
+}
+
 body {
   margin: 0;
-  min-height: 100vh;
   @apply bg-gray-50 dark:bg-gray-950 text-gray-900 dark:text-gray-100 antialiased;
 }
 
 @layer base {
   * {
     @apply border-gray-200 dark:border-gray-800;
+  }
+
+  input, select, textarea {
+    font-size: 16px;
+  }
+
+  button, 
+  select, 
+  label, 
+  input[type="range"], 
+  input[type="checkbox"], 
+  input[type="radio"], 
+  [role="button"] {
+    cursor: pointer;
   }
 }
 
@@ -52,7 +73,7 @@ body {
   }
 
   .btn {
-    @apply px-6 py-3 rounded-xl font-semibold transition-all duration-200 active:scale-95 flex items-center justify-center gap-2;
+    @apply px-4 py-3 md:px-6 md:py-3 rounded-xl font-semibold transition-all duration-200 active:scale-95 flex items-center justify-center gap-2;
   }
 
   .btn-pill {
@@ -68,7 +89,7 @@ body {
   }
 
   .input {
-    @apply w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all;
+    @apply w-full px-3 py-2.5 md:px-4 md:py-3 rounded-xl border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all;
   }
 
   .pill-nav {

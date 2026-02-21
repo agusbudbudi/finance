@@ -3,6 +3,7 @@ import { Expense, ExpenseStore } from "../types/expense";
 import { StorageService } from "../services/storage/storageService";
 import { useAccountsStore } from "./useAccountsStore";
 import { useCreditCardStore } from "./useCreditCardStore";
+import { useBudgetStore } from "./useBudgetStore";
 
 export const useExpenseStore = create<ExpenseStore>((set, get) => ({
   expenses: StorageService.get<Expense[]>("expenses") || [],
@@ -11,6 +12,11 @@ export const useExpenseStore = create<ExpenseStore>((set, get) => ({
     const updated = [expense, ...get().expenses];
     StorageService.set("expenses", updated);
     set({ expenses: updated });
+
+    // Sync with budget
+    const month = expense.date.slice(0, 7);
+    const monthExpenses = updated.filter(e => e.date.startsWith(month));
+    useBudgetStore.getState().syncExpenses(month, monthExpenses);
 
     // Auto-deduct balance logic
     if (expense.accountType === "bank") {
@@ -34,13 +40,19 @@ export const useExpenseStore = create<ExpenseStore>((set, get) => ({
   },
 
   updateExpense: (id: string, updates: Partial<Expense>) => {
-    // Note: Re-calculating full balance on edit is complex for MVP.
-    // We update the record; for balance correction, delete and re-add is standard for simple trackers.
     const updated = get().expenses.map((e) =>
       e.id === id ? { ...e, ...updates } : e,
     );
     StorageService.set("expenses", updated);
     set({ expenses: updated });
+
+    // Sync with budget
+    const expense = updated.find(e => e.id === id);
+    if (expense) {
+      const month = expense.date.slice(0, 7);
+      const monthExpenses = updated.filter(e => e.date.startsWith(month));
+      useBudgetStore.getState().syncExpenses(month, monthExpenses);
+    }
   },
 
   deleteExpense: (id: string) => {
@@ -50,6 +62,11 @@ export const useExpenseStore = create<ExpenseStore>((set, get) => ({
     const updated = get().expenses.filter((e) => e.id !== id);
     StorageService.set("expenses", updated);
     set({ expenses: updated });
+
+    // Sync with budget
+    const month = expense.date.slice(0, 7);
+    const monthExpenses = updated.filter(e => e.date.startsWith(month));
+    useBudgetStore.getState().syncExpenses(month, monthExpenses);
 
     // Revert balance deduction (Refund)
     if (expense.accountType === "bank") {

@@ -4,11 +4,12 @@ import { useProfileStore } from "../stores/useProfileStore";
 import { Card } from "../components/common/Card";
 import { Modal } from "../components/common/Modal";
 import { EmptyState } from "../components/common/EmptyState";
+import { SelectInput } from "../components/common/SelectInput";
+import { CurrencyInput } from "../components/common/CurrencyInput";
+import { RowActions } from "../components/common/RowActions";
 import { formatCurrency } from "../utils/formatters";
 import {
   Plus,
-  Trash2,
-  Edit2,
   Wallet,
   Smartphone,
   Banknote,
@@ -95,6 +96,19 @@ export const BucketPortfolioPage = () => {
     return totalBalance / profile.monthlySalary;
   }, [totalBalance, profile]);
 
+  const bucketStats = useMemo(() => {
+    const activeAccounts = accounts.filter(acc => acc.isActive);
+    const avgBalance = activeAccounts.length > 0 ? totalBalance / activeAccounts.length : 0;
+    
+    const primaryAccount = activeAccounts.find(acc => acc.isSalaryAccount);
+    
+    return {
+      count: activeAccounts.length,
+      avgBalance,
+      primaryAccount
+    };
+  }, [accounts, totalBalance]);
+
   const handleEdit = (account: Account) => {
     setEditingAccountId(account.id);
     setFormData({
@@ -159,10 +173,10 @@ export const BucketPortfolioPage = () => {
   };
 
   return (
-    <div className="space-y-6 animate-in fade-in duration-700 pb-10">
+    <div className="space-y-6 animate-in fade-in duration-700 pb-28 md:pb-10">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 mb-6">
         <div>
-          <h2 className="text-3xl font-black text-gray-900 dark:text-white tracking-tight">
+          <h2 className="text-2xl md:text-3xl font-black text-gray-900 dark:text-white tracking-tight">
             Liquid Assets
           </h2>
           <p className="text-gray-500 dark:text-white/70 font-medium">
@@ -170,7 +184,7 @@ export const BucketPortfolioPage = () => {
           </p>
         </div>
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 w-full md:w-auto">
-          <div className="bg-white dark:bg-gray-800/50 backdrop-blur-md px-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700/50 flex items-center gap-3 focus-within:ring-2 focus-within:ring-primary-500/20 transition-all w-full md:w-72 group shadow-sm">
+          <div className="bg-white dark:bg-gray-800/50 backdrop-blur-md px-4 py-3.5 md:py-2.5 rounded-xl border border-gray-200 dark:border-gray-700/50 flex items-center gap-3 focus-within:ring-2 focus-within:ring-primary-500/20 transition-all w-full md:w-72 group shadow-sm">
             <Search className="w-4 h-4 text-gray-400 dark:text-white/50 group-focus-within:text-primary-500 dark:group-focus-within:text-white transition-colors" />
             <input
               type="text"
@@ -193,7 +207,7 @@ export const BucketPortfolioPage = () => {
               });
               setIsModalOpen(true);
             }}
-            className="btn bg-primary-500 dark:bg-white text-white dark:text-primary-500 hover:opacity-90 shadow-2xl shadow-primary-500/30 ring-4 ring-primary-500/10 whitespace-nowrap"
+            className="hidden md:flex btn bg-primary-500 dark:bg-white text-white dark:text-primary-500 hover:opacity-90 shadow-2xl shadow-primary-500/30 ring-4 ring-primary-500/10 whitespace-nowrap"
           >
             <Plus className="w-5 h-5" />
             Add New Account
@@ -228,7 +242,7 @@ export const BucketPortfolioPage = () => {
             <div className="absolute -right-4 -bottom-4 w-48 h-48 bg-white/10 rounded-full blur-3xl group-hover:scale-110 transition-transform duration-1000"></div>
             <div className="absolute -left-4 -top-4 w-24 h-24 bg-primary-400/20 rounded-full blur-2xl"></div>
 
-            <div className="relative z-10 space-y-8 text-white">
+            <div className="relative z-10 space-y-6 text-white">
               <div>
                 <p className="text-white/60 text-[10px] font-black uppercase tracking-widest mb-2 flex items-center gap-2">
                   <span className="w-1 h-1 bg-white/60 rounded-full"></span>
@@ -238,10 +252,10 @@ export const BucketPortfolioPage = () => {
                   <h3
                     className={`font-black tracking-tight drop-shadow-sm transition-all duration-300 ${
                       formatCurrency(totalBalance).length > 16
-                        ? "text-2xl"
+                        ? "text-xl md:text-2xl"
                         : formatCurrency(totalBalance).length > 12
-                          ? "text-3xl"
-                          : "text-4xl"
+                          ? "text-2xl md:text-3xl"
+                          : "text-3xl md:text-4xl"
                     }`}
                   >
                     {formatCurrency(totalBalance)}
@@ -249,26 +263,36 @@ export const BucketPortfolioPage = () => {
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-4 pt-6 border-t border-white/20">
-                <div>
-                  <p className="text-white/60 text-[10px] font-black uppercase tracking-widest mb-1">
-                    Buckets
-                  </p>
-                  <p className="text-2xl font-black text-white flex items-center gap-2">
-                    {accounts.length}
-                    <CheckCircle2 className="w-4 h-4 text-primary-300" />
-                  </p>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="bg-white/10 backdrop-blur-md rounded-xl p-3">
+                  <p className="text-white/50 text-[8px] font-black uppercase tracking-wider mb-1">Buckets</p>
+                  <p className="text-lg font-black">{bucketStats.count}</p>
                 </div>
-                <div>
-                  <p className="text-white/60 text-[10px] font-black uppercase tracking-widest mb-1">
-                    Runway
-                  </p>
-                  <p className="text-2xl font-black text-white">
-                    {runwayMonths.toFixed(1)}{" "}
-                    <span className="text-xs font-bold opacity-40 uppercase">
-                      Mo
-                    </span>
-                  </p>
+                <div className="bg-white/10 backdrop-blur-md rounded-xl p-3">
+                  <p className="text-white/50 text-[8px] font-black uppercase tracking-wider mb-1">Avg / Bucket</p>
+                  <p className="text-lg font-black">{formatCurrency(bucketStats.avgBalance)}</p>
+                </div>
+              </div>
+
+              <div className="pt-4 border-t border-white/10 space-y-3">
+                <div className="flex justify-between items-end">
+                  <div className="space-y-1">
+                    <p className="text-white/50 text-[8px] font-black uppercase tracking-wider">Runway Estimate</p>
+                    <p className="text-xl font-black">{runwayMonths.toFixed(1)} <span className="text-[10px] opacity-40">Months</span></p>
+                  </div>
+                  <TrendingUp className="w-5 h-5 text-white/30" />
+                </div>
+                
+                <div className="flex items-center gap-2 pt-1">
+                  {bucketStats.primaryAccount ? (
+                    <div className="px-2 py-0.5 bg-white/10 rounded text-[9px] font-bold text-white/70">
+                      Primary: {bucketStats.primaryAccount.bank}
+                    </div>
+                  ) : (
+                    <div className="px-2 py-0.5 bg-amber-500/20 text-amber-200 border border-amber-500/30 rounded text-[9px] font-bold">
+                      No Salary Account Set
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
@@ -327,10 +351,10 @@ export const BucketPortfolioPage = () => {
               {filteredAccounts.map((account) => (
                 <Card
                   key={account.id}
-                  bodyClassName="p-6"
-                  className="group relative hover:border-primary-400/50 hover:shadow-lg transition-all duration-300 border-2"
+                  bodyClassName="p-4 md:p-6"
+                  className="group relative hover:border-primary-400/50 hover:shadow-lg transition-all duration-300 border border-gray-100 dark:border-gray-800"
                 >
-                  <div className="flex justify-between items-center">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                     <div className="flex items-center gap-4">
                       <div
                         className={`w-12 h-12 rounded-xl flex items-center justify-center shadow-inner transition-transform duration-500 group-hover:scale-105 ${
@@ -364,25 +388,15 @@ export const BucketPortfolioPage = () => {
                       </div>
                     </div>
 
-                    <div className="flex items-center gap-6">
+                    <div className="flex items-center justify-between sm:justify-end gap-4 md:gap-6 border-t sm:border-t-0 border-gray-50 dark:border-gray-800 pt-3 sm:pt-0">
                       <p className="text-xl font-black text-gray-900 dark:text-white leading-none tracking-tight">
                         {formatCurrency(account.balance)}
                       </p>
-
-                      <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-all duration-300">
-                        <button
-                          onClick={() => handleEdit(account)}
-                          className="p-2 hover:bg-primary-50 dark:hover:bg-primary-900/20 rounded-xl text-gray-400 hover:text-primary-500 transition-all"
-                        >
-                          <Edit2 className="w-4 h-4" />
-                        </button>
-                        <button
-                          onClick={() => deleteAccount(account.id)}
-                          className="p-2 hover:bg-red-50 dark:hover:bg-red-900/10 rounded-xl text-gray-300 hover:text-red-500 transition-all"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
-                      </div>
+                      
+                      <RowActions
+                        onEdit={() => handleEdit(account)}
+                        onDelete={() => deleteAccount(account.id)}
+                      />
                     </div>
                   </div>
                 </Card>
@@ -457,7 +471,7 @@ export const BucketPortfolioPage = () => {
               <label className="block text-[10px] font-black text-gray-400 uppercase mb-2 tracking-widest ml-1">
                 Type
               </label>
-              <select
+              <SelectInput
                 value={formData.type}
                 onChange={(e) =>
                   setFormData({
@@ -465,20 +479,20 @@ export const BucketPortfolioPage = () => {
                     type: e.target.value as AccountType,
                   })
                 }
-                className="w-full px-4 py-3 rounded-xl border-2 border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-900 dark:text-white font-bold focus:border-primary-500 outline-none transition-all"
+                className="px-4 py-3 rounded-xl border-2 border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-900 dark:text-white font-bold focus:border-primary-500 outline-none transition-all"
               >
                 {ACCOUNT_TYPES.map((t) => (
                   <option key={t.value} value={t.value}>
                     {t.label}
                   </option>
                 ))}
-              </select>
+              </SelectInput>
             </div>
             <div>
               <label className="block text-[10px] font-black text-gray-400 uppercase mb-2 tracking-widest ml-1">
                 Purpose
               </label>
-              <select
+              <SelectInput
                 value={formData.purpose}
                 onChange={(e) =>
                   setFormData({
@@ -486,30 +500,29 @@ export const BucketPortfolioPage = () => {
                     purpose: e.target.value as AccountPurpose,
                   })
                 }
-                className="w-full px-4 py-3 rounded-xl border-2 border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-900 dark:text-white font-bold focus:border-primary-500 outline-none transition-all"
+                className="px-4 py-3 rounded-xl border-2 border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-900 dark:text-white font-bold focus:border-primary-500 outline-none transition-all"
               >
                 {PURPOSES.map((p) => (
                   <option key={p.value} value={p.value}>
                     {p.label}
                   </option>
                 ))}
-              </select>
+              </SelectInput>
             </div>
           </div>
 
           <div>
             <label className="block text-[10px] font-black text-gray-400 uppercase mb-2 tracking-widest ml-1">
-              Current Balance (IDR)
+              Current Balance
             </label>
-            <input
-              type="number"
+            <CurrencyInput
               required
               value={formData.balance}
-              onChange={(e) =>
-                setFormData({ ...formData, balance: e.target.value })
+              onChange={(val) =>
+                setFormData({ ...formData, balance: val })
               }
-              className="w-full px-4 py-3 rounded-xl border-2 border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-900 dark:text-white font-bold focus:border-primary-500 outline-none transition-all"
-              placeholder="0"
+              className="w-full px-4 py-3 rounded-xl border-2 border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-900 dark:text-white font-bold focus:border-primary-500 outline-none transition-all font-sans"
+              placeholder="Rp 0"
             />
           </div>
 
@@ -555,6 +568,28 @@ export const BucketPortfolioPage = () => {
           </div>
         </form>
       </Modal>
+ 
+      {/* Sticky Mobile Button */}
+      <div className="md:hidden fixed bottom-0 left-0 right-0 p-4 bg-white/80 dark:bg-gray-900/80 backdrop-blur-lg border-t border-gray-100 dark:border-gray-800 z-40">
+        <button
+          onClick={() => {
+            setEditingAccountId(null);
+            setFormData({
+              name: "",
+              bank: "",
+              type: "savings",
+              purpose: "salary_savings",
+              balance: "",
+              isSalaryAccount: false,
+            });
+            setIsModalOpen(true);
+          }}
+          className="btn w-full bg-primary-500 dark:bg-white text-white dark:text-primary-500 shadow-xl shadow-primary-500/20 py-4 font-black"
+        >
+          <Plus className="w-5 h-5" />
+          Add New Account
+        </button>
+      </div>
     </div>
   );
 };

@@ -127,12 +127,20 @@ export class StorageService {
   /**
    * Clear all app data
    */
-  static clearAll(): void {
+  static async clearAll(): Promise<void> {
     Object.keys(localStorage).forEach((key) => {
       if (key.startsWith(this.STORAGE_PREFIX)) {
         localStorage.removeItem(key);
       }
     });
+
+    // Clear session cache
+    this.sessionCache = {};
+
+    // Clear cloud storage
+    await SupabaseStorageService.clearAll().catch((err) =>
+      console.error("Failed to clear cloud storage:", err),
+    );
   }
 
   /**

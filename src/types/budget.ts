@@ -12,6 +12,7 @@ export type AllocationCategory =
 
 export interface Allocation {
   id: string;
+  name: string;
   category: AllocationCategory;
   amount: number;
   toAccount: string;
@@ -65,4 +66,6 @@ export interface BudgetStore {
     sourceMonth: string,
     targetMonth: string,
   ) => void;
+  syncExpenses: (month: string, expenses: any[]) => void;
+  syncFreelanceIncome: (month: string, amount: number) => void;
 }

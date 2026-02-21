@@ -18,7 +18,7 @@ export const BalanceHero = ({
     <Card
       variant="blue"
       className="relative overflow-hidden group border-none shadow-2xl rounded-xl"
-      bodyClassName="px-8 py-12 md:py-12"
+      bodyClassName="px-8 py-8 md:py-12"
     >
       <div className="absolute -right-20 -top-20 w-64 h-64 bg-white/10 rounded-full blur-3xl group-hover:bg-white/20 transition-colors"></div>
       <div className="absolute -left-20 -bottom-20 w-64 h-64 bg-white/10 rounded-full blur-3xl group-hover:bg-white/20 transition-colors"></div>
@@ -27,7 +27,7 @@ export const BalanceHero = ({
         <p className="text-white/60 font-black uppercase tracking-[0.2em] text-[10px] mb-4">
           Total Combined Balance
         </p>
-        <h1 className="text-5xl md:text-7xl font-black text-white tracking-tight mb-8">
+        <h1 className="text-4xl md:text-7xl font-black text-white tracking-tight mb-8">
           {formatCurrency(totalBalance).replace("Rp", "Rp ")}
         </h1>
         <div

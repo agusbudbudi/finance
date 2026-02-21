@@ -58,7 +58,7 @@ export class BudgetCalculator {
    */
   static generateDefaultAllocations(
     salary: number,
-    familyAmount: number = 1000000,
+    familyAmount: number = 0,
   ): Allocation[] {
     return [
       {
@@ -123,12 +123,18 @@ export class BudgetCalculator {
   /**
    * Calculate budget summary
    */
-  static calculateSummary(budget: MonthlyBudget): MonthlyBudget["summary"] {
+  static calculateSummary(
+    budget: MonthlyBudget,
+    totalSpentOverride?: number,
+  ): MonthlyBudget["summary"] {
     const totalAllocated = this.getTotalAllocated(budget.allocations);
-    const totalSpent = Object.values(budget.expenses).reduce(
-      (sum, expense) => sum + expense.spent,
-      0,
-    );
+    const totalSpent =
+      totalSpentOverride !== undefined
+        ? totalSpentOverride
+        : Object.values(budget.expenses).reduce(
+            (sum, expense) => sum + expense.spent,
+            0,
+          );
 
     return {
       totalIncome: budget.income.total,

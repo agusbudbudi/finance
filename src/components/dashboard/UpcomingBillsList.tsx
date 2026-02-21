@@ -30,7 +30,7 @@ export const UpcomingBillsList = ({
           unpostedRecurring.slice(0, 5).map((sub) => (
             <div
               key={sub.id}
-              className="flex items-center justify-between group cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800/50 p-4 -mx-2 rounded-xl transition-all"
+              className="flex items-center justify-between group cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800/50 p-3 md:p-4 -mx-1 md:-mx-2 rounded-xl transition-all"
               onClick={() => navigate("/recurring")}
             >
               <div className="flex items-center gap-3">

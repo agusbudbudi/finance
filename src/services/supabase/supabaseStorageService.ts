@@ -81,6 +81,19 @@ export class SupabaseStorageService {
   }
 
   /**
+   * Clear all data for the current user from Supabase
+   */
+  static async clearAll(): Promise<void> {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return;
+    const { error } = await supabase
+      .from(this.TABLE_NAME)
+      .delete()
+      .eq("user_id", user.id);
+    if (error) console.error("Error clearing all data from Supabase:", error);
+  }
+
+  /**
    * Sync LocalStorage to Supabase (Initial Migration)
    */
   static async syncFromLocal(password: string, localData: Record<string, any>): Promise<void> {

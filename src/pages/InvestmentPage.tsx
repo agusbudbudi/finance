@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useInvestmentStore } from "../stores/useInvestmentStore";
 import { Card } from "../components/common/Card";
+import { CurrencyInput } from "../components/common/CurrencyInput";
 import { formatCurrency, formatPercentage } from "../utils/formatters";
 import {
   TrendingUp,
@@ -60,7 +61,7 @@ export const InvestmentPage = () => {
   return (
     <div className="space-y-6 animate-in slide-in-from-bottom-4 duration-700 pb-10">
       {/* Header & Config Section */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 bg-gray-50 dark:bg-white/5 p-6 rounded-xl border border-gray-100 dark:border-white/10 backdrop-blur-xl">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4 bg-white dark:bg-gray-900 p-5 md:p-6 rounded-2xl dark:border-gray-800">
         <div className="space-y-2">
           <div className="flex items-center gap-3">
             <div className="p-2 bg-primary-500 rounded-xl">
@@ -79,40 +80,42 @@ export const InvestmentPage = () => {
           </p>
         </div>
 
-        <div className="flex flex-wrap gap-4 items-end">
-          <div className="space-y-2">
+        <div className="flex w-full md:w-auto gap-2 md:gap-4 items-end">
+          <div className="space-y-1 md:space-y-2 w-[60%] md:w-auto md:flex-grow">
             <label className="text-[10px] font-black text-gray-400 dark:text-white/40 uppercase tracking-widest ml-1">
-              Monthly Contribution
+              Contribution
             </label>
             <div className="relative group">
-              <input
-                type="number"
+              <CurrencyInput
                 value={contribution}
-                onChange={(e) => setContribution(e.target.value)}
-                className="bg-gray-100 dark:bg-black/20 border-2 border-gray-200 dark:border-white/5 rounded-xl px-4 py-3 text-gray-900 dark:text-white font-bold outline-none focus:border-primary-500 transition-all w-48"
-                placeholder="IDR Amount"
+                onChange={(val) => setContribution(val)}
+                className="bg-gray-50 dark:bg-gray-900 border-2 border-gray-100 dark:border-gray-800 rounded-xl px-2 md:px-4 py-2.5 md:py-3 text-gray-900 dark:text-white font-bold outline-none focus:border-primary-500 transition-all w-full text-sm md:text-base font-sans"
+                placeholder="Rp 0"
               />
             </div>
           </div>
-          <div className="space-y-2">
-            <label className="text-[10px] font-black text-gray-400 dark:text-white/40 uppercase tracking-widest ml-1">
-              Est. Return (%)
+          <div className="space-y-1 md:space-y-2 w-[20%] md:w-28 md:shrink-0">
+            <label className="text-[10px] font-black text-gray-400 dark:text-white/40 uppercase tracking-widest ml-1 hidden md:block">
+              Est. Return
+            </label>
+            <label className="text-[10px] font-black text-gray-400 dark:text-white/40 uppercase tracking-widest ml-1 md:hidden">
+              Yield %
             </label>
             <div className="relative">
               <input
                 type="number"
                 value={expectedReturn}
                 onChange={(e) => setExpectedReturn(e.target.value)}
-                className="bg-gray-100 dark:bg-black/20 border-2 border-gray-200 dark:border-white/5 rounded-xl px-4 py-3 text-gray-900 dark:text-white font-bold outline-none focus:border-primary-500 transition-all w-28"
+                className="bg-gray-50 dark:bg-gray-900 border-2 border-gray-100 dark:border-gray-800 rounded-xl px-2 md:px-4 py-2.5 md:py-3 text-gray-900 dark:text-white font-bold outline-none focus:border-primary-500 transition-all w-full text-center md:text-left text-sm md:text-base"
                 placeholder="12%"
               />
             </div>
           </div>
           <button
             onClick={handleUpdateConfig}
-            className="p-4 bg-primary-500 hover:bg-primary-600 rounded-xl text-white shadow-lg shadow-primary-500/20 transition-all active:scale-95"
+            className="w-[20%] md:w-auto shrink-0 p-3 md:p-4 bg-primary-500 hover:bg-primary-600 rounded-xl text-white shadow-lg shadow-primary-500/20 transition-all active:scale-95 flex items-center justify-center h-[42px] md:h-[52px]"
           >
-            <Settings2 className="w-5 h-5" />
+            <Settings2 className="w-4 h-4 md:w-5 md:h-5" />
           </button>
         </div>
       </div>
@@ -131,6 +134,14 @@ export const InvestmentPage = () => {
           <h3 className="text-3xl font-black text-gray-900 dark:text-white">
             {formatCurrency(investment.monthlyContribution * 12)}
           </h3>
+          <div className="flex gap-2 mb-2">
+            <span className="px-2 py-0.5 rounded-md bg-gray-100 dark:bg-gray-800 text-[10px] font-black uppercase text-gray-500 tracking-wider">
+              12 Months
+            </span>
+            <span className="px-2 py-0.5 rounded-md bg-gray-100 dark:bg-gray-800 text-[10px] font-black uppercase text-gray-500 tracking-wider">
+              {formatCurrency(investment.monthlyContribution)} / mo
+            </span>
+          </div>
           <div className="mt-4 pt-4 border-t border-gray-50 dark:border-gray-800 flex items-center text-[10px] font-black uppercase text-gray-400 tracking-wider">
             <Clock className="w-3 h-3 mr-1" />
             12-Month Base Projection
@@ -153,12 +164,14 @@ export const InvestmentPage = () => {
                 ?.estimatedValue || 0,
             )}
           </h3>
+          <div className="flex gap-2 mb-2">
+             <span className="px-2 py-0.5 rounded-md bg-green-50 dark:bg-green-900/20 text-[10px] font-black uppercase text-green-600 dark:text-green-400 tracking-wider">
+              {formatPercentage(investment.estimatedAnnualReturn)} Yield
+            </span>
+          </div>
           <div className="mt-4 pt-4 border-t border-gray-50 dark:border-gray-800 flex items-center text-[10px] font-black uppercase text-green-600 tracking-wider">
             <ArrowUpRight className="w-3 h-3 mr-1" />
-            Estimated with {formatPercentage(
-              investment.estimatedAnnualReturn,
-            )}{" "}
-            Yield
+            Estimated Total Asset Value
           </div>
         </Card>
 
@@ -167,16 +180,18 @@ export const InvestmentPage = () => {
           className="hover:shadow-2xl hover:shadow-primary-500/20 transition-all duration-300 relative overflow-hidden"
         >
           <div className="absolute -right-8 -bottom-8 w-32 h-32 bg-white/10 rounded-full blur-3xl pointer-events-none"></div>
-          <p className="text-white/60 text-xs font-black uppercase tracking-widest mb-2 relative z-10">
+          <p className="text-white/60 text-[10px] font-black uppercase tracking-widest mb-1 relative z-10">
             Monthly Commitment
           </p>
-          <h3 className="text-3xl font-black text-white relative z-10">
+          <h3 className="text-3xl lg:text-4xl font-black text-white relative z-10">
             {formatCurrency(investment.monthlyContribution)}
           </h3>
-          <p className="mt-4 text-[11px] font-bold text-white/50 leading-relaxed relative z-10">
-            Automated transfer from main liquidity to Permata RDN for
-            diversified asset acquisition.
-          </p>
+          <div className="mt-auto pt-6 border-t border-white/20 relative z-10 mt-6 md:mt-12">
+             <p className="text-[10px] md:text-[11px] font-bold text-white/70 leading-relaxed md:leading-loose">
+              Automated transfer from main liquidity to Permata RDN for
+              diversified asset acquisition.
+            </p>
+          </div>
         </Card>
       </div>
 
@@ -185,7 +200,7 @@ export const InvestmentPage = () => {
         subtitle="Simulated growth starting from February 2026 based on compound interest dynamics."
         variant="white"
       >
-        <div className="h-[450px] w-full mt-6">
+        <div className="h-[250px] md:h-[250px] w-full mt-6">
           <ResponsiveContainer width="100%" height="100%">
             <AreaChart
               data={investment.projections}

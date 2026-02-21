@@ -14,7 +14,7 @@ export const Header = () => {
   const userEmail = user?.email || "No email";
 
   return (
-    <header className="px-6 py-3 md:px-8 md:py-2.5 z-20 bg-white dark:bg-gray-950 border-b border-gray-100 dark:border-gray-900">
+    <header className="sticky top-0 z-50 px-4 py-2.5 md:px-8 md:py-2.5 bg-white dark:bg-gray-950 border-b border-gray-100 dark:border-gray-900">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-6">
           <div className="flex items-center gap-3">
@@ -25,14 +25,15 @@ export const Header = () => {
             >
               <Menu className="w-6 h-6" />
             </button>
-            <div className="flex items-center gap-3 md:hidden">
-            <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-primary-500 bg-primary-50 flex items-center justify-center text-primary-600 font-bold uppercase">
+            <div className="flex items-center gap-2 md:hidden">
+            <div className="w-9 h-9 rounded-xl overflow-hidden border-2 border-gray-100 dark:border-white/10 bg-primary-50 flex items-center justify-center text-primary-600 font-bold uppercase">
               <img
                 src={`https://ui-avatars.com/api/?name=${displayName}&background=f0f7ff&color=3069fe&bold=true`}
                 alt="Profile"
                 className="w-full h-full object-cover"
               />
             </div>
+
             <div className="flex flex-col">
               <h2 className="text-sm font-bold text-gray-900 dark:text-white tracking-tight leading-none">
                 {displayName}
@@ -46,7 +47,7 @@ export const Header = () => {
         <div className="flex items-center gap-3">
           <button
             onClick={toggleTheme}
-            className="p-3 rounded-full bg-gray-100 dark:bg-white/10 hover:bg-gray-200 dark:hover:bg-white/20 transition-colors text-gray-600 dark:text-white group"
+            className="p-2 rounded-full bg-gray-100 dark:bg-white/10 hover:bg-gray-200 dark:hover:bg-white/20 transition-colors text-gray-600 dark:text-white group"
             aria-label="Toggle dark mode"
           >
             {isDarkMode ? (

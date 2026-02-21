@@ -3,10 +3,13 @@ import { Link } from "react-router-dom";
 import { useBudgetStore } from "../stores/useBudgetStore";
 import { useAccountsStore } from "../stores/useAccountsStore";
 import { useExpenseStore } from "../stores/useExpenseStore";
+import { CurrencyInput } from "../components/common/CurrencyInput";
+import { SelectInput } from "../components/common/SelectInput";
 import { Card } from "../components/common/Card";
 import { Modal } from "../components/common/Modal";
 import { EmptyState } from "../components/common/EmptyState";
 import { MonthSelector } from "../components/common/MonthSelector";
+import { RowActions } from "../components/common/RowActions";
 import {
   formatCurrency,
   getMonthName,
@@ -23,6 +26,7 @@ import {
   X,
   AlertCircle,
   Plus,
+  Zap,
   Trash2,
   Banknote,
   ChevronRight,
@@ -64,6 +68,7 @@ export const MonthlyPlanner = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingAllocId, setEditingAllocId] = useState<string | null>(null);
   const [modalData, setModalData] = useState({
+    name: "",
     category: "other",
     amount: "",
     toAccount: accounts[0]?.id || "",
@@ -111,6 +116,10 @@ export const MonthlyPlanner = () => {
           activeBudget.allocations.length) *
         100
       : 0;
+
+  const totalItems = activeBudget.allocations.length;
+  const completedItems = activeBudget.allocations.filter(a => a.isCompleted).length;
+  const plannedItems = totalItems - completedItems;
 
   // Handlers
   const handleToggleAllocation = (allocationId: string) => {
@@ -204,6 +213,7 @@ export const MonthlyPlanner = () => {
   const openAddModal = () => {
     setEditingAllocId(null);
     setModalData({
+      name: "",
       category: "other",
       amount: "",
       toAccount: accounts[0]?.id || "",
@@ -214,6 +224,7 @@ export const MonthlyPlanner = () => {
   const openEditModal = (alloc: Allocation) => {
     setEditingAllocId(alloc.id);
     setModalData({
+      name: alloc.name,
       category: alloc.category,
       amount: alloc.amount.toString(),
       toAccount: alloc.toAccount,
@@ -228,6 +239,7 @@ export const MonthlyPlanner = () => {
 
     if (editingAllocId) {
       updateAllocation(activeBudget.id, editingAllocId, {
+        name: modalData.name,
         category: modalData.category as any,
         amount,
         toAccount: modalData.toAccount,
@@ -235,6 +247,7 @@ export const MonthlyPlanner = () => {
     } else {
       const newAlloc: Allocation = {
         id: crypto.randomUUID(),
+        name: modalData.name || CATEGORY_LABELS[modalData.category as any] || modalData.category,
         category: modalData.category as any,
         amount,
         toAccount: modalData.toAccount,
@@ -247,19 +260,24 @@ export const MonthlyPlanner = () => {
   };
 
   return (
-    <div className="space-y-6 animate-in slide-in-from-bottom-4 duration-700 pb-10">
+    <div className="space-y-6 animate-in slide-in-from-bottom-4 duration-700 pb-28 md:pb-10">
       {/* Header Section */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
-        <div>
-          <h2 className="text-3xl font-black text-gray-900 dark:text-white tracking-tight">
-            Budget Strategy
-          </h2>
-          <p className="text-gray-500 dark:text-white/70 font-medium">
-            Manage your salary distributions
-          </p>
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4 md:gap-6">
+        <div className="flex justify-between items-center w-full md:w-auto">
+          <div>
+            <h2 className="text-2xl md:text-3xl font-black text-gray-900 dark:text-white tracking-tight">
+              Budget Strategy
+            </h2>
+            <p className="text-gray-500 dark:text-white/70 font-medium text-xs md:text-sm">
+              Manage salary distributions
+            </p>
+          </div>
+          <div className="md:hidden shrink-0">
+            <MonthSelector value={selectedMonth} onChange={setSelectedMonth} />
+          </div>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="hidden md:flex items-center gap-3">
           <MonthSelector value={selectedMonth} onChange={setSelectedMonth} />
           <button
             onClick={openAddModal}
@@ -345,71 +363,64 @@ export const MonthlyPlanner = () => {
                 activeBudget.allocations.map((alloc) => (
                   <div
                     key={alloc.id}
-                    className={`group flex items-center justify-between p-5 rounded-xl border-2 transition-all ${
+                    className={`group p-4 md:p-5 rounded-xl border-2 transition-all ${
                       alloc.isCompleted
                         ? "bg-green-50/50 dark:bg-green-900/5 border-green-100 dark:border-green-900/20"
                         : "bg-white dark:bg-gray-900 border-gray-50 dark:border-gray-800"
                     }`}
                   >
-                    <div className="flex items-center gap-5">
-                      <button
-                        onClick={() => handleToggleAllocation(alloc.id)}
-                        className={`w-12 h-12 rounded-xl flex items-center justify-center transition-all ${
-                          alloc.isCompleted
-                            ? "bg-green-500 text-white shadow-lg  shadow-green-500/20"
-                            : "bg-gray-100 dark:bg-gray-900 text-gray-400 hover:bg-primary-500 hover:text-white"
-                        }`}
-                      >
-                        {alloc.isCompleted ? (
-                          <CheckCircle2 className="w-6 h-6" />
-                        ) : (
-                          <Circle className="w-6 h-6" />
-                        )}
-                      </button>
-                      <div>
-                        <p
-                          className={`font-bold tracking-tight ${alloc.isCompleted ? "text-green-900 dark:text-green-100 line-through" : "text-gray-900 dark:text-white"}`}
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                      <div className="flex items-center gap-4">
+                        <button
+                          onClick={() => handleToggleAllocation(alloc.id)}
+                          className={`w-12 h-12 rounded-xl flex items-center justify-center transition-all shrink-0 ${
+                            alloc.isCompleted
+                              ? "bg-green-500 text-white shadow-lg  shadow-green-500/20"
+                              : "bg-gray-100 dark:bg-gray-900 text-gray-400 hover:bg-primary-500 hover:text-white"
+                          }`}
                         >
-                          {CATEGORY_LABELS[alloc.category] || alloc.category}
-                        </p>
-                        <div className="flex items-center gap-2 mt-0.5">
-                          <span className="text-[10px] font-black text-primary-500 bg-primary-50 px-2 py-0.5 rounded uppercase">
-                            {formatPercentage(
-                              alloc.amount / activeBudget.income.total,
-                            )}
-                          </span>
-                          <span className="text-[10px] font-bold text-gray-400">
-                            Acc: {getAccountLabel(alloc.toAccount)}
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="flex items-center gap-4">
-                      <div className="text-right flex items-center gap-3">
+                          {alloc.isCompleted ? (
+                            <CheckCircle2 className="w-6 h-6" />
+                          ) : (
+                            <Circle className="w-6 h-6" />
+                          )}
+                        </button>
                         <div>
                           <p
-                            className={`text-lg font-black ${alloc.isCompleted ? "text-green-600" : "text-gray-900 dark:text-white"}`}
+                            className={`font-black tracking-tight ${alloc.isCompleted ? "text-green-900 dark:text-green-100 line-through" : "text-gray-900 dark:text-white"}`}
+                          >
+                            {alloc.name}
+                          </p>
+                          <div className="flex flex-wrap items-center gap-2 mt-0.5">
+                            <span className="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest border border-gray-100 dark:border-gray-800 px-1.5 py-0.5 rounded">
+                              {CATEGORY_LABELS[alloc.category] || alloc.category}
+                            </span>
+                            <span className="text-[10px] font-black text-primary-500 bg-primary-50 dark:bg-primary-900/20 px-2 py-0.5 rounded uppercase">
+                              {formatPercentage(
+                                alloc.amount / activeBudget.income.total,
+                              )}
+                            </span>
+                            <span className="text-[10px] font-bold text-gray-400 break-all">
+                              Acc: {getAccountLabel(alloc.toAccount)}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center justify-between sm:justify-end gap-4 md:gap-6 border-t sm:border-t-0 border-gray-50 dark:border-gray-800 pt-3 sm:pt-0">
+                        <div className="flex items-center justify-between w-full sm:w-auto gap-4">
+                          <p
+                            className={`text-xl font-black ${alloc.isCompleted ? "text-green-600" : "text-gray-900 dark:text-white"}`}
                           >
                             {formatCurrency(alloc.amount)}
                           </p>
                           {!alloc.isCompleted && (
-                            <div className="flex items-center justify-end gap-3 mt-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                              <button
-                                onClick={() => openEditModal(alloc)}
-                                className="text-[10px] font-black text-gray-300 hover:text-primary-500 uppercase flex items-center gap-1"
-                              >
-                                <Edit2 className="w-2.5 h-2.5" /> Edit
-                              </button>
-                              <button
-                                onClick={() =>
-                                  deleteAllocation(activeBudget.id, alloc.id)
-                                }
-                                className="text-[10px] font-black text-gray-300 hover:text-red-500 uppercase flex items-center gap-1"
-                              >
-                                <Trash2 className="w-2.5 h-2.5" /> Remove
-                              </button>
-                            </div>
+                            <RowActions
+                              onEdit={() => openEditModal(alloc)}
+                              onDelete={() =>
+                                deleteAllocation(activeBudget.id, alloc.id)
+                              }
+                            />
                           )}
                         </div>
                       </div>
@@ -434,17 +445,18 @@ export const MonthlyPlanner = () => {
             <div className="relative z-10 space-y-6">
               <div className="flex justify-between items-start">
                 <div>
-                  <p className="text-white/70 text-sm font-bold uppercase mb-1">
-                    Monthly Salary (BCA)
+                  <p className="text-white/70 text-sm font-bold uppercase mb-1 flex items-center gap-2">
+                    <Wallet className="w-4 h-4" />
+                    {accounts.find(a => a.isSalaryAccount)?.name || "Salary Account"}
                   </p>
                   {isEditingSalary ? (
                     <div className="flex items-center gap-2">
-                      <input
-                        type="number"
+                      <CurrencyInput
                         value={tempSalary}
-                        onChange={(e) => setTempSalary(e.target.value)}
-                        className="w-40 bg-white/20 border-b-2 border-white text-white text-2xl font-black outline-none py-1"
+                        onChange={(val) => setTempSalary(val)}
+                        className="w-40 bg-transparent border-b-2 border-white text-white text-2xl font-black outline-none py-1 font-sans"
                         autoFocus
+                        placeholder="Rp 0"
                       />
                       <button
                         onClick={handleSaveSalary}
@@ -455,7 +467,7 @@ export const MonthlyPlanner = () => {
                     </div>
                   ) : (
                     <div className="flex items-center gap-2">
-                      <h3 className="text-4xl font-black text-white">
+                      <h3 className="text-3xl md:text-4xl font-black text-white">
                         {formatCurrency(activeBudget.income.total)}
                       </h3>
                       <button
@@ -473,22 +485,27 @@ export const MonthlyPlanner = () => {
               </div>
 
               <div className="space-y-4 pt-6 border-t border-white/20">
-                <div className="flex justify-between items-center text-sm">
-                  <span className="text-white/60 font-bold">Planned</span>
-                  <span className="font-black text-white">
-                    {formatCurrency(totalAllocated)}
-                  </span>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="bg-white/10 rounded-xl p-3">
+                    <p className="text-white/60 text-[10px] font-black uppercase tracking-widest mb-1">Planned</p>
+                    <p className="font-black text-white text-lg">
+                      {formatCurrency(totalAllocated)}
+                    </p>
+                    <p className="text-[10px] font-bold text-white/50 mt-1">{plannedItems} items</p>
+                  </div>
+                  <div className="bg-white/10 rounded-xl p-3">
+                    <p className="text-white/60 text-[10px] font-black uppercase tracking-widest mb-1">Distributed</p>
+                    <p className="font-black text-green-300 text-lg">
+                      {formatCurrency(totalDistributed)}
+                    </p>
+                    <p className="text-[10px] font-bold text-white/50 mt-1">{completedItems} items</p>
+                  </div>
                 </div>
-                <div className="flex justify-between items-center text-sm">
-                  <span className="text-white/60 font-bold">Distributed</span>
-                  <span className="font-black text-green-300">
-                    {formatCurrency(totalDistributed)}
-                  </span>
-                </div>
-                <div className="flex justify-between items-center text-sm">
-                  <span className="text-white/60 font-bold">Unallocated</span>
+
+                <div className="flex justify-between items-center text-sm px-1 dark:bg-black/10 rounded-lg p-2">
+                  <span className="text-white/60 font-bold uppercase tracking-widest text-[10px]">Unallocated Buffer</span>
                   <span
-                    className={`font-black ${remainingToAllocate < 0 ? "text-red-300" : "text-white/40"}`}
+                    className={`font-black ${remainingToAllocate < 0 ? "text-red-300" : "text-white/80"}`}
                   >
                     {formatCurrency(remainingToAllocate)}
                   </span>
@@ -616,35 +633,50 @@ export const MonthlyPlanner = () => {
         <form onSubmit={handleSaveModal} className="space-y-6">
           <div>
             <label className="block text-xs font-black text-gray-400 uppercase mb-2 tracking-widest">
+              Name
+            </label>
+            <input
+              type="text"
+              required
+              placeholder="e.g. Monthly Savings or Rent"
+              value={modalData.name}
+              onChange={(e) =>
+                setModalData({ ...modalData, name: e.target.value })
+              }
+              className="w-full px-4 py-3 rounded-xl border-2 border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white font-bold outline-none focus:border-primary-500 transition-all font-sans"
+            />
+          </div>
+
+          <div>
+            <label className="block text-xs font-black text-gray-400 uppercase mb-2 tracking-widest">
               Category
             </label>
-            <select
+            <SelectInput
               value={modalData.category}
               onChange={(e) =>
                 setModalData({ ...modalData, category: e.target.value })
               }
-              className="w-full px-4 py-3 rounded-xl border-2 border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white font-bold outline-none focus:border-primary-500 transition-all"
+              className="px-4 py-3 rounded-xl border-2 border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white font-bold outline-none focus:border-primary-500 transition-all"
             >
               {ALLOCATION_CATEGORIES.map((cat) => (
                 <option key={cat} value={cat}>
                   {CATEGORY_LABELS[cat] || cat}
                 </option>
               ))}
-            </select>
+            </SelectInput>
           </div>
 
           <div>
             <label className="block text-xs font-black text-gray-400 uppercase mb-2 tracking-widest">
-              Amount (IDR)
+              Amount
             </label>
-            <input
-              type="number"
-              placeholder="e.g. 1000000"
+            <CurrencyInput
+              placeholder="Rp 0"
               value={modalData.amount}
-              onChange={(e) =>
-                setModalData({ ...modalData, amount: e.target.value })
+              onChange={(val) =>
+                setModalData({ ...modalData, amount: val })
               }
-              className="w-full px-4 py-3 rounded-xl border-2 border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white font-bold outline-none focus:border-primary-500 transition-all"
+              className="w-full px-4 py-3 rounded-xl border-2 border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white font-bold outline-none focus:border-primary-500 transition-all font-sans"
               required
             />
           </div>
@@ -653,12 +685,12 @@ export const MonthlyPlanner = () => {
             <label className="block text-xs font-black text-gray-400 uppercase mb-2 tracking-widest">
               Target Account
             </label>
-            <select
+            <SelectInput
               value={modalData.toAccount}
               onChange={(e) =>
                 setModalData({ ...modalData, toAccount: e.target.value })
               }
-              className="w-full px-4 py-3 rounded-xl border-2 border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white font-bold outline-none focus:border-primary-500 transition-all"
+              className="px-4 py-3 rounded-xl border-2 border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white font-bold outline-none focus:border-primary-500 transition-all"
               required
             >
               <option value="" disabled>
@@ -669,7 +701,7 @@ export const MonthlyPlanner = () => {
                   {acc.bank} - {acc.name}
                 </option>
               ))}
-            </select>
+            </SelectInput>
           </div>
 
           <div className="flex gap-4 pt-4">
@@ -686,6 +718,16 @@ export const MonthlyPlanner = () => {
           </div>
         </form>
       </Modal>
+      {/* Sticky Mobile Button */}
+      <div className="md:hidden fixed bottom-0 left-0 right-0 p-4 bg-white/80 dark:bg-gray-900/80 backdrop-blur-lg border-t border-gray-100 dark:border-gray-800 z-40">
+        <button
+          onClick={openAddModal}
+          className="btn w-full bg-primary-500 dark:bg-white text-white dark:text-primary-500 shadow-xl shadow-primary-500/20 py-4 font-black"
+        >
+          <Plus className="w-5 h-5" />
+          Add Allocation Item
+        </button>
+      </div>
     </div>
   );
 };

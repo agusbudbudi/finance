@@ -3,6 +3,8 @@ import { useCreditCardStore } from "../stores/useCreditCardStore";
 import { Card } from "../components/common/Card";
 import { Modal } from "../components/common/Modal";
 import { EmptyState } from "../components/common/EmptyState";
+import { CurrencyInput } from "../components/common/CurrencyInput";
+import { SelectInput } from "../components/common/SelectInput";
 import {
   formatCurrency,
   formatPercentage,
@@ -28,7 +30,9 @@ export const CreditCardPage = () => {
   // Profile Modal State
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
   const [profileData, setProfileData] = useState({
+    bank: card?.bank || "Mandiri",
     cardName: card?.cardName || "Mandiri Platinum",
+    lastFourDigits: card?.lastFourDigits || "0000",
     creditLimit: card?.creditLimit || 50000000,
     statementDate: card?.billingCycle.statementDate || 20,
     dueDate: card?.billingCycle.dueDate || 5,
@@ -46,7 +50,9 @@ export const CreditCardPage = () => {
     e.preventDefault();
     if (card) {
       updateCard(card.id, {
+        bank: profileData.bank,
         cardName: profileData.cardName,
+        lastFourDigits: profileData.lastFourDigits,
         creditLimit: profileData.creditLimit,
         billingCycle: {
           statementDate: profileData.statementDate,
@@ -57,9 +63,9 @@ export const CreditCardPage = () => {
       // Setup new card logic
       const newCard = {
         id: crypto.randomUUID(),
-        bank: "Mandiri",
+        bank: profileData.bank,
         cardName: profileData.cardName,
-        lastFourDigits: "0000",
+        lastFourDigits: profileData.lastFourDigits,
         creditLimit: profileData.creditLimit,
         billingCycle: {
           statementDate: profileData.statementDate,
@@ -106,7 +112,7 @@ export const CreditCardPage = () => {
   };
 
   return (
-    <div className="space-y-6 animate-in slide-in-from-right-4 duration-700">
+    <div className="space-y-6 animate-in slide-in-from-right-4 duration-700 pb-28 md:pb-10">
       {!card ? (
         <EmptyState
           icon={CardIcon}
@@ -124,26 +130,26 @@ export const CreditCardPage = () => {
         />
       ) : (
         <>
-          <div className="flex justify-between items-center">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
             <div>
-              <h2 className="text-3xl font-black text-gray-900 dark:text-white tracking-tight">
+              <h2 className="text-2xl md:text-3xl font-black text-gray-900 dark:text-white tracking-tight">
                 {card.cardName}
               </h2>
-              <p className="text-gray-500 dark:text-white/70 font-medium">
+              <p className="text-gray-500 dark:text-white/70 font-medium text-sm">
                 Assume full payment every month
               </p>
             </div>
-            <div className="flex gap-3">
+            <div className="hidden md:flex gap-2 w-full sm:w-auto">
               <button
                 onClick={() => setIsProfileModalOpen(true)}
-                className="btn bg-primary-50 dark:bg-white/10 text-primary-600 dark:text-white hover:bg-primary-100 dark:hover:bg-white/20 shadow-lg  border border-primary-100 dark:border-white/10"
+                className="btn flex-1 sm:flex-none bg-primary-50 dark:bg-white/10 text-primary-600 dark:text-white hover:bg-primary-100 dark:hover:bg-white/20 shadow-lg border border-primary-100 dark:border-white/10"
               >
                 <Edit2 className="w-4 h-4" />
                 Edit Profile
               </button>
               <button
                 onClick={() => setIsUsageModalOpen(true)}
-                className="btn bg-primary-500 dark:bg-white text-white dark:text-primary-500 hover:opacity-90 shadow-lg  shadow-black/10"
+                className="btn flex-1 sm:flex-none bg-primary-500 dark:bg-white text-white dark:text-primary-500 hover:opacity-90 shadow-lg shadow-black/10"
               >
                 <Zap className="w-4 h-4" />
                 Input Usage
@@ -158,9 +164,9 @@ export const CreditCardPage = () => {
                 className="p-0 border-none overflow-hidden hover:shadow-2xl transition-all duration-500"
               >
                 {/* Modern Card Visual */}
-                <div className="relative h-64 bg-gradient-to-br from-gray-900 to-black p-6 flex flex-col justify-between group overflow-hidden rounded-xl">
-                  <div className="absolute top-0 right-0 w-96 h-96 bg-primary-500/20 rounded-full blur-3xl -mr-20 -mt-20 group-hover:scale-125 transition-transform duration-1000"></div>
-                  <div className="absolute bottom-0 left-0 w-64 h-64 bg-blue-500/10 rounded-full blur-3xl -ml-20 -mb-20"></div>
+                <div className="relative h-54 sm:h-64 bg-gradient-to-br from-gray-900 to-black p-5 sm:p-6 flex flex-col justify-between group overflow-hidden rounded-xl">
+                  <div className="absolute top-0 right-0 w-64 sm:w-96 h-64 sm:h-96 bg-primary-500/20 rounded-full blur-3xl -mr-20 -mt-20 group-hover:scale-125 transition-transform duration-1000"></div>
+                  <div className="absolute bottom-0 left-0 w-48 sm:w-64 h-48 sm:h-64 bg-blue-500/10 rounded-full blur-3xl -ml-20 -mb-20"></div>
 
                   <div className="relative z-10 flex justify-between items-start">
                     <div className="flex items-center gap-3">
@@ -169,16 +175,19 @@ export const CreditCardPage = () => {
                         {card.bank.toUpperCase()}
                       </span>
                     </div>
-                    <div className="text-white/20 font-black text-4xl italic tracking-tighter">
-                      {card.cardName.split(" ")[1] || "VISA"}
-                    </div>
+                    <button
+                      onClick={() => setIsProfileModalOpen(true)}
+                      className="p-2 bg-white/10 hover:bg-white/20 rounded-lg backdrop-blur-md border border-white/10 text-white transition-all shadow-lg group/edit"
+                    >
+                      <Edit2 className="w-4 h-4 group-hover/edit:scale-110 transition-transform" />
+                    </button>
                   </div>
 
                   <div className="relative z-10 flex flex-col gap-1">
-                    <p className="text-white/40 text-[10px] font-black uppercase tracking-[0.3em] mb-2">
+                    <p className="text-white/40 text-[8px] sm:text-[10px] font-black uppercase tracking-[0.3em] mb-1 sm:mb-2">
                       {card.cardName}
                     </p>
-                    <p className="text-2xl text-white font-mono tracking-[0.2em] flex gap-4">
+                    <p className="text-lg sm:text-2xl text-white font-mono tracking-[0.2em] flex gap-2 sm:gap-4">
                       <span>****</span> <span>****</span> <span>****</span>{" "}
                       <span className="text-primary-400">
                         {card.lastFourDigits}
@@ -206,15 +215,11 @@ export const CreditCardPage = () => {
                       </div>
                     </div>
                     <div className="text-right">
-                      <p className="text-white/30 text-[8px] font-black uppercase mb-1">
-                        Expires
-                      </p>
-                      <p className="text-sm text-white font-bold">05/28</p>
                     </div>
                   </div>
                 </div>
 
-                <div className="p-6 bg-white dark:bg-gray-900 text-gray-900">
+                <div className="p-4 sm:p-6 bg-white dark:bg-gray-900 text-gray-900">
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-6 py-4">
                     <div className="space-y-1">
                       <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">
@@ -271,7 +276,7 @@ export const CreditCardPage = () => {
                         card.currentMonth.transactions.map((tx) => (
                           <div
                             key={tx.id}
-                            className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-950 rounded-xl group border border-transparent hover:bg-white dark:hover:bg-gray-900 hover:border-gray-100 dark:hover:border-gray-800 transition-all shadow-sm"
+                            className="flex items-center justify-between p-3 sm:p-4 bg-gray-50 dark:bg-gray-950 rounded-xl group border border-transparent hover:bg-white dark:hover:bg-gray-900 hover:border-gray-100 dark:hover:border-gray-800 transition-all shadow-sm"
                           >
                             <div className="flex items-center gap-4">
                               <div className="w-10 h-10 bg-white dark:bg-gray-800 rounded-xl flex items-center justify-center shadow-sm text-gray-400 font-black text-xs">
@@ -320,9 +325,9 @@ export const CreditCardPage = () => {
                           return (
                             <div
                               key={stmt.id}
-                              className={`flex items-center justify-between p-5 rounded-xl group transition-all border ${
+                              className={`flex flex-col sm:flex-row sm:items-center justify-between p-4 sm:p-5 rounded-xl group transition-all border gap-4 ${
                                 isNear
-                                  ? "bg-red-50 dark:bg-red-900/5 border-red-100 dark:border-red-900/20 shadow-lg  shadow-red-500/5"
+                                  ? "bg-red-50 dark:bg-red-900/5 border-red-100 dark:border-red-900/20 shadow-lg shadow-red-500/5"
                                   : "bg-gray-50 dark:bg-gray-950 border-transparent hover:bg-gray-100 dark:hover:bg-gray-900"
                               }`}
                             >
@@ -356,8 +361,8 @@ export const CreditCardPage = () => {
                                   </p>
                                 </div>
                               </div>
-                              <div className="flex items-center gap-4">
-                                <div className="text-right">
+                              <div className="flex items-center justify-between sm:justify-end gap-3 sm:gap-4 border-t sm:border-t-0 border-gray-100 dark:border-gray-800 pt-3 sm:pt-0">
+                                <div className="text-left sm:text-right">
                                   <p className="font-black text-gray-900 dark:text-white">
                                     {formatCurrency(stmt.totalSpent)}
                                   </p>
@@ -372,7 +377,7 @@ export const CreditCardPage = () => {
                                     onClick={() =>
                                       markStatementPaid(card.id, stmt.id)
                                     }
-                                    className="btn-secondary px-6 py-2 text-xs hover:bg-primary-500 hover:text-white transition-all shadow-md active:scale-95"
+                                    className="btn-secondary px-4 sm:px-6 py-2 text-[10px] sm:text-xs hover:bg-primary-500 hover:text-white transition-all shadow-md active:scale-95 whitespace-nowrap"
                                   >
                                     Pay Now
                                   </button>
@@ -459,36 +464,72 @@ export const CreditCardPage = () => {
         title={card ? "Card Profile Settings" : "Initialize Card Profile"}
       >
         <form onSubmit={handleUpdateProfile} className="space-y-6">
-          <div>
-            <label className="block text-xs font-black text-gray-400 uppercase mb-2 tracking-widest font-sans">
-              Card Name
-            </label>
-            <input
-              type="text"
-              value={profileData.cardName}
-              onChange={(e) =>
-                setProfileData({ ...profileData, cardName: e.target.value })
-              }
-              className="w-full px-4 py-3 rounded-xl border-2 border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-900 dark:text-white font-bold outline-none focus:border-primary-500 transition-all"
-              required
-            />
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-xs font-black text-gray-400 uppercase mb-2 tracking-widest font-sans">
+                Bank Name
+              </label>
+              <input
+                type="text"
+                value={profileData.bank}
+                onChange={(e) =>
+                  setProfileData({ ...profileData, bank: e.target.value })
+                }
+                className="w-full px-4 py-3 rounded-xl border-2 border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-900 dark:text-white font-bold outline-none focus:border-primary-500 transition-all"
+                required
+                placeholder="e.g. Mandiri, BCA"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-black text-gray-400 uppercase mb-2 tracking-widest font-sans">
+                Card Name
+              </label>
+              <input
+                type="text"
+                value={profileData.cardName}
+                onChange={(e) =>
+                  setProfileData({ ...profileData, cardName: e.target.value })
+                }
+                className="w-full px-4 py-3 rounded-xl border-2 border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-900 dark:text-white font-bold outline-none focus:border-primary-500 transition-all"
+                required
+              />
+            </div>
           </div>
-          <div>
-            <label className="block text-xs font-black text-gray-400 uppercase mb-2 tracking-widest font-sans">
-              Credit Limit (IDR)
-            </label>
-            <input
-              type="number"
-              value={profileData.creditLimit}
-              onChange={(e) =>
-                setProfileData({
-                  ...profileData,
-                  creditLimit: parseInt(e.target.value) || 0,
-                })
-              }
-              className="w-full px-4 py-3 rounded-xl border-2 border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-900 dark:text-white font-bold outline-none focus:border-primary-500 transition-all"
-              required
-            />
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-xs font-black text-gray-400 uppercase mb-2 tracking-widest font-sans">
+                Credit Limit
+              </label>
+              <CurrencyInput
+                value={profileData.creditLimit}
+                onChange={(val) =>
+                  setProfileData({
+                    ...profileData,
+                    creditLimit: parseInt(val) || 0,
+                  })
+                }
+                className="w-full px-4 py-3 rounded-xl border-2 border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-900 dark:text-white font-bold outline-none focus:border-primary-500 transition-all font-sans"
+                required
+                placeholder="Rp 0"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-black text-gray-400 uppercase mb-2 tracking-widest font-sans">
+                Last 4 Digits
+              </label>
+              <input
+                type="text"
+                maxLength={4}
+                value={profileData.lastFourDigits}
+                onChange={(e) => {
+                  const val = e.target.value.replace(/\D/g, "").slice(0, 4);
+                  setProfileData({ ...profileData, lastFourDigits: val });
+                }}
+                className="w-full px-4 py-3 rounded-xl border-2 border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-900 dark:text-white font-bold outline-none focus:border-primary-500 transition-all"
+                required
+                placeholder="0000"
+              />
+            </div>
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div>
@@ -567,16 +608,15 @@ export const CreditCardPage = () => {
           </div>
           <div>
             <label className="block text-xs font-black text-gray-400 uppercase mb-2 tracking-widest font-sans">
-              Amount (IDR)
+              Amount
             </label>
-            <input
-              type="number"
-              placeholder="0"
+            <CurrencyInput
+              placeholder="Rp 0"
               value={usageData.amount}
-              onChange={(e) =>
-                setUsageData({ ...usageData, amount: e.target.value })
+              onChange={(val) =>
+                setUsageData({ ...usageData, amount: val })
               }
-              className="w-full px-4 py-3 rounded-xl border-2 border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-900 dark:text-white font-bold outline-none focus:border-primary-500 transition-all"
+              className="w-full px-4 py-3 rounded-xl border-2 border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-900 dark:text-white font-bold outline-none focus:border-primary-500 transition-all font-sans"
               required
             />
           </div>
@@ -584,19 +624,19 @@ export const CreditCardPage = () => {
             <label className="block text-xs font-black text-gray-400 uppercase mb-2 tracking-widest font-sans">
               Category
             </label>
-            <select
+            <SelectInput
               value={usageData.category}
               onChange={(e) =>
                 setUsageData({ ...usageData, category: e.target.value })
               }
-              className="w-full px-4 py-3 rounded-xl border-2 border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-900 dark:text-white font-bold outline-none focus:border-primary-500 transition-all"
+              className="px-4 py-3 rounded-xl border-2 border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-900 dark:text-white font-bold outline-none focus:border-primary-500 transition-all"
             >
-              <option value="Food">Food & Dining</option>
+              <option value="Food">Food &amp; Dining</option>
               <option value="Shopping">Shopping</option>
               <option value="Transport">Transport</option>
               <option value="Utilities">Utilities</option>
               <option value="Other">Other</option>
-            </select>
+            </SelectInput>
           </div>
           <div className="flex gap-4 pt-4">
             <button
@@ -612,6 +652,19 @@ export const CreditCardPage = () => {
           </div>
         </form>
       </Modal>
+ 
+      {/* Sticky Mobile Button */}
+      {card && (
+        <div className="md:hidden fixed bottom-0 left-0 right-0 p-4 bg-white/80 dark:bg-gray-900/80 backdrop-blur-lg border-t border-gray-100 dark:border-gray-800 z-40">
+          <button
+            onClick={() => setIsUsageModalOpen(true)}
+            className="btn w-full bg-primary-500 dark:bg-white text-white dark:text-primary-500 shadow-xl shadow-primary-500/20 py-4 font-black"
+          >
+            <Zap className="w-5 h-5" />
+            Input Credit Card Usage
+          </button>
+        </div>
+      )}
     </div>
   );
 };

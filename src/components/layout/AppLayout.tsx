@@ -14,7 +14,7 @@ export const AppLayout = () => {
   }, [location.pathname, setSidebarOpen]);
 
   return (
-    <div className="flex h-screen bg-gray-50 dark:bg-gray-950 font-sans overflow-hidden">
+    <div className="flex h-[100dvh] bg-gray-50 dark:bg-gray-950 font-sans overflow-hidden">
       {/* Sidebar - Desktop & Mobile */}
       <Sidebar />
 

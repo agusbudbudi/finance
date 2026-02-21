@@ -17,7 +17,7 @@ export class DataInitService {
     const profile: Profile = {
       userId: "user_001",
       name: "Agud Budiman",
-      monthlySalary: 13000000,
+      monthlySalary: 0,
       salaryBank: "BCA",
       salaryDay: 25,
       currency: "IDR",
@@ -106,6 +106,7 @@ export class DataInitService {
           spent: 0,
           availableCredit: 15000000,
           utilizationRate: 0,
+          transactions: [],
         },
       },
     ];
@@ -113,8 +114,8 @@ export class DataInitService {
     // 4. Investment
     const investments: Investment = {
       startMonth: "2026-02",
-      monthlyContribution: 2000000,
-      estimatedAnnualReturn: 0.12,
+      monthlyContribution: 0,
+      estimatedAnnualReturn: 0,
       contributions: [],
       summary: {
         totalContributed: 0,
@@ -129,12 +130,12 @@ export class DataInitService {
     const currentMonth = getCurrentMonth();
     const defaultAllocations = BudgetCalculator.generateDefaultAllocations(
       profile.monthlySalary,
-      1000000,
+      0,
     );
     const initialBudget: MonthlyBudget = {
       id: `budget_${currentMonth.replace("-", "_")}`,
       month: currentMonth,
-      income: { salary: 13000000, freelance: 0, other: 0, total: 13000000 },
+      income: { salary: 0, freelance: 0, other: 0, total: 0 },
       allocations: defaultAllocations,
       expenses: {
         food: { budget: 3000000, spent: 0 },
@@ -145,7 +146,7 @@ export class DataInitService {
         other: { budget: 500000, spent: 0 },
       },
       summary: {
-        totalIncome: 13000000,
+        totalIncome: 0,
         totalAllocated: BudgetCalculator.getTotalAllocated(defaultAllocations),
         totalSpent: 0,
         remaining: 0,

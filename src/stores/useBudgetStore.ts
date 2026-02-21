@@ -130,7 +130,7 @@ export const useBudgetStore = create<BudgetStore>((set, get) => ({
 
     // Create a new budget for the month
     const profile = StorageService.get<any>("profile");
-    const salary = profile?.monthlySalary || 13000000;
+    const salary = profile?.monthlySalary || 0;
 
     const newBudget: MonthlyBudget = {
       id: `budget_${month.replace("-", "_")}`,
@@ -148,6 +148,8 @@ export const useBudgetStore = create<BudgetStore>((set, get) => ({
         utilities: { budget: 1000000, spent: 0 },
         shopping: { budget: 1000000, spent: 0 },
         entertainment: { budget: 500000, spent: 0 },
+        health: { budget: 0, spent: 0 },
+        investment: { budget: 0, spent: 0 },
         other: { budget: 500000, spent: 0 },
       },
       summary: {
@@ -186,6 +188,7 @@ export const useBudgetStore = create<BudgetStore>((set, get) => ({
     };
     updatedBudget.summary = BudgetCalculator.calculateSummary(updatedBudget);
 
+    // Update in list
     const budgets = get().budgets.map((b) =>
       b.id === targetBudget.id ? updatedBudget : b,
     );
@@ -197,4 +200,82 @@ export const useBudgetStore = create<BudgetStore>((set, get) => ({
       set({ currentBudget: updatedBudget });
     }
   },
+
+  syncExpenses: (month: string, expenses: any[]) => {
+    const budget = get().ensureMonthExists(month);
+
+    // Robust Category Mapping
+    const categoryMap: Record<string, string> = {
+      "food & drink": "food",
+      "food": "food",
+      "transportation": "transport",
+      "transport": "transport",
+      "utilities": "utilities",
+      "shopping": "shopping",
+      "entertainment": "entertainment",
+      "health": "health",
+      "investment": "investment",
+      "other": "other"
+    };
+    
+    // 1. Group expenses by category for individual line items
+    const categorySpending: Record<string, number> = {};
+    expenses.forEach(e => {
+      const uiCat = e.category.toLowerCase();
+      const internalCat = categoryMap[uiCat] || "other";
+      categorySpending[internalCat] = (categorySpending[internalCat] || 0) + e.amount;
+    });
+
+    // 2. Calculate ABSOLUTE total from the raw array to avoid mapping gaps in the chart
+    const totalSpent = expenses.reduce((sum, e) => sum + e.amount, 0);
+
+    const updatedExpenses = { ...budget.expenses };
+    // Update budget.expenses with real spent values
+    Object.keys(updatedExpenses).forEach(cat => {
+      updatedExpenses[cat] = {
+        ...updatedExpenses[cat],
+        spent: categorySpending[cat] || 0
+      };
+    });
+
+    const updatedBudget = {
+      ...budget,
+      expenses: updatedExpenses
+    };
+    
+    // Pass the absolute total to the calculator
+    updatedBudget.summary = BudgetCalculator.calculateSummary(updatedBudget, totalSpent);
+    
+    // Update in list
+    const budgets = get().budgets.map(b => b.id === budget.id ? updatedBudget : b);
+    StorageService.set("monthlyBudgets", budgets);
+    set({ budgets });
+
+    if (get().currentBudget?.id === budget.id) {
+      set({ currentBudget: updatedBudget });
+    }
+  },
+
+  syncFreelanceIncome: (month: string, amount: number) => {
+    const budget = get().ensureMonthExists(month);
+    
+    const updatedBudget = {
+      ...budget,
+      income: {
+        ...budget.income,
+        freelance: amount,
+        total: budget.income.salary + amount + budget.income.other
+      }
+    };
+    
+    updatedBudget.summary = BudgetCalculator.calculateSummary(updatedBudget);
+    
+    const budgets = get().budgets.map(b => b.id === budget.id ? updatedBudget : b);
+    StorageService.set("monthlyBudgets", budgets);
+    set({ budgets });
+
+    if (get().currentBudget?.id === budget.id) {
+      set({ currentBudget: updatedBudget });
+    }
+  }
 }));

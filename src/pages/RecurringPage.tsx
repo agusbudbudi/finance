@@ -6,11 +6,12 @@ import { Card } from "../components/common/Card";
 import { Modal } from "../components/common/Modal";
 import { EmptyState } from "../components/common/EmptyState";
 import { MonthSelector } from "../components/common/MonthSelector";
+import { SelectInput } from "../components/common/SelectInput";
+import { CurrencyInput } from "../components/common/CurrencyInput";
+import { RowActions } from "../components/common/RowActions";
 import { formatCurrency, getMonthName } from "../utils/formatters";
 import {
   Plus,
-  Trash2,
-  Edit2,
   Calendar,
   Clock,
   CheckCircle2,
@@ -56,6 +57,7 @@ export const RecurringPage = () => {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [isPostConfirmOpen, setIsPostConfirmOpen] = useState(false);
   const [pendingPostId, setPendingPostId] = useState<string | null>(null);
+  const [postError, setPostError] = useState<string | null>(null);
 
   const currentMonth = new Date().toISOString().slice(0, 7);
 
@@ -74,15 +76,31 @@ export const RecurringPage = () => {
   }, [subscriptions, selectedMonth]);
 
   const stats = useMemo(() => {
-    const totalMonthly = filteredSubs
-      .filter((s) => s.isActive && s.frequency === "monthly")
+    const activeMonthlySubs = filteredSubs.filter((s) => s.isActive && s.frequency === "monthly");
+    
+    const totalMonthly = activeMonthlySubs.reduce((sum, s) => sum + s.amount, 0);
+
+    const postedThisMonthAmount = activeMonthlySubs
+      .filter((s) => s.lastPosted === selectedMonth)
       .reduce((sum, s) => sum + s.amount, 0);
 
-    const pendingThisMonth = filteredSubs.filter(
-      (s) => s.isActive && s.lastPosted !== selectedMonth,
+    const pendingThisMonthAmount = totalMonthly - postedThisMonthAmount;
+
+    const pendingThisMonthCount = activeMonthlySubs.filter(
+      (s) => s.lastPosted !== selectedMonth,
     ).length;
 
-    return { totalMonthly, pendingThisMonth };
+    const highestBill = activeMonthlySubs.length > 0 
+      ? activeMonthlySubs.reduce((prev, current) => (prev.amount > current.amount) ? prev : current)
+      : null;
+
+    return { 
+      totalMonthly, 
+      pendingThisMonthCount, 
+      postedThisMonthAmount, 
+      pendingThisMonthAmount,
+      highestBill
+    };
   }, [filteredSubs, selectedMonth]);
 
   const handleEdit = (sub: RecurringTransaction) => {
@@ -144,23 +162,36 @@ export const RecurringPage = () => {
 
   const handleConfirmPost = () => {
     if (!pendingPostId) return;
+    
+    const sub = subscriptions.find((s) => s.id === pendingPostId);
+    if (!sub?.accountId) {
+      setPostError("Please edit this template and select a 'Paid From' account before posting.");
+      return;
+    }
+
     postTransaction(pendingPostId, selectedMonth);
     setIsPostConfirmOpen(false);
     setPendingPostId(null);
+    setPostError(null);
   };
 
   return (
-    <div className="space-y-6 animate-in fade-in duration-700 pb-10">
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
-        <div>
-          <h2 className="text-3xl font-black text-gray-900 dark:text-white tracking-tight">
-            Recurring Ledger
-          </h2>
-          <p className="text-gray-500 dark:text-white/70 font-medium">
-            Automate your fixed monthly obligations
-          </p>
+    <div className="space-y-6 animate-in fade-in duration-700 pb-28 md:pb-10">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4 md:gap-6">
+        <div className="flex justify-between items-center w-full md:w-auto">
+          <div>
+            <h2 className="text-2xl md:text-3xl font-black text-gray-900 dark:text-white tracking-tight">
+              Recurring Ledger
+            </h2>
+            <p className="text-gray-500 dark:text-white/70 font-medium text-xs md:text-sm">
+              Automate your fixed monthly obligations
+            </p>
+          </div>
+          <div className="md:hidden shrink-0">
+            <MonthSelector value={selectedMonth} onChange={setSelectedMonth} />
+          </div>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="hidden md:flex items-center gap-3">
           <MonthSelector value={selectedMonth} onChange={setSelectedMonth} />
           <button
             onClick={() => {
@@ -188,37 +219,52 @@ export const RecurringPage = () => {
               <p className="text-white/60 text-[10px] font-black uppercase tracking-widest mb-1">
                 Estimated Monthly Fix
               </p>
-              <h3 className="text-4xl font-black tracking-tight">
+              <h3 className="text-3xl lg:text-4xl font-black tracking-tight mb-6">
                 {formatCurrency(stats.totalMonthly)}
               </h3>
-              <div className="mt-6 pt-6 border-t border-white/20 flex gap-4">
-                <div>
-                  <p className="text-white/60 text-[10px] font-black uppercase tracking-widest mb-1">
-                    Active
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="bg-white/10 rounded-xl p-3">
+                  <p className="text-white/60 text-[10px] font-black uppercase tracking-widest mb-1">Posted</p>
+                  <p className="font-black text-green-300 text-base lg:text-lg">
+                    {formatCurrency(stats.postedThisMonthAmount)}
                   </p>
-                  <p className="text-xl font-black">{filteredSubs.length}</p>
+                  <p className="text-[10px] font-bold text-white/50 mt-1">{filteredSubs.length - stats.pendingThisMonthCount} bills</p>
                 </div>
-                <div className="ml-auto text-right">
-                  <p className="text-white/60 text-[10px] font-black uppercase tracking-widest mb-1">
-                    Pending
+                <div className="bg-white/10 rounded-xl p-3">
+                  <p className="text-white/60 text-[10px] font-black uppercase tracking-widest mb-1">Pending</p>
+                  <p className="font-black text-white text-base lg:text-lg">
+                    {formatCurrency(stats.pendingThisMonthAmount)}
                   </p>
-                  <p className="text-xl font-black">
-                    {stats.pendingThisMonth} Units
-                  </p>
+                  <p className="text-[10px] font-bold text-white/50 mt-1">{stats.pendingThisMonthCount} bills</p>
                 </div>
               </div>
+
+              {stats.highestBill && (
+                <div className="mt-4 flex justify-between items-center text-sm px-2 dark:bg-black/10 rounded-lg p-2 border border-white/10">
+                  <div className="flex items-center gap-2">
+                    <span className="text-white/60 font-bold uppercase tracking-widest text-[10px]">Highest Bill</span>
+                    <span className="px-2 py-0.5 rounded-full bg-white/20 text-[8px] font-black uppercase tracking-widest text-white">
+                      {stats.highestBill.name}
+                    </span>
+                  </div>
+                  <span className="font-black text-white/90">
+                    {formatCurrency(stats.highestBill.amount)}
+                  </span>
+                </div>
+              )}
             </div>
           </Card>
 
           <Card className="flex flex-col justify-center" bodyClassName="p-6">
             <div className="flex items-center gap-4">
               <div
-                className={`w-14 h-14 rounded-xl flex items-center justify-center ${stats.pendingThisMonth > 0 ? "bg-amber-50 dark:bg-amber-900/10 text-amber-600 dark:text-amber-400 border border-amber-100 dark:border-amber-900/20" : "bg-green-50 dark:bg-green-900/10 text-green-600 dark:text-green-400 border border-green-100 dark:border-green-900/20"}`}
+                className={`w-10 h-10 rounded-xl flex items-center justify-center ${stats.pendingThisMonthCount > 0 ? "bg-amber-50 dark:bg-amber-900/10 text-amber-600 dark:text-amber-400 border border-amber-100 dark:border-amber-900/20" : "bg-green-50 dark:bg-green-900/10 text-green-600 dark:text-green-400 border border-green-100 dark:border-green-900/20"}`}
               >
-                {stats.pendingThisMonth > 0 ? (
-                  <AlertCircle className="w-7 h-7" />
+                {stats.pendingThisMonthCount > 0 ? (
+                  <AlertCircle className="w-5 h-5" />
                 ) : (
-                  <CheckCircle2 className="w-7 h-7" />
+                  <CheckCircle2 className="w-5 h-5" />
                 )}
               </div>
               <div>
@@ -226,8 +272,8 @@ export const RecurringPage = () => {
                   Status Check
                 </h4>
                 <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mt-1">
-                  {stats.pendingThisMonth > 0
-                    ? `${stats.pendingThisMonth} bills to post`
+                  {stats.pendingThisMonthCount > 0
+                    ? `${stats.pendingThisMonthCount} bills to post`
                     : "All clear for this month"}
                 </p>
               </div>
@@ -263,11 +309,11 @@ export const RecurringPage = () => {
               {filteredSubs.map((sub) => (
                 <div
                   key={sub.id}
-                  className={`relative group bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 rounded-xl p-6 flex flex-col md:flex-row md:items-center justify-between gap-6 transition-all duration-300 hover:border-primary-200`}
+                  className={`relative group bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 rounded-xl p-4 md:p-6 flex flex-col md:flex-row md:items-center justify-between gap-4 md:gap-6 transition-all duration-300 hover:border-primary-200`}
                 >
-                  <div className="flex items-center gap-5">
+                  <div className="flex items-start md:items-center gap-4 md:gap-5">
                     <div
-                      className={`w-14 h-14 rounded-xl flex items-center justify-center shrink-0 border transition-colors ${
+                      className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 border transition-colors ${
                         sub.category === "Subscription"
                           ? "bg-blue-50 text-blue-500 border-blue-100 dark:bg-blue-900/10 dark:text-blue-400 dark:border-blue-900/20"
                           : sub.category === "Utilities"
@@ -282,17 +328,17 @@ export const RecurringPage = () => {
                       }`}
                     >
                       {sub.category === "Subscription" && (
-                        <Smartphone className="w-7 h-7" />
+                        <Smartphone className="w-5 h-5" />
                       )}
                       {sub.category === "Utilities" && (
-                        <Droplets className="w-7 h-7" />
+                        <Droplets className="w-5 h-5" />
                       )}
-                      {sub.category === "Rent" && <Home className="w-7 h-7" />}
+                      {sub.category === "Rent" && <Home className="w-5 h-5" />}
                       {sub.category === "Insurance" && (
-                        <ShieldCheck className="w-7 h-7" />
+                        <ShieldCheck className="w-5 h-5" />
                       )}
                       {sub.category === "Loan" && (
-                        <Banknote className="w-7 h-7" />
+                        <Banknote className="w-5 h-5" />
                       )}
                       {!Object.keys({
                         Subscription: 1,
@@ -301,7 +347,7 @@ export const RecurringPage = () => {
                         Insurance: 1,
                         Loan: 1,
                       }).includes(sub.category) && (
-                        <Calendar className="w-7 h-7" />
+                        <Calendar className="w-5 h-5" />
                       )}
                     </div>
                     <div>
@@ -332,53 +378,42 @@ export const RecurringPage = () => {
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-6">
-                    <div className="text-right hidden md:block">
-                      <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">
+                  <div className="flex items-center justify-between md:justify-end gap-4 md:gap-6 border-t md:border-t-0 border-gray-50 dark:border-gray-800 pt-3 md:pt-0">
+                    <div className="text-left md:text-right">
+                      <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-0.5 md:mb-1">
                         Amount
                       </p>
-                      <p className="text-xl font-black text-gray-900 dark:text-white">
+                      <p className="text-lg md:text-xl font-black text-gray-900 dark:text-white leading-none">
                         {formatCurrency(sub.amount)}
                       </p>
                     </div>
 
-                    {sub.lastPosted === selectedMonth ? (
-                      <div className="px-5 py-2.5 rounded-xl bg-green-50 dark:bg-green-900/10 text-green-600 flex items-center gap-2 border border-green-100 dark:border-green-900/20">
-                        <CheckCircle2 className="w-4 h-4" />
-                        <span className="text-[10px] font-black uppercase tracking-widest">
-                          Posted
-                        </span>
-                      </div>
-                    ) : (
-                      <button
-                        onClick={() => {
-                          setPendingPostId(sub.id);
-                          setIsPostConfirmOpen(true);
-                        }}
-                        className="btn btn-primary bg-primary-500 text-white shadow-lg  shadow-primary-500/20 px-6 py-2.5 rounded-xl flex items-center gap-2 active:scale-95 transition-all"
-                      >
-                        <Zap className="w-4 h-4" />
-                        Post
-                      </button>
-                    )}
-
-                    <div className="flex gap-1">
-                      {sub.lastPosted !== selectedMonth && (
-                        <>
-                          <button
-                            onClick={() => handleEdit(sub)}
-                            className="p-2.5 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-xl text-gray-400 hover:text-primary-500 transition-all"
-                          >
-                            <Edit2 className="w-4 h-4" />
-                          </button>
-                          <button
-                            onClick={() => deleteSubscription(sub.id)}
-                            className="p-2.5 hover:bg-red-50 dark:hover:bg-red-900/10 rounded-xl text-gray-300 hover:text-red-500 transition-all"
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </button>
-                        </>
+                    <div className="flex items-center gap-2 md:gap-6">
+                      {sub.lastPosted === selectedMonth ? (
+                        <div 
+                          className="p-2.5 rounded-xl bg-green-50 dark:bg-green-900/10 text-green-600 flex items-center justify-center border border-green-100 dark:border-green-900/20"
+                          title="Posted"
+                        >
+                          <CheckCircle2 className="w-4 h-4" />
+                        </div>
+                      ) : (
+                        <button
+                          onClick={() => {
+                            setPendingPostId(sub.id);
+                            setIsPostConfirmOpen(true);
+                            setPostError(null);
+                          }}
+                          className="btn btn-primary bg-primary-500 text-white shadow-lg shadow-primary-500/20 px-4 md:px-6 py-2 md:py-2.5 rounded-xl flex items-center gap-1.5 active:scale-95 transition-all text-xs md:text-sm font-bold"
+                        >
+                          <Zap className="w-4 h-4" />
+                          <span className="hidden sm:inline-block">Post</span>
+                        </button>
                       )}
+
+                            <RowActions
+                              onEdit={() => handleEdit(sub)}
+                              onDelete={() => deleteSubscription(sub.id)}
+                            />
                     </div>
                   </div>
                 </div>
@@ -420,17 +455,16 @@ export const RecurringPage = () => {
             </div>
             <div>
               <label className="block text-[10px] font-black text-gray-400 uppercase mb-2 tracking-widest">
-                Amount (IDR)
+                Amount
               </label>
-              <input
-                type="number"
+              <CurrencyInput
                 required
                 value={formData.amount}
-                onChange={(e) =>
-                  setFormData({ ...formData, amount: e.target.value })
+                onChange={(val) =>
+                  setFormData({ ...formData, amount: val })
                 }
-                className="w-full px-4 py-3 rounded-xl border-2 border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-900 dark:text-white font-bold outline-none focus:border-primary-500"
-                placeholder="0"
+                className="w-full px-4 py-3 rounded-xl border-2 border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-900 dark:text-white font-bold outline-none focus:border-primary-500 font-sans"
+                placeholder="Rp 0"
               />
             </div>
           </div>
@@ -440,19 +474,19 @@ export const RecurringPage = () => {
               <label className="block text-[10px] font-black text-gray-400 uppercase mb-2 tracking-widest">
                 Category
               </label>
-              <select
+              <SelectInput
                 value={formData.category}
                 onChange={(e) =>
                   setFormData({ ...formData, category: e.target.value })
                 }
-                className="w-full px-4 py-3 rounded-xl border-2 border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-900 dark:text-white font-bold outline-none focus:border-primary-500"
+                className="px-4 py-3 rounded-xl border-2 border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-900 dark:text-white font-bold outline-none focus:border-primary-500"
               >
                 {CATEGORIES.map((c) => (
                   <option key={c} value={c}>
                     {c}
                   </option>
                 ))}
-              </select>
+              </SelectInput>
             </div>
             <div>
               <label className="block text-[10px] font-black text-gray-400 uppercase mb-2 tracking-widest">
@@ -476,13 +510,13 @@ export const RecurringPage = () => {
             <label className="block text-[10px] font-black text-gray-400 uppercase mb-2 tracking-widest">
               Paid From
             </label>
-            <select
+            <SelectInput
               required
               value={formData.accountId}
               onChange={(e) =>
                 setFormData({ ...formData, accountId: e.target.value })
               }
-              className="w-full px-4 py-3 rounded-xl border-2 border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-900 dark:text-white font-bold outline-none focus:border-primary-500"
+              className="px-4 py-3 rounded-xl border-2 border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-900 dark:text-white font-bold outline-none focus:border-primary-500"
             >
               <option value="">Select Account</option>
               <optgroup label="Bank Accounts">
@@ -499,7 +533,7 @@ export const RecurringPage = () => {
                   </option>
                 ))}
               </optgroup>
-            </select>
+            </SelectInput>
           </div>
 
           <div className="flex gap-4 pt-4">
@@ -520,7 +554,10 @@ export const RecurringPage = () => {
       {/* Post Confirmation Modal */}
       <Modal
         isOpen={isPostConfirmOpen}
-        onClose={() => setIsPostConfirmOpen(false)}
+        onClose={() => {
+          setIsPostConfirmOpen(false);
+          setPostError(null);
+        }}
         title="Confirm Recurring Post"
       >
         <div className="space-y-6">
@@ -585,6 +622,13 @@ export const RecurringPage = () => {
             </p>
           </div>
 
+          {postError && (
+            <div className="p-4 bg-red-50 dark:bg-red-900/10 rounded-xl border border-red-100 dark:border-red-900/20 flex gap-3 text-red-600 dark:text-red-400">
+              <AlertCircle className="w-5 h-5 shrink-0 mt-0.5" />
+              <p className="text-sm font-bold">{postError}</p>
+            </div>
+          )}
+
           <div className="flex gap-4 pt-4">
             <button
               onClick={() => setIsPostConfirmOpen(false)}
@@ -601,6 +645,22 @@ export const RecurringPage = () => {
           </div>
         </div>
       </Modal>
+
+      {/* Sticky Bottom Actions (Mobile) */}
+      <div className="md:hidden fixed bottom-0 left-0 right-0 p-4 bg-white/80 dark:bg-gray-900/80 backdrop-blur-lg border-t border-gray-100 dark:border-gray-800 z-40">
+        <div className="max-w-7xl mx-auto flex gap-3">
+          <button
+            onClick={() => {
+              setEditingId(null);
+              setIsModalOpen(true);
+            }}
+            className="flex-1 btn bg-primary-500 dark:bg-white text-white dark:text-primary-500 shadow-xl shadow-primary-500/20 py-4"
+          >
+            <Plus className="w-5 h-5" />
+            Add Recurring
+          </button>
+        </div>
+      </div>
     </div>
   );
 };

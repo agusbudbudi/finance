@@ -9,8 +9,8 @@ import { InvestmentCalculator } from "../services/calculations/investmentCalcula
 
 const DEFAULT_INVESTMENT: Investment = {
   startMonth: "2026-02",
-  monthlyContribution: 5000000,
-  estimatedAnnualReturn: 0.12,
+  monthlyContribution: 0,
+  estimatedAnnualReturn: 0,
   contributions: [],
   summary: {
     totalContributed: 0,

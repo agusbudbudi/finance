@@ -66,13 +66,16 @@ export const useDashboardData = () => {
   const totalBalance = accounts.reduce((sum, acc) => sum + acc.balance, 0);
 
   // Spending Analytics Data (Last 6 months)
-  const expenseData = budgets.slice(-6).map((b) => ({
-    name: new Date(b.month + "-01").toLocaleDateString("en-US", {
-      month: "short",
-    }),
-    spent: b.summary.totalSpent,
-    earned: b.summary.totalIncome,
-  }));
+  const expenseData = [...budgets]
+    .sort((a, b) => a.month.localeCompare(b.month))
+    .slice(-6)
+    .map((b) => ({
+      name: new Date(b.month + "-01").toLocaleDateString("en-US", {
+        month: "short",
+      }),
+      spent: b.summary.totalSpent,
+      earned: b.summary.totalIncome,
+    }));
 
   const unpostedRecurring = useMemo(() => {
     return subscriptions

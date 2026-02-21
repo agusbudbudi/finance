@@ -1,3 +1,4 @@
+import { useNavigate } from "react-router-dom";
 import { ChevronRight, Target, ArrowUpRight } from "lucide-react";
 import {
   ResponsiveContainer,
@@ -30,6 +31,8 @@ export const SpendingAnalyticsChart = ({
   budgetLimit,
   hasBudget,
 }: SpendingAnalyticsChartProps) => {
+  const navigate = useNavigate();
+
   return (
     <Card
       title="Income vs Spending"
@@ -69,10 +72,25 @@ export const SpendingAnalyticsChart = ({
             <Tooltip
               cursor={{ fill: "transparent" }}
               content={({ active, payload }) => {
-                if (active && payload && payload.length) {
+                if (active && payload && payload.length >= 2) {
                   return (
-                    <div className="bg-gray-900 text-white px-3 py-2 rounded-xl text-[10px] font-black shadow-lg border border-white/10 uppercase tracking-widest">
-                      Spent: {formatCurrency(payload[0].value as number)}
+                    <div className="bg-gray-900 border border-white/10 p-3 rounded-xl shadow-2xl backdrop-blur-md">
+                      <div className="space-y-1.5">
+                        <div className="flex items-center gap-2">
+                          <div className="w-1.5 h-1.5 rounded-full bg-primary-500"></div>
+                          <span className="text-[10px] font-black text-white/60 uppercase tracking-widest">Spent</span>
+                          <span className="text-xs font-black text-white ml-auto">
+                            {formatCurrency(payload[0].value as number)}
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <div className="w-1.5 h-1.5 rounded-full bg-slate-400"></div>
+                          <span className="text-[10px] font-black text-white/60 uppercase tracking-widest">Income</span>
+                          <span className="text-xs font-black text-white ml-auto">
+                            {formatCurrency(payload[1].value as number)}
+                          </span>
+                        </div>
+                      </div>
                     </div>
                   );
                 }
@@ -80,18 +98,18 @@ export const SpendingAnalyticsChart = ({
               }}
             />
             {/* Expense Bar */}
-            <Bar dataKey="spent" radius={[6, 6, 0, 0]} barSize={8}>
+            <Bar dataKey="spent" radius={[4, 4, 0, 0]} barSize={10}>
               {expenseData.map((_entry, index) => (
                 <Cell key={`cell-spent-${index}`} fill="#3069fe" />
               ))}
             </Bar>
-            {/* Income Bar (lighter color) */}
-            <Bar dataKey="earned" radius={[6, 6, 0, 0]} barSize={8}>
+            {/* Income Bar */}
+            <Bar dataKey="earned" radius={[4, 4, 0, 0]} barSize={10}>
               {expenseData.map((_entry, index) => (
                 <Cell
                   key={`cell-inc-${index}`}
-                  fill="#f1f5f9"
-                  className="opacity-20 dark:opacity-10"
+                  fill="currentColor"
+                  className="text-slate-200 dark:text-slate-700"
                 />
               ))}
             </Bar>
@@ -99,10 +117,13 @@ export const SpendingAnalyticsChart = ({
         </ResponsiveContainer>
       </div>
 
-      <div className="mt-8 p-6 bg-primary-500 rounded-xl text-white flex items-center justify-between shadow-lg  shadow-primary-500/20">
+      <div 
+        onClick={() => navigate("/planner")}
+        className="mt-8 p-4 md:p-6 bg-primary-500 rounded-xl text-white flex items-center justify-between shadow-lg shadow-primary-500/20 cursor-pointer transition-all hover:scale-[1.01] hover:brightness-110 active:scale-[0.99] group"
+      >
         <div className="flex items-center gap-4">
-          <div className="w-12 h-12 rounded-xl bg-white/20 flex items-center justify-center">
-            <Target className="w-6 h-6 text-white" />
+          <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-white/20 flex items-center justify-center transition-transform group-hover:rotate-12">
+            <Target className="w-5 h-5 md:w-6 md:h-6 text-white" />
           </div>
           <div>
             <p className="text-sm font-bold text-white">Monthly Strategy</p>
@@ -113,7 +134,7 @@ export const SpendingAnalyticsChart = ({
             </p>
           </div>
         </div>
-        <ArrowUpRight className="w-6 h-6 opacity-50" />
+        <ArrowUpRight className="w-6 h-6 opacity-50 group-hover:opacity-100 transition-opacity" />
       </div>
     </Card>
   );

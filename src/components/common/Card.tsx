@@ -15,7 +15,7 @@ export const Card = ({
   title,
   subtitle,
   className = "",
-  bodyClassName = "p-5",
+  bodyClassName = "p-4 md:p-6",
   action,
   variant = "white",
 }: CardProps) => {
