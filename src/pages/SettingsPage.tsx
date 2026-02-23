@@ -20,7 +20,6 @@ import {
 } from "lucide-react";
 
 import { ExcelExportService } from "../services/export/excelExportService";
-import { ExcelImportService } from "../services/import/excelImportService";
 import { ExcelImportModal } from "../components/settings/ExcelImportModal";
 
 
@@ -129,128 +128,99 @@ export const SettingsPage = () => {
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Data Persistence Section */}
-        <Card
+      <Card
           title="Data Portability"
-          subtitle="Backup and restore your local storage data."
+          subtitle="Import your financial data or backup your records."
           className="md:col-span-2"
         >
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mt-6">
-            <div className="flex flex-col h-full p-6 sm:p-8 bg-gray-50 dark:bg-white/5 rounded-2xl border border-gray-100 dark:border-white/10 group hover:border-primary-200 dark:hover:border-primary-900/50 transition-colors relative overflow-hidden">
-              <div className="absolute -right-4 -top-4 w-32 h-32 bg-primary-500/10 rounded-full blur-3xl group-hover:scale-150 transition-all"></div>
-              
-              <div className="space-y-4 relative z-10 mb-8">
-                <div className="w-12 h-12 rounded-xl bg-white dark:bg-black/40 flex items-center justify-center text-primary-500 shadow-sm border border-gray-100 dark:border-white/10 group-hover:scale-110 transition-transform">
-                  <Download className="w-6 h-6" />
+          {/* PRIMARY: Import from Excel */}
+          <div className="mt-6 p-6 sm:p-8 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-2xl relative overflow-hidden group shadow-xl shadow-emerald-500/20">
+            <div className="absolute -right-8 -top-8 w-48 h-48 bg-white/10 rounded-full blur-3xl group-hover:scale-150 transition-all duration-700" />
+            <div className="absolute -left-4 -bottom-4 w-32 h-32 bg-teal-400/20 rounded-full blur-2xl" />
+            <div className="relative z-10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
+              <div className="space-y-2">
+                <div className="flex items-center gap-3">
+                  <div className="p-2.5 bg-white/20 rounded-xl backdrop-blur-sm border border-white/10">
+                    <FileSpreadsheet className="w-6 h-6 text-white" />
+                  </div>
+                  <div>
+                    <p className="text-[10px] font-black text-emerald-100 uppercase tracking-widest">Recommended</p>
+                    <h3 className="text-xl font-black text-white tracking-tight">Import from Excel</h3>
+                  </div>
                 </div>
-                <div>
-                  <h3 className="text-xl font-black text-gray-900 dark:text-white tracking-tight">
-                    Export Data
-                  </h3>
-                  <p className="text-sm text-gray-500 font-medium mt-2 leading-relaxed">
-                    Download all your financial data as a JSON file for safe keeping or manual migration.
-                  </p>
-                </div>
-              </div>
-
-              <div className="flex flex-col gap-3 mt-auto relative z-10">
-                <button
-                  onClick={handleExport}
-                  disabled={isExporting}
-                  className="w-full py-4 bg-primary-500 hover:bg-primary-600 disabled:bg-primary-300 text-white rounded-xl font-bold flex items-center justify-center gap-2 transition-all active:scale-95 shadow-lg shadow-primary-500/20"
-                >
-                  {isExporting ? (
-                    <RefreshCcw className="w-4 h-4 animate-spin" />
-                  ) : (
-                    <Download className="w-4 h-4" />
-                  )}
-                  {isExporting ? "Generating..." : "Download JSON Backup"}
-                </button>
-
-                {/*
-                <button
-                  onClick={() => ExcelExportService.exportAll()}
-                  className="w-full py-4 bg-emerald-500 hover:bg-emerald-600 text-white rounded-xl font-bold flex items-center justify-center gap-2 transition-all active:scale-95 shadow-lg shadow-emerald-500/20"
-                >
-                  <FileSpreadsheet className="w-4 h-4" />
-                  Excel Export (.xlsx)
-                </button>
-                */}
-              </div>
-            </div>
-
-            <div className={`flex flex-col h-full p-6 sm:p-8 bg-gray-50 dark:bg-white/5 rounded-2xl border transition-colors relative overflow-hidden group ${
-              importStatus === "success"
-                ? "border-green-200 dark:border-green-900/50"
-                : importStatus === "error"
-                  ? "border-red-200 dark:border-red-900/50"
-                  : "border-gray-100 dark:border-white/10 hover:border-purple-200 dark:hover:border-purple-900/50"
-            }`}>
-              <div className={`absolute -right-4 -top-4 w-32 h-32 rounded-full blur-3xl group-hover:scale-150 transition-all ${
-                 importStatus === "success" ? "bg-green-500/10" : importStatus === "error" ? "bg-red-500/10" : "bg-purple-500/10"
-              }`}></div>
-              
-              <div className="space-y-4 relative z-10 mb-8">
-                <div
-                  className={`w-12 h-12 rounded-xl flex items-center justify-center shadow-sm border transition-all group-hover:scale-110 ${
-                    importStatus === "success"
-                      ? "bg-white dark:bg-black/40 text-green-500 border-green-100 dark:border-white/10"
-                      : importStatus === "error"
-                        ? "bg-white dark:bg-black/40 text-red-500 border-red-100 dark:border-white/10"
-                        : "bg-white dark:bg-black/40 text-purple-500 border-gray-100 dark:border-white/10"
-                  }`}
-                >
-                  {importStatus === "success" ? (
-                    <CheckCircle2 className="w-6 h-6" />
-                  ) : importStatus === "error" ? (
-                    <AlertTriangle className="w-6 h-6" />
-                  ) : (
-                    <Upload className="w-6 h-6" />
-                  )}
-                </div>
-                <div>
-                  <h3 className="text-xl font-black text-gray-900 dark:text-white tracking-tight">
-                    Import Data
-                  </h3>
-                  <p className="text-sm text-gray-500 font-medium mt-2 leading-relaxed">
-                    Restore system via JSON backup or bulk Import from Excel.
-                  </p>
-                </div>
-              </div>
-
-              <div className="flex flex-col gap-3 mt-auto relative z-10">
-                <label className={`w-full py-4 text-white rounded-xl font-bold flex items-center justify-center gap-2 transition-all active:scale-95 shadow-lg cursor-pointer ${
-                    importStatus === "success"
-                      ? "bg-green-500 hover:bg-green-600 shadow-green-500/20"
-                      : importStatus === "error"
-                        ? "bg-red-500 hover:bg-red-600 shadow-red-500/20"
-                        : "bg-purple-500 hover:bg-purple-600 shadow-purple-500/20"
-                }`}>
-                  <FileJson className="w-4 h-4" />
-                  {importStatus === "success" ? "Restored!" : importStatus === "error" ? "Failed" : "Import JSON"}
-                  <input
-                    type="file"
-                    accept=".json"
-                    onChange={handleImport}
-                    className="hidden"
-                  />
-                </label>
-
-                {/*
-                <label 
-                  onClick={() => setIsExcelImportOpen(true)}
-                  className="w-full py-4 bg-emerald-500 hover:bg-emerald-600 text-white rounded-xl font-bold flex items-center justify-center gap-2 transition-all active:scale-95 shadow-lg shadow-emerald-500/20 cursor-pointer"
-                >
-                  <FileSpreadsheet className="w-4 h-4" />
-                  Import from Excel
-                </label>
-                */}
-              </div>
-
-              {importStatus === "error" && (
-                <p className="text-xs text-red-500 font-bold text-center mt-3 relative z-10">
-                  {errorMessage}
+                <p className="text-sm text-emerald-50/80 font-medium leading-relaxed max-w-md">
+                  Bulk import your accounts, transactions, budget strategy, automated bills, and more from a structured Excel file. Includes preview & validation before saving.
                 </p>
-              )}
+              </div>
+              <button
+                onClick={() => setIsExcelImportOpen(true)}
+                className="shrink-0 px-6 py-3.5 bg-white text-emerald-600 hover:bg-emerald-50 rounded-xl font-black flex items-center gap-2 transition-all active:scale-95 shadow-lg shadow-black/10 whitespace-nowrap"
+              >
+                <Upload className="w-4 h-4" />
+                Import Excel
+              </button>
+            </div>
+          </div>
+
+          {/* SECONDARY: Other backup/export actions */}
+          <div className="mt-4">
+            <p className="text-[10px] font-black text-gray-400 dark:text-gray-600 uppercase tracking-widest mb-3 px-1">Other Options</p>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              {/* Excel Export */}
+              <button
+                onClick={() => ExcelExportService.exportAll()}
+                className="flex items-center gap-3 p-4 bg-gray-50 dark:bg-white/5 hover:bg-emerald-50 dark:hover:bg-emerald-900/10 border border-gray-100 dark:border-white/10 hover:border-emerald-200 dark:hover:border-emerald-900/40 rounded-xl transition-all group text-left"
+              >
+                <div className="w-9 h-9 rounded-lg bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center text-emerald-600 dark:text-emerald-400 shrink-0 group-hover:scale-110 transition-transform">
+                  <FileSpreadsheet className="w-4 h-4" />
+                </div>
+                <div>
+                  <p className="text-sm font-black text-gray-800 dark:text-gray-200">Export Excel</p>
+                  <p className="text-[10px] text-gray-400 font-medium">Download .xlsx</p>
+                </div>
+              </button>
+
+              {/* JSON Export */}
+              <button
+                onClick={handleExport}
+                disabled={isExporting}
+                className="flex items-center gap-3 p-4 bg-gray-50 dark:bg-white/5 hover:bg-primary-50 dark:hover:bg-primary-900/10 border border-gray-100 dark:border-white/10 hover:border-primary-200 dark:hover:border-primary-900/40 rounded-xl transition-all group text-left disabled:opacity-60"
+              >
+                <div className="w-9 h-9 rounded-lg bg-primary-100 dark:bg-primary-900/30 flex items-center justify-center text-primary-600 dark:text-primary-400 shrink-0 group-hover:scale-110 transition-transform">
+                  {isExporting ? <RefreshCcw className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />}
+                </div>
+                <div>
+                  <p className="text-sm font-black text-gray-800 dark:text-gray-200">{isExporting ? "Generating..." : "Export JSON"}</p>
+                  <p className="text-[10px] text-gray-400 font-medium">Full backup</p>
+                </div>
+              </button>
+
+              {/* JSON Import */}
+              <label className={`flex items-center gap-3 p-4 bg-gray-50 dark:bg-white/5 border border-gray-100 dark:border-white/10 rounded-xl transition-all group cursor-pointer text-left ${
+                importStatus === "success"
+                  ? "border-green-200 dark:border-green-900/50 bg-green-50 dark:bg-green-900/10"
+                  : importStatus === "error"
+                    ? "border-red-200 dark:border-red-900/50 bg-red-50 dark:bg-red-900/10"
+                    : "hover:bg-purple-50 dark:hover:bg-purple-900/10 hover:border-purple-200 dark:hover:border-purple-900/40"
+              }`}>
+                <div className={`w-9 h-9 rounded-lg flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform ${
+                  importStatus === "success"
+                    ? "bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400"
+                    : importStatus === "error"
+                      ? "bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400"
+                      : "bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400"
+                }`}>
+                  {importStatus === "success" ? <CheckCircle2 className="w-4 h-4" /> : importStatus === "error" ? <AlertTriangle className="w-4 h-4" /> : <FileJson className="w-4 h-4" />}
+                </div>
+                <div>
+                  <p className="text-sm font-black text-gray-800 dark:text-gray-200">
+                    {importStatus === "success" ? "Restored!" : importStatus === "error" ? "Failed" : "Import JSON"}
+                  </p>
+                  <p className="text-[10px] text-gray-400 font-medium">Restore backup</p>
+                  {importStatus === "error" && <p className="text-[10px] text-red-500 font-bold mt-0.5">{errorMessage}</p>}
+                </div>
+                <input type="file" accept=".json" onChange={handleImport} className="hidden" />
+              </label>
             </div>
           </div>
 

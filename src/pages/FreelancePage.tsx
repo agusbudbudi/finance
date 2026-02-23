@@ -628,10 +628,24 @@ export const FreelancePage = () => {
               <p className="text-xl font-black text-primary-900 dark:text-primary-100">
                 {formatCurrency(activeIncome.amount)}
               </p>
-              <p className="text-xs font-bold text-primary-700/60 dark:text-primary-400 mt-1">
-                [{activeIncome.category}] {activeIncome.client} -{" "}
-                {activeIncome.project}
-              </p>
+              <div className="flex items-center gap-2 mt-2">
+                <span
+                  className={`px-1.5 py-0.5 rounded-lg text-[9px] font-black uppercase tracking-wider border ${
+                    activeIncome.category === "Freelance"
+                      ? "bg-blue-50 text-blue-500 border-blue-100 dark:bg-blue-900/10 dark:text-blue-400 dark:border-blue-900/20"
+                      : activeIncome.category === "Bonus"
+                        ? "bg-purple-50 text-purple-500 border-purple-100 dark:bg-purple-900/10 dark:text-purple-400 dark:border-purple-900/20"
+                        : activeIncome.category === "THR"
+                          ? "bg-amber-50 text-amber-500 border-amber-100 dark:bg-amber-900/10 dark:text-amber-400 dark:border-amber-900/20"
+                          : "bg-gray-50 text-gray-500 border-gray-100 dark:bg-gray-800/50 dark:text-gray-400 dark:border-gray-700"
+                  }`}
+                >
+                  {activeIncome.category}
+                </span>
+                <p className="text-xs font-bold text-primary-700/80 dark:text-primary-400">
+                  {activeIncome.client} - {activeIncome.project}
+                </p>
+              </div>
             </div>
 
             <div className="space-y-3">

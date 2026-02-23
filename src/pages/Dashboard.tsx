@@ -35,9 +35,10 @@ export const Dashboard = () => {
       <BalanceHero
         totalBalance={totalBalance}
         activeBucketsCount={accounts.length}
+        dailySafeSpend={insights.dailySafeSpend}
       />
 
-      {/* accounts.length === 0 && (
+      {accounts.length === 0 && (
         <div 
           onClick={() => navigate('/settings', { state: { openExcelImport: true } })}
           className="bg-primary-50 dark:bg-primary-900/10 border border-primary-200 dark:border-primary-800/30 rounded-2xl p-6 flex flex-col md:flex-row items-center justify-between gap-4 cursor-pointer hover:bg-primary-100 dark:hover:bg-primary-900/20 transition-colors group"
@@ -56,7 +57,7 @@ export const Dashboard = () => {
             <ChevronRight className="w-4 h-4" />
           </div>
         </div>
-      ) */}
+      )}
 
       {/* Summary Diagnostic Widgets */}
       <DashboardMetricGrid

@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { useBudgetStore } from "../stores/useBudgetStore";
 import { useAccountsStore } from "../stores/useAccountsStore";
 import { useExpenseStore } from "../stores/useExpenseStore";
+import { useProfileStore } from "../stores/useProfileStore";
 import { CurrencyInput } from "../components/common/CurrencyInput";
 import { SelectInput } from "../components/common/SelectInput";
 import { Card } from "../components/common/Card";
@@ -29,6 +30,7 @@ import {
   Zap,
   Trash2,
   Banknote,
+  BanknoteArrowUp,
   ChevronRight,
   Copy,
 } from "lucide-react";
@@ -42,6 +44,7 @@ import { Allocation } from "../types/budget";
 import { Expense, ExpenseCategory } from "../types/expense";
 
 export const MonthlyPlanner = () => {
+  const { updateProfile } = useProfileStore();
   const {
     budgets,
     currentBudget,
@@ -77,6 +80,7 @@ export const MonthlyPlanner = () => {
   // Confirmation Flow State
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
   const [pendingAlloc, setPendingAlloc] = useState<Allocation | null>(null);
+  const [targetBucketError, setTargetBucketError] = useState<string | null>(null);
 
   useEffect(() => {
     const budget = ensureMonthExists(selectedMonth);
@@ -128,6 +132,11 @@ export const MonthlyPlanner = () => {
       // Once completed, it cannot be unchecked to maintain accounting integrity
       return;
     } else if (alloc) {
+      if (!alloc.toAccount) {
+        setTargetBucketError(allocationId);
+        return;
+      }
+      setTargetBucketError(null);
       // Checking: open confirmation flow
       setPendingAlloc(alloc);
       setIsConfirmModalOpen(true);
@@ -207,6 +216,10 @@ export const MonthlyPlanner = () => {
           amount + activeBudget.income.freelance + activeBudget.income.other,
       },
     });
+    
+    // Sync with the master profile so dashboard and other metrics can use it
+    updateProfile({ monthlySalary: amount });
+    
     setIsEditingSalary(false);
   };
 
@@ -229,6 +242,7 @@ export const MonthlyPlanner = () => {
       amount: alloc.amount.toString(),
       toAccount: alloc.toAccount,
     });
+    setTargetBucketError(null);
     setIsModalOpen(true);
   };
 
@@ -387,23 +401,39 @@ export const MonthlyPlanner = () => {
                         </button>
                         <div>
                           <p
-                            className={`font-black tracking-tight ${alloc.isCompleted ? "text-green-900 dark:text-green-100 line-through" : "text-gray-900 dark:text-white"}`}
+                            className={`font-black tracking-tight flex items-center gap-2 ${alloc.isCompleted ? "text-green-900 dark:text-green-100 line-through" : "text-gray-900 dark:text-white"}`}
                           >
                             {alloc.name}
+                            {activeBudget.income.total > 0 && (
+                              <span className="text-[10px] font-black text-primary-500 bg-primary-50 dark:bg-primary-900/20 px-2 py-0.5 rounded uppercase">
+                                {formatPercentage(
+                                  alloc.amount / activeBudget.income.total,
+                                )}
+                              </span>
+                            )}
                           </p>
                           <div className="flex flex-wrap items-center gap-2 mt-0.5">
                             <span className="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest border border-gray-100 dark:border-gray-800 px-1.5 py-0.5 rounded">
                               {CATEGORY_LABELS[alloc.category] || alloc.category}
                             </span>
-                            <span className="text-[10px] font-black text-primary-500 bg-primary-50 dark:bg-primary-900/20 px-2 py-0.5 rounded uppercase">
-                              {formatPercentage(
-                                alloc.amount / activeBudget.income.total,
-                              )}
-                            </span>
-                            <span className="text-[10px] font-bold text-gray-400 break-all">
-                              Acc: {getAccountLabel(alloc.toAccount)}
-                            </span>
+                            {alloc.toAccount ? (
+                              <span className="text-[10px] font-bold text-gray-400 break-all flex items-center gap-1">
+                                <BanknoteArrowUp className="w-4 h-4 text-primary-500 shrink-0" />
+                                {getAccountLabel(alloc.toAccount)}
+                              </span>
+                            ) : (
+                              <span className="text-[10px] font-bold text-orange-500 dark:text-orange-400 break-all flex items-center gap-1">
+                                <AlertCircle className="w-3 h-3 shrink-0" />
+                                Target Account is required
+                              </span>
+                            )}
                           </div>
+                          {targetBucketError === alloc.id && (
+                            <div className="flex items-center gap-1.5 mt-2 text-red-500">
+                              <AlertCircle className="w-3.5 h-3.5 shrink-0" />
+                              <span className="text-[11px]">Target Account is required before marking as completed. Please edit and select an account.</span>
+                            </div>
+                          )}
                         </div>
                       </div>
 

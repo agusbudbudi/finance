@@ -24,6 +24,7 @@ import {
   Smartphone,
   ShieldCheck,
   Banknote,
+  BanknoteArrowDown,
   Copy,
 } from "lucide-react";
 import { RecurringTransaction, RecurringFrequency } from "../types/recurring";
@@ -359,20 +360,28 @@ export const RecurringPage = () => {
                           {sub.category}
                         </span>
                       </div>
-                      <div className="flex items-center gap-3 text-xs font-bold text-gray-400 uppercase tracking-widest">
+                      <div className="flex items-center gap-3 text-xs font-bold text-gray-400">
                         <div className="flex items-center gap-1">
                           <Clock className="w-3 h-3" /> Day {sub.dueDay}
                         </div>
                         <span>•</span>
                         <div className="flex items-center gap-1">
-                          {sub.accountType === "bank" ? (
-                            <Wallet className="w-3 h-3 text-primary-500" />
-                          ) : (
-                            <CreditCard className="w-3 h-3 text-purple-500" />
-                          )}
-                          {accounts.find((a) => a.id === sub.accountId)?.name ||
-                            cards.find((c) => c.id === sub.accountId)?.bank ||
-                            "Account"}
+                          {(() => {
+                            const accountName =
+                              accounts.find((a) => a.id === sub.accountId)?.name ||
+                              cards.find((c) => c.id === sub.accountId)?.bank;
+                            return accountName ? (
+                              <>
+                                <BanknoteArrowDown className="w-4 h-4 text-primary-500" />
+                                {accountName}
+                              </>
+                            ) : (
+                              <span className="flex items-center gap-1 text-orange-500 dark:text-orange-400 normal-case tracking-normal">
+                                <AlertCircle className="w-3 h-3 shrink-0" />
+                                Paid From is required
+                              </span>
+                            );
+                          })()}
                         </div>
                       </div>
                     </div>
@@ -610,7 +619,7 @@ export const RecurringPage = () => {
                         subscriptions.find((s) => s.id === pendingPostId)
                           ?.accountId,
                     )?.bank ||
-                    "Unknown Account")}
+                    "-")}
               </span>
             </div>
           </div>

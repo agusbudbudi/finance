@@ -221,13 +221,17 @@ export const useBudgetStore = create<BudgetStore>((set, get) => ({
     // 1. Group expenses by category for individual line items
     const categorySpending: Record<string, number> = {};
     expenses.forEach(e => {
-      const uiCat = e.category.toLowerCase();
-      const internalCat = categoryMap[uiCat] || "other";
-      categorySpending[internalCat] = (categorySpending[internalCat] || 0) + e.amount;
+      if (e.type !== "allocation") {
+        const uiCat = e.category.toLowerCase();
+        const internalCat = categoryMap[uiCat] || "other";
+        categorySpending[internalCat] = (categorySpending[internalCat] || 0) + e.amount;
+      }
     });
 
     // 2. Calculate ABSOLUTE total from the raw array to avoid mapping gaps in the chart
-    const totalSpent = expenses.reduce((sum, e) => sum + e.amount, 0);
+    const totalSpent = expenses
+      .filter((e) => e.type !== "allocation")
+      .reduce((sum, e) => sum + e.amount, 0);
 
     const updatedExpenses = { ...budget.expenses };
     // Update budget.expenses with real spent values

@@ -1,4 +1,4 @@
-import { Zap, ChevronRight } from "lucide-react";
+import { Zap, ChevronRight, ShieldCheck } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Card } from "../common/Card";
 import { formatCurrency } from "../../utils/formatters";
@@ -6,11 +6,13 @@ import { formatCurrency } from "../../utils/formatters";
 interface BalanceHeroProps {
   totalBalance: number;
   activeBucketsCount: number;
+  dailySafeSpend: number;
 }
 
 export const BalanceHero = ({
   totalBalance,
   activeBucketsCount,
+  dailySafeSpend,
 }: BalanceHeroProps) => {
   const navigate = useNavigate();
 
@@ -27,9 +29,18 @@ export const BalanceHero = ({
         <p className="text-white/60 font-black uppercase tracking-[0.2em] text-[10px] mb-4">
           Total Combined Balance
         </p>
-        <h1 className="text-4xl md:text-7xl font-black text-white tracking-tight mb-8">
+        <h1 className="text-4xl md:text-7xl font-black text-white tracking-tight mb-6">
           {formatCurrency(totalBalance).replace("Rp", "Rp ")}
         </h1>
+        
+        {/* Safe to Spend Badge */}
+        <div className="mb-8 inline-flex items-center gap-2 px-4 py-2 bg-green-500/20 text-green-300 rounded-full border border-green-500/30 backdrop-blur-sm shadow-[0_0_15px_rgba(34,197,94,0.3)]">
+          <ShieldCheck className="w-4 h-4" />
+          <span className="text-sm font-black tracking-wide">
+            SAFE TO SPEND TODAY: {formatCurrency(dailySafeSpend)}
+          </span>
+        </div>
+
         <div
           onClick={() => navigate("/buckets")}
           className="flex items-center gap-3 px-6 py-3 bg-white/10 hover:bg-white/20 rounded-xl border border-white/10 text-white transition-all cursor-pointer group/btn active:scale-95"

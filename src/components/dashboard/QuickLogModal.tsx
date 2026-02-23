@@ -225,9 +225,30 @@ export const QuickLogModal = ({ isOpen, onClose }: QuickLogModalProps) => {
             </div>
 
             <div>
-              <label className="block text-[10px] font-black text-gray-400 uppercase mb-2 tracking-widest ml-1">
-                Category
-              </label>
+              <div className="flex items-center justify-between mb-2 ml-1">
+                <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest">
+                  Category
+                </label>
+              </div>
+
+              {/* Quick Pick Chips */}
+              <div className="flex flex-wrap gap-2 mb-3">
+                {["Food & Drink", "Transportation", "Shopping", "Entertainment"].map((cat) => (
+                  <button
+                    key={cat}
+                    type="button"
+                    onClick={() => setExpenseForm({ ...expenseForm, category: cat })}
+                    className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
+                      expenseForm.category === cat
+                        ? "bg-primary-500 text-white shadow-md"
+                        : "bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700"
+                    }`}
+                  >
+                    {cat}
+                  </button>
+                ))}
+              </div>
+
               <SelectInput
                 value={expenseForm.category}
                 onChange={(e) => setExpenseForm({ ...expenseForm, category: e.target.value })}

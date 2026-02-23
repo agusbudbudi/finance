@@ -21,6 +21,7 @@ export interface Account {
   balance: number;
   isActive: boolean;
   isSalaryAccount?: boolean;
+  targetAmount?: number;
 }
 
 export interface AccountsStore {

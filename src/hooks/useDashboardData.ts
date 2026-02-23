@@ -25,7 +25,7 @@ export const useDashboardData = () => {
   const monthlyExpenses = useMemo(
     () =>
       expenses
-        .filter((e) => e.date.startsWith(currentMonth))
+        .filter((e) => e.date.startsWith(currentMonth) && e.type !== "allocation")
         .reduce((sum, e) => sum + e.amount, 0),
     [expenses, currentMonth],
   );
@@ -69,13 +69,19 @@ export const useDashboardData = () => {
   const expenseData = [...budgets]
     .sort((a, b) => a.month.localeCompare(b.month))
     .slice(-6)
-    .map((b) => ({
-      name: new Date(b.month + "-01").toLocaleDateString("en-US", {
-        month: "short",
-      }),
-      spent: b.summary.totalSpent,
-      earned: b.summary.totalIncome,
-    }));
+    .map((b) => {
+      const monthSpent = expenses
+        .filter((e) => e.date.startsWith(b.month) && e.type !== "allocation")
+        .reduce((sum, e) => sum + e.amount, 0);
+
+      return {
+        name: new Date(b.month + "-01").toLocaleDateString("en-US", {
+          month: "short",
+        }),
+        spent: monthSpent,
+        earned: b.summary.totalIncome,
+      };
+    });
 
   const unpostedRecurring = useMemo(() => {
     return subscriptions

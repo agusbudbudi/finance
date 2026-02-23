@@ -63,6 +63,7 @@ export class BudgetCalculator {
     return [
       {
         id: crypto.randomUUID(),
+        name: "Family Support",
         category: "family_support",
         amount: familyAmount,
         toAccount: "acc_003",
@@ -71,6 +72,7 @@ export class BudgetCalculator {
       },
       {
         id: crypto.randomUUID(),
+        name: "Daily Spending",
         category: "daily_spending",
         amount: Math.round(salary * 0.25),
         toAccount: "acc_002",
@@ -79,6 +81,7 @@ export class BudgetCalculator {
       },
       {
         id: crypto.randomUUID(),
+        name: "Savings",
         category: "savings",
         amount: Math.round(salary * 0.35),
         toAccount: "acc_001",
@@ -87,6 +90,7 @@ export class BudgetCalculator {
       },
       {
         id: crypto.randomUUID(),
+        name: "Investment",
         category: "investment",
         amount: Math.round(salary * 0.15),
         toAccount: "acc_006",
@@ -95,6 +99,7 @@ export class BudgetCalculator {
       },
       {
         id: crypto.randomUUID(),
+        name: "Emergency Fund",
         category: "emergency_fund",
         amount: Math.round(salary * 0.1),
         toAccount: "acc_005",
@@ -103,6 +108,7 @@ export class BudgetCalculator {
       },
       {
         id: crypto.randomUUID(),
+        name: "OVO Topup",
         category: "ovo_topup",
         amount: 500000,
         toAccount: "acc_007",
@@ -111,6 +117,7 @@ export class BudgetCalculator {
       },
       {
         id: crypto.randomUUID(),
+        name: "Credit Card Buffer",
         category: "credit_card_buffer",
         amount: 500000,
         toAccount: "acc_001",

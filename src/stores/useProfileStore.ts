@@ -12,10 +12,19 @@ export const useProfileStore = create<ProfileStore>((set) => ({
 
   updateProfile: (updates: Partial<Profile>) => {
     set((state) => {
-      if (!state.profile) return state;
+      const baseProfile: Profile = state.profile || {
+        userId: "user_default",
+        name: "User",
+        monthlySalary: 0,
+        salaryBank: "Unknown",
+        salaryDay: 1,
+        currency: "IDR",
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      };
 
       const updatedProfile = {
-        ...state.profile,
+        ...baseProfile,
         ...updates,
         updatedAt: new Date().toISOString(),
       };

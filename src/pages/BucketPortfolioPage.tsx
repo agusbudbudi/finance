@@ -56,8 +56,16 @@ export const BucketPortfolioPage = () => {
     type: "savings" as AccountType,
     purpose: "salary_savings" as AccountPurpose,
     balance: "",
+    targetAmount: "",
     isSalaryAccount: false,
   });
+
+  const [adjustModalOpen, setAdjustModalOpen] = useState(false);
+  const [adjustingAccount, setAdjustingAccount] = useState<Account | null>(null);
+  const [adjustAmount, setAdjustAmount] = useState("");
+  const [isAdding, setIsAdding] = useState(true);
+  
+  const [activePurposeFilter, setActivePurposeFilter] = useState<AccountPurpose | null>(null);
 
   const totalBalance = useMemo(() => {
     return accounts.reduce(
@@ -68,11 +76,14 @@ export const BucketPortfolioPage = () => {
 
   const filteredAccounts = useMemo(() => {
     return accounts.filter(
-      (acc) =>
-        acc.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        acc.bank.toLowerCase().includes(searchQuery.toLowerCase()),
+      (acc) => {
+        const matchesSearch = acc.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                              acc.bank.toLowerCase().includes(searchQuery.toLowerCase());
+        const matchesFilter = activePurposeFilter ? acc.purpose === activePurposeFilter : true;
+        return matchesSearch && matchesFilter;
+      }
     );
-  }, [accounts, searchQuery]);
+  }, [accounts, searchQuery, activePurposeFilter]);
 
   const purposeBreakdown = useMemo(() => {
     const breakdown: Record<AccountPurpose, number> = {} as any;
@@ -117,6 +128,7 @@ export const BucketPortfolioPage = () => {
       type: account.type,
       purpose: account.purpose,
       balance: account.balance.toString(),
+      targetAmount: account.targetAmount?.toString() || "",
       isSalaryAccount: !!account.isSalaryAccount,
     });
     setIsModalOpen(true);
@@ -124,8 +136,9 @@ export const BucketPortfolioPage = () => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    const balanceNum = parseInt(formData.balance);
-    if (isNaN(balanceNum)) return;
+    const balanceNum = parseInt(formData.balance.replace(/\D/g, "")) || 0;
+    const targetNum = parseInt(formData.targetAmount.replace(/\D/g, ""));
+    const finalTarget = isNaN(targetNum) || targetNum <= 0 ? undefined : targetNum;
 
     if (editingAccountId) {
       updateAccount(editingAccountId, {
@@ -134,6 +147,7 @@ export const BucketPortfolioPage = () => {
         type: formData.type,
         purpose: formData.purpose,
         balance: balanceNum,
+        targetAmount: finalTarget,
         isSalaryAccount: formData.isSalaryAccount,
       });
     } else {
@@ -144,6 +158,7 @@ export const BucketPortfolioPage = () => {
         type: formData.type,
         purpose: formData.purpose,
         balance: balanceNum,
+        targetAmount: finalTarget,
         isActive: true,
         isSalaryAccount: formData.isSalaryAccount,
       };
@@ -158,8 +173,26 @@ export const BucketPortfolioPage = () => {
       type: "savings",
       purpose: "salary_savings",
       balance: "",
+      targetAmount: "",
       isSalaryAccount: false,
     });
+  };
+
+  const handleAdjustSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!adjustingAccount) return;
+    
+    const amountNum = parseInt(adjustAmount.replace(/\D/g, "")) || 0;
+    if (amountNum <= 0) return;
+    
+    const newBalance = isAdding 
+      ? adjustingAccount.balance + amountNum 
+      : Math.max(0, adjustingAccount.balance - amountNum);
+      
+    updateAccount(adjustingAccount.id, { balance: newBalance });
+    setAdjustModalOpen(false);
+    setAdjustingAccount(null);
+    setAdjustAmount("");
   };
 
   const hasSalaryAccount = useMemo(() => {
@@ -203,6 +236,7 @@ export const BucketPortfolioPage = () => {
                 type: "savings",
                 purpose: "salary_savings",
                 balance: "",
+                targetAmount: "",
                 isSalaryAccount: false,
               });
               setIsModalOpen(true);
@@ -305,8 +339,20 @@ export const BucketPortfolioPage = () => {
               bodyClassName="px-5 py-5"
             >
               <div className="space-y-4">
+                {activePurposeFilter && (
+                  <button 
+                    onClick={() => setActivePurposeFilter(null)}
+                    className="text-xs font-bold text-primary-500 hover:text-primary-600 mb-2 flex items-center gap-1"
+                  >
+                    <ChevronRight className="w-3 h-3 rotate-180" /> Clear Filter
+                  </button>
+                )}
                 {purposeBreakdown.map((item) => (
-                  <div key={item.purpose} className="space-y-1.5">
+                  <div 
+                    key={item.purpose} 
+                    className={`space-y-1.5 p-2 -mx-2 rounded-lg cursor-pointer transition-colors ${activePurposeFilter === item.purpose ? 'bg-primary-50 dark:bg-primary-900/10 border border-primary-100 dark:border-primary-900/20' : 'hover:bg-gray-50 dark:hover:bg-gray-800'}`}
+                    onClick={() => setActivePurposeFilter(activePurposeFilter === item.purpose ? null : item.purpose)}
+                  >
                     <div className="flex justify-between text-[11px] font-bold">
                       <span className="text-gray-900 dark:text-white uppercase tracking-tight truncate max-w-[70%]">
                         {item.label}
@@ -354,7 +400,7 @@ export const BucketPortfolioPage = () => {
                   bodyClassName="p-4 md:p-6"
                   className="group relative hover:border-primary-400/50 hover:shadow-lg transition-all duration-300 border border-gray-100 dark:border-gray-800"
                 >
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                     <div className="flex items-center gap-4">
                       <div
                         className={`w-12 h-12 rounded-xl flex items-center justify-center shadow-inner transition-transform duration-500 group-hover:scale-105 ${
@@ -388,15 +434,46 @@ export const BucketPortfolioPage = () => {
                       </div>
                     </div>
 
-                    <div className="flex items-center justify-between sm:justify-end gap-4 md:gap-6 border-t sm:border-t-0 border-gray-50 dark:border-gray-800 pt-3 sm:pt-0">
-                      <p className="text-xl font-black text-gray-900 dark:text-white leading-none tracking-tight">
-                        {formatCurrency(account.balance)}
-                      </p>
+                    <div className="flex flex-col items-end gap-3 mt-4 sm:mt-0 w-full sm:w-auto">
+                      <div className="text-right w-full">
+                        <p className="text-xl md:text-2xl font-black text-gray-900 dark:text-white leading-none tracking-tight">
+                          {formatCurrency(account.balance)}
+                        </p>
+                        {account.targetAmount && account.targetAmount > 0 && (
+                          <div className="mt-2 w-full sm:w-48 flex flex-col items-end opacity-90 hover:opacity-100 transition-opacity">
+                            <div className="w-full bg-gray-100 dark:bg-gray-800 rounded-full h-1.5 overflow-hidden">
+                              <div 
+                                className={`h-full rounded-full transition-all ${account.balance >= account.targetAmount ? 'bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.5)]' : 'bg-primary-500 shadow-[0_0_8px_rgba(14,165,233,0.5)]'}`}
+                                style={{ width: `${Math.min(100, (account.balance / account.targetAmount) * 100)}%` }}
+                              ></div>
+                            </div>
+                            <p className="text-[9px] font-black tracking-widest text-gray-500 dark:text-gray-400 uppercase mt-1.5">
+                              <span className={account.balance >= account.targetAmount ? 'text-green-500' : 'text-primary-500'}>
+                                {Math.round((account.balance / account.targetAmount) * 100)}%
+                              </span> 
+                              {' '}OF {formatCurrency(account.targetAmount).replace('Rp', '')} GOAL 🚀
+                            </p>
+                          </div>
+                        )}
+                      </div>
                       
-                      <RowActions
-                        onEdit={() => handleEdit(account)}
-                        onDelete={() => deleteAccount(account.id)}
-                      />
+                      <div className="flex items-center justify-end gap-2 w-full">
+                        <button
+                          onClick={() => {
+                            setAdjustingAccount(account);
+                            setAdjustModalOpen(true);
+                            setIsAdding(true);
+                            setAdjustAmount("");
+                          }}
+                          className="btn btn-secondary py-1.5 px-3 text-[10px] font-black tracking-widest uppercase bg-primary-50 dark:bg-primary-900/20 text-primary-600 dark:text-primary-400 border-transparent hover:border-primary-200"
+                        >
+                          Quick Adjust
+                        </button>
+                        <RowActions
+                          onEdit={() => handleEdit(account)}
+                          onDelete={() => deleteAccount(account.id)}
+                        />
+                      </div>
                     </div>
                   </div>
                 </Card>
@@ -405,11 +482,11 @@ export const BucketPortfolioPage = () => {
           ) : (
             <EmptyState
               icon={Wallet}
-              title={searchQuery ? "No matches found" : "No buckets created"}
+              title={searchQuery ? "BRUH, NOTHING FOUND 💀" : "NO BUCKETS YET 🏜️"}
               description={
                 searchQuery
-                  ? `We couldn't find any accounts matching "${searchQuery}". Try a different search term.`
-                  : "Start adding your bank accounts and e-wallets to build your financial ecosystem."
+                  ? `We looked everywhere but couldn't find "${searchQuery}". Try a different name?`
+                  : "Your money needs a home! Create your first bucket to start tracking your stash."
               }
               action={
                 <button
@@ -511,19 +588,34 @@ export const BucketPortfolioPage = () => {
             </div>
           </div>
 
-          <div>
-            <label className="block text-[10px] font-black text-gray-400 uppercase mb-2 tracking-widest ml-1">
-              Current Balance
-            </label>
-            <CurrencyInput
-              required
-              value={formData.balance}
-              onChange={(val) =>
-                setFormData({ ...formData, balance: val })
-              }
-              className="w-full px-4 py-3 rounded-xl border-2 border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-900 dark:text-white font-bold focus:border-primary-500 outline-none transition-all font-sans"
-              placeholder="Rp 0"
-            />
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-[10px] font-black text-gray-400 uppercase mb-2 tracking-widest ml-1">
+                Current Balance
+              </label>
+              <CurrencyInput
+                required
+                value={formData.balance}
+                onChange={(val) =>
+                  setFormData({ ...formData, balance: val })
+                }
+                className="w-full px-4 py-3 rounded-xl border-2 border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-900 dark:text-white font-bold focus:border-primary-500 outline-none transition-all font-sans"
+                placeholder="Rp 0"
+              />
+            </div>
+            <div>
+              <label className="block text-[10px] font-black text-gray-400 uppercase mb-2 tracking-widest ml-1">
+                Target Goal (Optional)
+              </label>
+              <CurrencyInput
+                value={formData.targetAmount}
+                onChange={(val) =>
+                  setFormData({ ...formData, targetAmount: val })
+                }
+                className="w-full px-4 py-3 rounded-xl border-2 border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-900 dark:text-white font-bold focus:border-primary-500 outline-none transition-all font-sans placeholder-gray-300 dark:placeholder-gray-700"
+                placeholder="e.g. Rp 50.000.000"
+              />
+            </div>
           </div>
 
           <div className="flex items-center gap-3 p-4 bg-primary-50 dark:bg-primary-900/10 rounded-xl border border-primary-100 dark:border-primary-900/20 group cursor-pointer hover:bg-primary-100 dark:hover:bg-primary-900/20 transition-all">
@@ -568,6 +660,67 @@ export const BucketPortfolioPage = () => {
           </div>
         </form>
       </Modal>
+      
+      {/* Quick Adjust Modal */}
+      <Modal
+        isOpen={adjustModalOpen}
+        onClose={() => setAdjustModalOpen(false)}
+        title={`Adjust ${adjustingAccount?.name || 'Balance'}`}
+      >
+        <form onSubmit={handleAdjustSubmit} className="space-y-6">
+          <div className="flex p-1 bg-gray-100 dark:bg-gray-900 rounded-xl">
+            <button
+              type="button"
+              onClick={() => setIsAdding(true)}
+              className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-lg text-sm font-black transition-all ${
+                isAdding
+                  ? "bg-white dark:bg-gray-800 text-green-500 shadow-sm"
+                  : "text-gray-500 hover:text-gray-700 dark:hover:text-gray-300"
+              }`}
+            >
+              Add Funds (+)
+            </button>
+            <button
+              type="button"
+              onClick={() => setIsAdding(false)}
+              className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-lg text-sm font-black transition-all ${
+                !isAdding
+                  ? "bg-white dark:bg-gray-800 text-red-500 shadow-sm"
+                  : "text-gray-500 hover:text-gray-700 dark:hover:text-gray-300"
+              }`}
+            >
+              Withdraw (-)
+            </button>
+          </div>
+          
+          <div>
+            <label className="block text-[10px] font-black text-gray-400 uppercase mb-2 tracking-widest ml-1">
+              Amount to {isAdding ? 'Add' : 'Withdraw'}
+            </label>
+            <CurrencyInput
+              required
+              value={adjustAmount}
+              onChange={(val) => setAdjustAmount(val)}
+              className="w-full text-2xl px-4 py-4 rounded-xl border-2 border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-900 dark:text-white font-black text-center focus:border-primary-500 outline-none transition-all font-sans"
+              placeholder="Rp 0"
+            />
+            <p className="text-center text-xs font-bold text-gray-500 mt-3">
+              New Balance will be:{' '}
+              <span className={isAdding ? 'text-green-500' : 'text-red-500'}>
+                {adjustingAccount ? formatCurrency(
+                  isAdding 
+                    ? adjustingAccount.balance + (parseInt(adjustAmount.replace(/\D/g, "")) || 0)
+                    : Math.max(0, adjustingAccount.balance - (parseInt(adjustAmount.replace(/\D/g, "")) || 0))
+                ) : 'Rp 0'}
+              </span>
+            </p>
+          </div>
+          
+          <button type="submit" className={`w-full py-4 text-white font-black rounded-xl text-lg ${isAdding ? 'bg-green-500 hover:bg-green-600' : 'bg-red-500 hover:bg-red-600'} transition-colors`}>
+            Confirm {isAdding ? 'Addition' : 'Withdrawal'}
+          </button>
+        </form>
+      </Modal>
  
       {/* Sticky Mobile Button */}
       <div className="md:hidden fixed bottom-0 left-0 right-0 p-4 bg-white/80 dark:bg-gray-900/80 backdrop-blur-lg border-t border-gray-100 dark:border-gray-800 z-40">
@@ -580,6 +733,7 @@ export const BucketPortfolioPage = () => {
               type: "savings",
               purpose: "salary_savings",
               balance: "",
+              targetAmount: "",
               isSalaryAccount: false,
             });
             setIsModalOpen(true);

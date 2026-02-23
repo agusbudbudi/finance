@@ -130,6 +130,15 @@ export class ExcelImportService {
                 });
                 return null;
               }
+              if (balance < 0) {
+                results.accounts.failed++;
+                sheetPreview.rows.push({
+                  isValid: false,
+                  error: "Current Balance cannot be negative",
+                  originalData: item
+                });
+                return null;
+              }
               results.accounts.success++;
               
               const parsed = {
@@ -166,6 +175,15 @@ export class ExcelImportService {
                 sheetPreview.rows.push({
                   isValid: false,
                   error: "Missing required fields: Bank or Card Name",
+                  originalData: item
+                });
+                return null;
+              }
+              if (Number(item["Credit Limit"]) < 0) {
+                results.creditCards.failed++;
+                sheetPreview.rows.push({
+                  isValid: false,
+                  error: "Credit Limit cannot be negative",
                   originalData: item
                 });
                 return null;
@@ -216,6 +234,15 @@ export class ExcelImportService {
                 });
                 return null;
               }
+              if (Number(item.Amount) < 0) {
+                results.freelanceIncome.failed++;
+                sheetPreview.rows.push({
+                  isValid: false,
+                  error: "Amount cannot be negative",
+                  originalData: item
+                });
+                return null;
+              }
               results.freelanceIncome.success++;
               const dateStr = ensureDateString(item.Date);
               const parsed = {
@@ -257,6 +284,15 @@ export class ExcelImportService {
                 });
                 return null;
               }
+              if (Number(item.Amount) < 0) {
+                results.expenses.failed++;
+                sheetPreview.rows.push({
+                  isValid: false,
+                  error: "Amount cannot be negative",
+                  originalData: item
+                });
+                return null;
+              }
               results.expenses.success++;
               
               // Find salary account ID for default assignment
@@ -294,13 +330,36 @@ export class ExcelImportService {
             const raw = XLSX.utils.sheet_to_json(workbook.Sheets["Budget Strategy"]);
             const budgetsByMonth: Record<string, any[]> = {};
             const sheetPreview: SheetPreview = { sheetName: "Budget Strategy", rows: [] };
-            
+
+            // Resolve primary salary account: prefer freshly imported, fallback to storage
+            let salaryAccount: { id: string; name: string } | null = null;
+            if (data.accounts) {
+              const found = data.accounts.find((a: any) => a.isSalaryAccount);
+              if (found) salaryAccount = { id: found.id, name: found.name };
+            }
+            if (!salaryAccount) {
+              const existingAccounts = StorageService.get<any[]>("accounts");
+              if (existingAccounts) {
+                const found = existingAccounts.find((a: any) => a.isSalaryAccount);
+                if (found) salaryAccount = { id: found.id, name: found.name };
+              }
+            }
+
             raw.forEach((item: any) => {
               if (!item.Name || !item.Amount) {
                 results.monthlyBudgets.failed++;
                 sheetPreview.rows.push({
                   isValid: false,
                   error: "Missing required fields: Name or Amount",
+                  originalData: item
+                });
+                return;
+              }
+              if (Number(item.Amount) < 0) {
+                results.monthlyBudgets.failed++;
+                sheetPreview.rows.push({
+                  isValid: false,
+                  error: "Amount cannot be negative",
                   originalData: item
                 });
                 return;
@@ -314,8 +373,9 @@ export class ExcelImportService {
                 category: item.Category || "savings",
                 name: item.Name || "Untitled",
                 amount: Number(item.Amount) || 0,
-                isCompleted: item["Is Completed"] === "Yes",
-                completedAt: item["Is Completed"] === "Yes" ? new Date().toISOString() : null,
+                isCompleted: false,
+                completedAt: null,
+                toAccount: "",
               };
               
               budgetsByMonth[month].push(parsedItem);
@@ -323,7 +383,7 @@ export class ExcelImportService {
               sheetPreview.rows.push({
                 isValid: true,
                 originalData: item,
-                parsedData: { month, ...parsedItem }
+                parsedData: { month, ...parsedItem, salaryAccountName: salaryAccount ? salaryAccount.name : null }
               });
             });
 
@@ -364,6 +424,15 @@ export class ExcelImportService {
                 sheetPreview.rows.push({
                   isValid: false,
                   error: "Missing required fields: Name or Amount",
+                  originalData: item
+                });
+                return null;
+              }
+              if (Number(item.Amount) < 0) {
+                results.recurring_tx.failed++;
+                sheetPreview.rows.push({
+                  isValid: false,
+                  error: "Amount cannot be negative",
                   originalData: item
                 });
                 return null;
