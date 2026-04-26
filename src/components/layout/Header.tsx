@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Moon, Sun, Bell, Menu } from "lucide-react";
+import { Moon, Sun, Bell, Menu, Zap } from "lucide-react";
 import { useProfileStore } from "../../stores/useProfileStore";
 import { useAuthStore } from "../../stores/useAuthStore";
 import { useTheme } from "../../hooks/useTheme";
@@ -8,13 +8,13 @@ import { ProfileModal } from "./ProfileModal";
 
 export const Header = () => {
   const { isDarkMode, toggleTheme } = useTheme();
-  const { toggleSidebar } = useUIStore();
+  const { toggleSidebar, isSimpleMode } = useUIStore();
   const profile = useProfileStore((state) => state.profile);
   const user = useAuthStore((state) => state.user);
-  
+
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
 
-  const displayName = profile?.name || user?.email?.split('@')[0] || "User";
+  const displayName = profile?.name || user?.email?.split("@")[0] || "User";
   const userEmail = user?.email || "No email";
 
   return (
@@ -30,9 +30,18 @@ export const Header = () => {
               >
                 <Menu className="w-6 h-6" />
               </button>
-              
+
+              {isSimpleMode && (
+                <div className="flex items-center gap-1.5 px-2.5 py-1 bg-amber-50 dark:bg-amber-900/20 border border-amber-100 dark:border-amber-900/30 rounded-lg">
+                  <Zap className="w-3.5 h-3.5 text-amber-500 fill-amber-500" />
+                  <span className="text-[10px] font-black text-amber-600 dark:text-amber-400 uppercase tracking-wider">
+                    Simple Mode
+                  </span>
+                </div>
+              )}
+
               {/* Mobile Profile Trigger */}
-              <button 
+              <button
                 onClick={() => setIsProfileModalOpen(true)}
                 className="flex items-center gap-2 md:hidden text-left hover:opacity-80 transition-opacity"
               >
@@ -48,7 +57,9 @@ export const Header = () => {
                   <h2 className="text-sm font-bold text-gray-900 dark:text-white tracking-tight leading-none truncate w-32">
                     {displayName}
                   </h2>
-                  <span className="text-[10px] text-gray-400 font-medium truncate w-32">{userEmail}</span>
+                  <span className="text-[10px] text-gray-400 font-medium truncate w-32">
+                    {userEmail}
+                  </span>
                 </div>
               </button>
             </div>
@@ -68,7 +79,7 @@ export const Header = () => {
             </button>
 
             {/* Desktop Profile Trigger */}
-            <button 
+            <button
               onClick={() => setIsProfileModalOpen(true)}
               className="hidden md:flex items-center gap-4 pl-4 border-l border-gray-200 dark:border-white/10 hover:opacity-80 transition-opacity text-left"
             >
@@ -92,9 +103,9 @@ export const Header = () => {
         </div>
       </header>
 
-      <ProfileModal 
-        isOpen={isProfileModalOpen} 
-        onClose={() => setIsProfileModalOpen(false)} 
+      <ProfileModal
+        isOpen={isProfileModalOpen}
+        onClose={() => setIsProfileModalOpen(false)}
       />
     </>
   );

@@ -113,11 +113,15 @@ export const useDashboardData = () => {
     const monthsBuffer =
       totalMonthlyIncome > 0 ? emergencyBalance / totalMonthlyIncome : 0;
 
+    const salaryAccount = accounts.find((acc) => acc.isSalaryAccount);
+    const salaryBank = salaryAccount?.bank || null;
+
     return {
       daysToPayday,
       dailySafeSpend,
       emergencyBalance,
       monthsBuffer,
+      salaryBank,
     };
   }, [profile, budgetLimit, monthlyExpenses, accounts, totalMonthlyIncome]);
 

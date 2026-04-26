@@ -8,6 +8,7 @@ import { UpcomingBillsList } from "../components/dashboard/UpcomingBillsList";
 import { SpendingAnalyticsChart } from "../components/dashboard/SpendingAnalyticsChart";
 import { SystemInsightCards } from "../components/dashboard/SystemInsightCards";
 import { QuickLogModal } from "../components/dashboard/QuickLogModal";
+import { CalendarOverview } from "../components/dashboard/CalendarOverview";
 
 export const Dashboard = () => {
   const navigate = useNavigate();
@@ -69,21 +70,24 @@ export const Dashboard = () => {
         savingsRate={savingsRate}
       />
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
-        {/* Upcoming Recurring Payments */}
-        <UpcomingBillsList unpostedRecurring={unpostedRecurring} />
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 md:gap-6">
+        {/* Activity Calendar */}
+        <div className="lg:col-span-2 flex flex-col gap-4 md:gap-6">
+          <CalendarOverview />
+          <UpcomingBillsList unpostedRecurring={unpostedRecurring} />
+        </div>
 
         {/* Analytics Section */}
-        <SpendingAnalyticsChart
-          expenseData={expenseData}
-          monthlyExpenses={monthlyExpenses}
-          budgetLimit={budgetLimit}
-          hasBudget={!!currentBudget}
-        />
+        <div className="lg:col-span-3 flex flex-col gap-4 md:gap-6">
+          <SpendingAnalyticsChart
+            expenseData={expenseData}
+            monthlyExpenses={monthlyExpenses}
+            budgetLimit={budgetLimit}
+            hasBudget={!!currentBudget}
+          />
+          <SystemInsightCards insights={insights} profile={profile || undefined} />
+        </div>
       </div>
-
-      {/* Smart System Insights */}
-      <SystemInsightCards insights={insights} profile={profile || undefined} />
 
       {/* Floating Action Menu */}
       <div className="fixed bottom-10 left-1/2 -translate-x-1/2 z-50">

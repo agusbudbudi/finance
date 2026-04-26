@@ -7,10 +7,18 @@ interface ModalProps {
   onClose: () => void;
   title: string;
   children: ReactNode;
+  footer?: ReactNode;
   maxW?: string;
 }
 
-export const Modal = ({ isOpen, onClose, title, children, maxW = "md:max-w-md" }: ModalProps) => {
+export const Modal = ({
+  isOpen,
+  onClose,
+  title,
+  children,
+  footer,
+  maxW = "md:max-w-md",
+}: ModalProps) => {
   useEffect(() => {
     const handleEsc = (e: KeyboardEvent) => {
       if (e.key === "Escape") onClose();
@@ -29,19 +37,19 @@ export const Modal = ({ isOpen, onClose, title, children, maxW = "md:max-w-md" }
 
   return createPortal(
     <div
-      className="fixed inset-0 z-[9999] flex items-end md:items-center justify-center bg-black/50 backdrop-blur-sm animate-in fade-in duration-200"
+      className="fixed inset-0 z-[9999] flex items-end md:items-center justify-center bg-black/60 backdrop-blur-sm animate-in fade-in duration-300"
       onClick={onClose}
     >
       <div
-        className={`bg-white dark:bg-gray-950 w-full ${maxW} rounded-t-[2.5rem] md:rounded-xl shadow-2xl overflow-hidden animate-in slide-in-from-bottom md:slide-in-from-top-4 md:zoom-in-95 duration-300 md:duration-200 border border-gray-100 dark:border-gray-800 relative`}
+        className={`bg-white dark:bg-gray-950 w-full ${maxW} rounded-t-2xl md:rounded-xl shadow-2xl overflow-hidden animate-in slide-in-from-bottom md:slide-in-from-top-4 md:zoom-in-95 duration-500 md:duration-200 border border-gray-100 dark:border-gray-800 relative flex flex-col max-h-[90vh]`}
         onClick={(e) => e.stopPropagation()}
       >
         {/* Mobile Handle */}
-        <div className="md:hidden flex justify-center pt-3 pb-1">
+        <div className="md:hidden flex justify-center pt-3 pb-1 shrink-0">
           <div className="w-12 h-1.5 bg-gray-200 dark:bg-gray-800 rounded-full"></div>
         </div>
 
-        <div className="px-6 py-5 border-b border-gray-50 dark:border-gray-900 flex items-center justify-between bg-gray-50/50 dark:bg-gray-900/50">
+        <div className="px-6 py-5 border-b border-gray-50 dark:border-gray-900 flex items-center justify-between bg-gray-50/50 dark:bg-gray-900/50 shrink-0">
           <h3 className="text-xl font-black text-gray-900 dark:text-white tracking-tight">
             {title}
           </h3>
@@ -52,17 +60,20 @@ export const Modal = ({ isOpen, onClose, title, children, maxW = "md:max-w-md" }
             <X className="w-5 h-5" />
           </button>
         </div>
-        <div 
-          className="p-6 max-h-[85vh] overflow-y-auto"
-          style={{ 
-            paddingBottom: "calc(3rem + env(safe-area-inset-bottom))" 
-          }}
-        >
+
+        <div className="flex-1 overflow-y-auto p-6 scrollbar-hide">
           {children}
         </div>
+
+        {footer && (
+          <div className="p-6 border-t border-gray-50 dark:border-gray-900 bg-white dark:bg-gray-950 shrink-0">
+            {footer}
+            {/* Handle safe area for mobile bottom sheets */}
+            <div className="h-[env(safe-area-inset-bottom)] md:hidden"></div>
+          </div>
+        )}
       </div>
     </div>,
     document.body,
   );
 };
-

@@ -1,0 +1,86 @@
+{
+  "banks": [
+    "BCA",
+    "Mandiri",
+    "Mandiri Family",
+    "BRI",
+    "SeaBank",
+    "Permata RDN",
+    "OVO",
+    "GoPay",
+    "Dana",
+    "ShopeePay"
+  ],
+  "creditCards": ["BCA CC"],
+  "categories": {
+    "Food & Drink": [
+      "Makan Siang",
+      "Makan Malam",
+      "Sarapan",
+      "Kopi",
+      "Snack",
+      "Delivery",
+      "Switching Out"
+    ],
+    "Transportation": [
+      "Grab",
+      "Gojek",
+      "Toll",
+      "Bensin",
+      "Parkir",
+      "KRL / MRT",
+      "Switching Out"
+    ],
+    "Shopping": [
+      "Grocery",
+      "Fashion",
+      "Elektronik",
+      "Perlengkapan Rumah",
+      "Lainnya",
+      "Switching Out"
+    ],
+    "Utilities": [
+      "Listrik",
+      "Internet",
+      "Air",
+      "Gas",
+      "Telepon",
+      "Switching Out"
+    ],
+    "Entertainment": [
+      "Netflix",
+      "Spotify",
+      "YouTube Premium",
+      "Games",
+      "Bioskop",
+      "Switching Out"
+    ],
+    "Health": [
+      "Apotek",
+      "Dokter",
+      "Gym",
+      "Vitamin",
+      "Skincare",
+      "Switching Out"
+    ],
+    "Family": ["Kiriman Keluarga", "Hadiah", "Acara Keluarga", "Switching Out"],
+    "Groceries": ["Bulanan", "Pasar", "Supermarket", "Switching Out"],
+    "Travel": ["Tiket", "Hotel", "Akomodasi", "Switching Out"],
+    "Payment": ["Top Up", "Tagihan", "Switching Out"],
+    "Household Supplies": ["Peralatan", "Kebersihan", "Dapur", "Switching Out"],
+    "Admin Fee": ["Bank Fee", "Service Fee", "Switching Out"],
+    "Account Transfer": [
+      "Antar Rekening",
+      "Bayar Hutang",
+      "Tabungan",
+      "Switching Out"
+    ],
+    "Other": ["Lainnya", "Switching Out"]
+  },
+  "incomeCategories": {
+    "Salary": ["Main Job", "Freelance", "Bonus", "Switching In"],
+    "Investment": ["Dividend", "Capital Gain", "Interest", "Switching In"],
+    "Reimbursement": ["Medical", "Office", "Travel", "Switching In"],
+    "Other": ["Gift", "Cashback", "Refund", "Switching In"]
+  }
+}

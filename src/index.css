@@ -72,7 +72,7 @@ body {
 
 @layer components {
   .card {
-    @apply bg-white dark:bg-gray-900 rounded-xl shadow-sm border border-gray-100 dark:border-gray-800 overflow-hidden;
+    @apply rounded-xl border transition-all duration-300 bg-white dark:bg-gray-900 border-gray-100 dark:border-gray-800 shadow-lg shadow-black/2 overflow-hidden;
   }
 
   .glass-card {
