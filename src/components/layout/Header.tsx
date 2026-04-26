@@ -32,7 +32,7 @@ export const Header = () => {
               </button>
 
               {isSimpleMode && (
-                <div className="flex items-center gap-1.5 px-2.5 py-1 bg-amber-50 dark:bg-amber-900/20 border border-amber-100 dark:border-amber-900/30 rounded-lg">
+                <div className="hidden md:flex items-center gap-1.5 px-2.5 py-1 bg-amber-50 dark:bg-amber-900/20 border border-amber-100 dark:border-amber-900/30 rounded-lg">
                   <Zap className="w-3.5 h-3.5 text-amber-500 fill-amber-500" />
                   <span className="text-[10px] font-black text-amber-600 dark:text-amber-400 uppercase tracking-wider">
                     Simple Mode
@@ -54,10 +54,10 @@ export const Header = () => {
                 </div>
 
                 <div className="flex flex-col overflow-hidden">
-                  <h2 className="text-sm font-bold text-gray-900 dark:text-white tracking-tight leading-none truncate w-32">
+                  <h2 className="text-sm font-bold text-gray-900 dark:text-white tracking-tight leading-none mb-0.5">
                     {displayName}
                   </h2>
-                  <span className="text-[10px] text-gray-400 font-medium truncate w-32">
+                  <span className="text-[10px] text-gray-400 font-medium">
                     {userEmail}
                   </span>
                 </div>
@@ -66,9 +66,17 @@ export const Header = () => {
           </div>
 
           <div className="flex items-center gap-3">
+            {isSimpleMode && (
+              <div className="md:hidden flex items-center gap-1 px-2 py-1 bg-amber-50 dark:bg-amber-900/20 border border-amber-100 dark:border-amber-900/30 rounded-lg">
+                <Zap className="w-3 h-3 text-amber-500 fill-amber-500" />
+                <span className="text-[9px] font-black text-amber-600 dark:text-amber-400 uppercase tracking-wider">
+                  Simple
+                </span>
+              </div>
+            )}
             <button
               onClick={toggleTheme}
-              className="p-2 rounded-full bg-gray-100 dark:bg-white/10 hover:bg-gray-200 dark:hover:bg-white/20 transition-colors text-gray-600 dark:text-white group"
+              className="p-2 rounded-full bg-gray-100 dark:bg-white/10 hover:bg-gray-200 dark:hover:bg-white/20 transition-colors text-gray-600 dark:text-white group shrink-0"
               aria-label="Toggle dark mode"
             >
               {isDarkMode ? (
@@ -87,7 +95,7 @@ export const Header = () => {
                 <p className="text-gray-900 dark:text-white text-xs font-bold leading-none">
                   {displayName}
                 </p>
-                <p className="text-[10px] font-medium text-gray-400 truncate max-w-[120px]">
+                <p className="text-[10px] font-medium text-gray-400">
                   {userEmail}
                 </p>
               </div>

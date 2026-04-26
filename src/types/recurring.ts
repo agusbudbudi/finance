@@ -17,12 +17,12 @@ export interface RecurringTransaction {
 
 export interface RecurringStore {
   subscriptions: RecurringTransaction[];
-  addSubscription: (sub: RecurringTransaction) => void;
+  addSubscription: (sub: RecurringTransaction) => Promise<void>;
   updateSubscription: (
     id: string,
     updates: Partial<RecurringTransaction>,
-  ) => void;
-  deleteSubscription: (id: string) => void;
-  postTransaction: (id: string, month: string) => void;
-  duplicateFromMonth: (sourceMonth: string, targetMonth: string) => void;
+  ) => Promise<void>;
+  deleteSubscription: (id: string) => Promise<void>;
+  postTransaction: (id: string, month: string) => Promise<void>;
+  duplicateFromMonth: (sourceMonth: string, targetMonth: string) => Promise<void>;
 }

@@ -48,24 +48,24 @@ export interface MonthlyBudget {
 export interface BudgetStore {
   budgets: MonthlyBudget[];
   currentBudget: MonthlyBudget | null;
-  setBudgets: (budgets: MonthlyBudget[]) => void;
+  setBudgets: (budgets: MonthlyBudget[]) => Promise<void>;
   setCurrentBudget: (budget: MonthlyBudget) => void;
-  addBudget: (budget: MonthlyBudget) => void;
-  updateBudget: (id: string, updates: Partial<MonthlyBudget>) => void;
+  addBudget: (budget: MonthlyBudget) => Promise<void>;
+  updateBudget: (id: string, updates: Partial<MonthlyBudget>) => Promise<void>;
   updateAllocation: (
     budgetId: string,
     allocationId: string,
     updates: Partial<Allocation>,
-  ) => void;
-  addAllocation: (budgetId: string, allocation: Allocation) => void;
-  deleteAllocation: (budgetId: string, allocationId: string) => void;
-  completeAllocation: (budgetId: string, allocationId: string) => void;
+  ) => Promise<void>;
+  addAllocation: (budgetId: string, allocation: Allocation) => Promise<void>;
+  deleteAllocation: (budgetId: string, allocationId: string) => Promise<void>;
+  completeAllocation: (budgetId: string, allocationId: string) => Promise<void>;
   getBudgetByMonth: (month: string) => MonthlyBudget | undefined;
-  ensureMonthExists: (month: string) => MonthlyBudget;
+  ensureMonthExists: (month: string) => Promise<MonthlyBudget>;
   duplicateAllocationsFromMonth: (
     sourceMonth: string,
     targetMonth: string,
-  ) => void;
-  syncExpenses: (month: string, expenses: any[]) => void;
-  syncFreelanceIncome: (month: string, amount: number) => void;
+  ) => Promise<void>;
+  syncExpenses: (month: string, expenses: any[]) => Promise<void>;
+  syncFreelanceIncome: (month: string, amount: number) => Promise<void>;
 }

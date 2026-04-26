@@ -1,3 +1,4 @@
+import { useMemo } from "react";
 import {
   Plus,
   Zap,
@@ -5,6 +6,8 @@ import {
   TrendingDown,
   FileSpreadsheet,
   PieChart,
+  RefreshCcw,
+  CreditCard,
 } from "lucide-react";
 import { useSimpleTransactionStore } from "../../stores/useSimpleTransactionStore";
 import { format, parseISO } from "date-fns";
@@ -28,118 +31,201 @@ export const SimpleModeHeader = ({
   onMonthChange,
   hideStats = false,
 }: SimpleModeHeaderProps) => {
-  const { transactions, filters } = useSimpleTransactionStore();
-
-  const applyGlobalFilters = (tx: any) => {
-    // Advanced Filters
-    const dateRangeMatch =
-      (!filters.startDate || tx.date >= filters.startDate) &&
-      (!filters.endDate || tx.date <= filters.endDate);
-
-    const fromMatch =
-      !filters.fromSource ||
-      tx.fromBank === filters.fromSource ||
-      tx.creditCardName === filters.fromSource;
-
-    const toMatch = !filters.toSource || tx.toBank === filters.toSource;
-
-    const categoryMatch = !filters.category || tx.category === filters.category;
-
-    const ccMatch = filters.fromCC === null || tx.fromCC === filters.fromCC;
-
-    return dateRangeMatch && fromMatch && toMatch && categoryMatch && ccMatch;
-  };
+  const { transactions, applyFilters } = useSimpleTransactionStore();
 
   const isIncome = type === "income";
   const isSummary = type === "summary";
   const accentColor = isIncome ? "green" : isSummary ? "green" : "amber";
   const currentMonthStr = month || format(new Date(), "yyyy-MM");
-  const monthName = format(parseISO(`${currentMonthStr}-01`), "MMMM");
+  const monthName = useMemo(() => format(parseISO(`${currentMonthStr}-01`), "MMMM"), [currentMonthStr]);
 
   const today = format(new Date(), "yyyy-MM-dd");
 
-  // Calculate stats based on type
-  let title = "Quick Entry";
-  let subtitle = "Fast transaction tracking for your daily spending.";
-  let card1Label = "Today's Spending";
-  let card2Label = `${monthName}'s Spending`;
-  let card1Value = 0;
-  let card2Value = 0;
-  let card1Sub = "";
-  let card2Sub = "";
-  let card1Color = isIncome ? "green" : "amber";
-  let card2Color = isIncome ? "green" : "primary";
+  const stats = useMemo(() => {
+    let title = "Quick Entry";
+    let subtitle = "Fast transaction tracking for your daily spending.";
+    let card1Label = "Today's Spending";
+    let card2Label = `${monthName}'s Spending`;
+    let card1Value = 0;
+    let card2Value = 0;
+    let card1Sub = "";
+    let card2Sub = "";
+    let card1Color = isIncome ? "green" : "amber";
+    let card2Color = isIncome ? "green" : "primary";
+    let card3Color = "blue";
+    let card3Label = "";
+    let card3Value = 0;
+    let card3Sub = "";
+    let card3Info = "";
+    let showCard3 = false;
+    let card2GrossValue = 0;
 
-  if (isIncome) {
-    title = "Income Management";
-    subtitle = "Record and track your earnings in Simple Mode.";
-    card1Label = "Today's Income";
-    card2Label = `${monthName}'s Gross Income`;
-    const todayTxs = transactions.filter(
-      (t) => t.date === today && t.type === "income" && applyGlobalFilters(t),
-    );
-    card1Value = todayTxs.reduce((sum, t) => sum + t.amount, 0);
-    card1Sub = `${todayTxs.length} Records`;
-    const monthTxs = transactions.filter(
-      (t) => t.date.startsWith(currentMonthStr) && t.type === "income" && applyGlobalFilters(t),
-    );
-    card2Value = monthTxs.reduce((sum, t) => sum + t.amount, 0);
-    const switchingInAmount = monthTxs
-      .filter((t) => t.subCategory === "Switching In")
-      .reduce((sum, t) => sum + t.amount, 0);
-    card2Sub = `Incl. Rp ${switchingInAmount.toLocaleString("id-ID")} Reimb.`;
-    card1Color = "green";
-    card2Color = "green";
-  } else if (isSummary) {
-    title = "Simple Mode Summary";
-    subtitle = `Financial overview for ${monthName}.`;
-    card1Label = `${monthName}'s Pure Income`;
-    card2Label = `${monthName}'s Pure Spending`;
+    if (isIncome) {
+      title = "Income Management";
+      subtitle = "Record and track your earnings in Simple Mode.";
+      card1Label = "Today's Income";
+      card2Label = `${monthName}'s Pure Income`;
+      const todayTxs = transactions.filter(
+        (t) => t.date === today && t.type === "income" && applyFilters(t),
+      );
+      card1Value = todayTxs.reduce((sum, t) => sum + t.amount, 0);
+      card1Sub = `${todayTxs.length} Records`;
+      const monthTxs = transactions.filter(
+        (t) =>
+          t.date.startsWith(currentMonthStr) &&
+          t.type === "income" &&
+          applyFilters(t),
+      );
 
-    const monthIncomes = transactions.filter(
-      (t) => t.date.startsWith(currentMonthStr) && t.type === "income" && applyGlobalFilters(t),
-    );
-    const switchingIn = monthIncomes.filter(
-      (t) => t.subCategory === "Switching In",
-    );
-    card1Value =
-      monthIncomes.reduce((sum, t) => sum + t.amount, 0) -
-      switchingIn.reduce((sum, t) => sum + t.amount, 0);
-    card1Sub = `${monthIncomes.length - switchingIn.length} Earnings`;
+      const switchingInTxs = monthTxs.filter(
+        (t) => t.subCategory === "Switching In",
+      );
+      const switchingInAmount = switchingInTxs.reduce(
+        (sum, t) => sum + t.amount,
+        0,
+      );
 
-    const monthExpenses = transactions.filter(
-      (t) =>
-        t.date.startsWith(currentMonthStr) &&
-        (t.type || "expense") === "expense" &&
-        applyGlobalFilters(t),
-    );
-    const switchingOut = monthExpenses.filter(
-      (t) => t.subCategory === "Switching Out",
-    );
-    card2Value =
-      monthExpenses.reduce((sum, t) => sum + t.amount, 0) -
-      switchingOut.reduce((sum, t) => sum + t.amount, 0);
-    card2Sub = `${monthExpenses.length - switchingOut.length} Expenses`;
+      card2GrossValue = monthTxs.reduce((sum, t) => sum + t.amount, 0);
+      card2Value = card2GrossValue - switchingInAmount;
+      card2Sub = `${monthTxs.length - switchingInTxs.length} Records`;
 
-    card1Color = "green";
-    card2Color = "amber";
-  } else {
-    const todayTxs = transactions.filter(
-      (t) => t.date === today && (t.type || "expense") === "expense" && applyGlobalFilters(t),
-    );
-    card1Value = todayTxs.reduce((sum, t) => sum + t.amount, 0);
-    card1Sub = `${todayTxs.length} Transactions`;
-    const monthTxs = transactions.filter(
-      (t) =>
-        t.date.startsWith(currentMonthStr) &&
-        (t.type || "expense") === "expense" &&
-        applyGlobalFilters(t),
-    );
-    card2Value = monthTxs.reduce((sum, t) => sum + t.amount, 0);
-    card2Sub = `${monthTxs.length} Transactions`;
-    card1Color = "amber";
-    card2Color = "primary";
-  }
+      showCard3 = true;
+      card3Label = "Switching In / Reimb.";
+      card3Value = switchingInAmount;
+      card3Sub = `${switchingInTxs.length} Records`;
+      card3Color = "blue";
+      card3Info =
+        "Funds transferred back or reimbursed. Not counted as pure income.";
+
+      card1Color = "green";
+      card2Color = "green";
+    } else if (isSummary) {
+      title = "Simple Mode Summary";
+      subtitle = `Financial overview for ${monthName}.`;
+      card1Label = `${monthName}'s Pure Income`;
+      card2Label = `${monthName}'s Pure Spending`;
+
+      const monthIncomes = transactions.filter(
+        (t) =>
+          t.date.startsWith(currentMonthStr) &&
+          t.type === "income" &&
+          applyFilters(t),
+      );
+      const switchingIn = monthIncomes.filter(
+        (t) => t.subCategory === "Switching In",
+      );
+      card1Value =
+        monthIncomes.reduce((sum, t) => sum + t.amount, 0) -
+        switchingIn.reduce((sum, t) => sum + t.amount, 0);
+      card1Sub = `${monthIncomes.length - switchingIn.length} Earnings`;
+
+      const monthExpenses = transactions.filter(
+        (t) =>
+          t.date.startsWith(currentMonthStr) &&
+          (t.type || "expense") === "expense" &&
+          applyFilters(t),
+      );
+      const switchingOut = monthExpenses.filter(
+        (t) => t.subCategory === "Switching Out",
+      );
+      card2Value =
+        monthExpenses.reduce((sum, t) => sum + t.amount, 0) -
+        switchingOut.reduce((sum, t) => sum + t.amount, 0);
+      card2Sub = `${monthExpenses.length - switchingOut.length} Expenses`;
+
+      const ccExpenses = monthExpenses.filter((t) => t.fromCC === true);
+      const ccTotal = ccExpenses.reduce((sum, t) => sum + t.amount, 0);
+
+      showCard3 = true;
+      card3Label = "Credit Card Usage";
+      card3Value = ccTotal;
+      card3Sub = `${ccExpenses.length} Records`;
+      card3Color = "purple";
+      card3Info = "Total spending placed on credit cards this month.";
+
+      card1Color = "green";
+      card2Color = "amber";
+    } else {
+      card2Label = `${monthName}'s Pure Spending`;
+      const todayTxs = transactions.filter(
+        (t) =>
+          t.date === today &&
+          (t.type || "expense") === "expense" &&
+          applyFilters(t),
+      );
+      card1Value = todayTxs.reduce((sum, t) => sum + t.amount, 0);
+      card1Sub = `${todayTxs.length} Transactions`;
+      const monthTxs = transactions.filter(
+        (t) =>
+          t.date.startsWith(currentMonthStr) &&
+          (t.type || "expense") === "expense" &&
+          applyFilters(t),
+      );
+
+      const switchingOutTxs = monthTxs.filter(
+        (t) => t.subCategory === "Switching Out",
+      );
+      const switchingOutAmount = switchingOutTxs.reduce(
+        (sum, t) => sum + t.amount,
+        0,
+      );
+
+      card2GrossValue = monthTxs.reduce((sum, t) => sum + t.amount, 0);
+      card2Value = card2GrossValue - switchingOutAmount;
+      card2Sub = `${monthTxs.length - switchingOutTxs.length} Transactions`;
+
+      showCard3 = true;
+      card3Label = "Switching Out";
+      card3Value = switchingOutAmount;
+      card3Sub = `${switchingOutTxs.length} Records`;
+      card3Color = "purple";
+      card3Info =
+        "Money moved out to savings or investment. Not counted as pure spending.";
+
+      card1Color = "amber";
+      card2Color = "primary";
+    }
+
+    return {
+      title,
+      subtitle,
+      card1Label,
+      card2Label,
+      card1Value,
+      card2Value,
+      card1Sub,
+      card2Sub,
+      card1Color,
+      card2Color,
+      card3Color,
+      card3Label,
+      card3Value,
+      card3Sub,
+      card3Info,
+      showCard3,
+      card2GrossValue,
+    };
+  }, [transactions, isIncome, isSummary, monthName, currentMonthStr, today, applyFilters]);
+
+  const {
+    title,
+    subtitle,
+    card1Label,
+    card2Label,
+    card1Value,
+    card2Value,
+    card1Sub,
+    card2Sub,
+    card1Color,
+    card2Color,
+    card3Color,
+    card3Label,
+    card3Value,
+    card3Sub,
+    card3Info,
+    showCard3,
+    card2GrossValue,
+  } = stats;
 
   const card1Icon = isIncome ? (
     <TrendingUp className="w-4 h-4" />
@@ -154,6 +240,11 @@ export const SimpleModeHeader = ({
     <TrendingDown className="w-4 h-4" />
   ) : (
     <TrendingUp className="w-4 h-4" />
+  );
+  const card3Icon = isSummary ? (
+    <CreditCard className="w-4 h-4" />
+  ) : (
+    <RefreshCcw className="w-4 h-4" />
   );
 
   return (
@@ -192,9 +283,9 @@ export const SimpleModeHeader = ({
           {type === "expense" && onBulkUploadClick && (
             <button
               onClick={onBulkUploadClick}
-              className="hidden md:flex items-center gap-2 px-4 py-3 bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 text-gray-500 hover:text-green-500 hover:border-green-500/50 rounded-xl transition-all active:scale-95 shadow-sm font-bold text-sm"
+              className="hidden md:flex items-center justify-center gap-2 px-6 py-3 bg-transparent border-1 border-amber-500 text-amber-500 hover:bg-amber-500 hover:text-white rounded-xl font-bold shadow-md shadow-amber-500/10 transition-all active:scale-95"
             >
-              <FileSpreadsheet className="w-4 h-4" />
+              <FileSpreadsheet className="w-5 h-5" />
               <span>Bulk Import</span>
             </button>
           )}
@@ -211,7 +302,9 @@ export const SimpleModeHeader = ({
       </div>
 
       {!hideStats && (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 relative z-10">
+        <div
+          className={`grid grid-cols-1 ${showCard3 ? "md:grid-cols-3" : "md:grid-cols-2"} gap-6 relative z-10`}
+        >
           {/* Detailed Today Card */}
           <div className="card group relative overflow-hidden bg-white dark:bg-gray-950 border border-gray-100 dark:border-gray-800 shadow-lg shadow-black/2">
             <div
@@ -246,14 +339,28 @@ export const SimpleModeHeader = ({
                 {isIncome ? (
                   <div className="grid grid-cols-2 gap-3 mt-1">
                     <div className="bg-gray-50 dark:bg-gray-900/50 p-2 rounded-lg border border-gray-100 dark:border-gray-800">
-                      <p className="text-[8px] font-black text-gray-400 uppercase tracking-widest mb-0.5">Records</p>
+                      <p className="text-[8px] font-black text-gray-400 uppercase tracking-widest mb-0.5">
+                        Records
+                      </p>
                       <p className="text-xs font-black text-gray-900 dark:text-white">
-                        {transactions.filter(t => t.date.startsWith(new Date().toISOString().split('T')[0]) && t.type === 'income').length} Today
+                        {
+                          transactions.filter(
+                            (t) =>
+                              t.date.startsWith(
+                                new Date().toISOString().split("T")[0],
+                              ) && t.type === "income",
+                          ).length
+                        }{" "}
+                        Today
                       </p>
                     </div>
                     <div className="bg-gray-50 dark:bg-gray-900/50 p-2 rounded-lg border border-gray-100 dark:border-gray-800">
-                      <p className="text-[8px] font-black text-gray-400 uppercase tracking-widest mb-0.5">Type</p>
-                      <p className="text-xs font-black text-gray-900 dark:text-white">Pure Income</p>
+                      <p className="text-[8px] font-black text-gray-400 uppercase tracking-widest mb-0.5">
+                        Type
+                      </p>
+                      <p className="text-xs font-black text-gray-900 dark:text-white">
+                        Gross Income
+                      </p>
                     </div>
                   </div>
                 ) : (
@@ -299,6 +406,11 @@ export const SimpleModeHeader = ({
                   <h3 className="text-3xl font-black text-gray-900 dark:text-white tracking-tighter">
                     Rp {card2Value.toLocaleString("id-ID")}
                   </h3>
+                  {!isSummary && (
+                    <p className="text-xs font-bold text-gray-400 mt-1">
+                      Gross: Rp {card2GrossValue.toLocaleString("id-ID")}
+                    </p>
+                  )}
                 </div>
                 <div
                   className={`w-12 h-12 rounded-2xl bg-${card2Color}-50 dark:bg-${card2Color}-900/20 flex items-center justify-center text-${card2Color}-500 transition-transform group-hover:scale-110 duration-500`}
@@ -325,10 +437,45 @@ export const SimpleModeHeader = ({
                   </p>
                 </div>
               </div>
-
-
             </div>
           </div>
+
+          {/* Detailed Card 3 (Switching In) */}
+          {showCard3 && (
+            <div className="card group relative overflow-hidden bg-white dark:bg-gray-950 border border-gray-100 dark:border-gray-800 shadow-lg shadow-black/2">
+              <div
+                className={`absolute top-0 left-0 w-1.5 h-full bg-${card3Color}-500`}
+              ></div>
+              <div className="p-6">
+                <div className="flex items-center justify-between mb-6">
+                  <div>
+                    <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">
+                      {card3Label}
+                    </p>
+                    <h3 className="text-3xl font-black text-gray-900 dark:text-white tracking-tighter">
+                      Rp {card3Value.toLocaleString("id-ID")}
+                    </h3>
+                  </div>
+                  <div
+                    className={`w-12 h-12 rounded-2xl bg-${card3Color}-50 dark:bg-${card3Color}-900/20 flex items-center justify-center text-${card3Color}-500 transition-transform group-hover:scale-110 duration-500`}
+                  >
+                    {card3Icon}
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="bg-gray-50 dark:bg-gray-900/50 p-3 rounded-lg border border-gray-100 dark:border-gray-800 col-span-2">
+                    <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1">
+                      Info
+                    </p>
+                    <p className="text-xs font-bold text-gray-500 dark:text-gray-400">
+                      {card3Info}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       )}
 
@@ -346,9 +493,9 @@ export const SimpleModeHeader = ({
         {type === "expense" && onBulkUploadClick && (
           <button
             onClick={onBulkUploadClick}
-            className="btn w-full py-3 bg-white dark:bg-gray-800 text-gray-500 dark:text-gray-400 border border-gray-100 dark:border-gray-700 font-bold active:scale-95 transition-all"
+            className="btn w-full py-4 bg-transparent border-2 border-amber-500 text-amber-500 hover:bg-amber-500 hover:text-white font-black shadow-xl shadow-amber-500/20 active:scale-95 transition-all"
           >
-            <FileSpreadsheet className="w-4 h-4" />
+            <FileSpreadsheet className="w-5 h-5" />
             <span>Bulk Import</span>
           </button>
         )}

@@ -10,14 +10,14 @@ import { useBudgetStore } from "./useBudgetStore";
 export const useFreelanceStore = create<FreelanceStore>((set, get) => ({
   incomes: StorageService.get<FreelanceIncome[]>("freelanceIncome") || [],
 
-  setIncomes: (incomes: FreelanceIncome[]) => {
-    StorageService.set("freelanceIncome", incomes);
+  setIncomes: async (incomes: FreelanceIncome[]) => {
+    await StorageService.set("freelanceIncome", incomes);
     set({ incomes });
   },
 
-  addIncome: (income: FreelanceIncome) => {
+  addIncome: async (income: FreelanceIncome) => {
     const updated = [income, ...get().incomes];
-    StorageService.set("freelanceIncome", updated);
+    await StorageService.set("freelanceIncome", updated);
     set({ incomes: updated });
 
     // Sync with budget
@@ -28,22 +28,22 @@ export const useFreelanceStore = create<FreelanceStore>((set, get) => ({
     useBudgetStore.getState().syncFreelanceIncome(month, monthTotal);
   },
 
-  allocateIncome: (incomeId: string, allocations: FreelanceAllocation[]) => {
+  allocateIncome: async (incomeId: string, allocations: FreelanceAllocation[]) => {
     const updated = get().incomes.map((income: FreelanceIncome) =>
       income.id === incomeId
         ? { ...income, allocations, status: "allocated" as const }
         : income,
     );
-    StorageService.set("freelanceIncome", updated);
+    await StorageService.set("freelanceIncome", updated);
     set({ incomes: updated });
   },
 
-  deleteIncome: (id: string) => {
+  deleteIncome: async (id: string) => {
     const income = get().incomes.find((i: FreelanceIncome) => i.id === id);
     if (!income) return;
 
     const updated = get().incomes.filter((income: FreelanceIncome) => income.id !== id);
-    StorageService.set("freelanceIncome", updated);
+    await StorageService.set("freelanceIncome", updated);
     set({ incomes: updated });
 
     // Sync with budget

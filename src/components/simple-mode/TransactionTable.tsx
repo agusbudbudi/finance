@@ -1,21 +1,24 @@
 import { useState } from "react";
-import { Trash2, ArrowRight, Filter, X, Calendar, Search } from "lucide-react";
+import { Trash2, ArrowRight, Filter, X, Calendar, Search, Edit2 } from "lucide-react";
 import { useSimpleTransactionStore } from "../../stores/useSimpleTransactionStore";
 import { useSimpleModeConfig } from "../../hooks/useSimpleModeConfig";
 import { format, parseISO, endOfMonth } from "date-fns";
+import { SimpleTransaction } from "../../types/simpleTransaction";
 
 interface TransactionTableProps {
   type?: "expense" | "income";
   month?: string; // YYYY-MM
+  onEditClick?: (tx: SimpleTransaction) => void;
 }
 
-export const TransactionTable = ({ type, month }: TransactionTableProps) => {
+export const TransactionTable = ({ type, month, onEditClick }: TransactionTableProps) => {
   const {
     transactions,
     deleteTransaction,
     filters,
     setFilters,
     resetFilters,
+    applyFilters,
   } = useSimpleTransactionStore();
   const { config } = useSimpleModeConfig();
   const [currentPage, setCurrentPage] = useState(1);
@@ -28,31 +31,7 @@ export const TransactionTable = ({ type, month }: TransactionTableProps) => {
     const typeMatch = type ? (tx.type || "expense") === type : true;
     const monthMatch = month ? tx.date.startsWith(month) : true;
 
-    // Advanced Filters
-    const dateRangeMatch =
-      (!filters.startDate || tx.date >= filters.startDate) &&
-      (!filters.endDate || tx.date <= filters.endDate);
-
-    const fromMatch =
-      !filters.fromSource ||
-      tx.fromBank === filters.fromSource ||
-      tx.creditCardName === filters.fromSource;
-
-    const toMatch = !filters.toSource || tx.toBank === filters.toSource;
-
-    const categoryMatch = !filters.category || tx.category === filters.category;
-
-    const ccMatch = filters.fromCC === null || tx.fromCC === filters.fromCC;
-
-    return (
-      typeMatch &&
-      monthMatch &&
-      dateRangeMatch &&
-      fromMatch &&
-      toMatch &&
-      categoryMatch &&
-      ccMatch
-    );
+    return typeMatch && monthMatch && applyFilters(tx);
   });
 
   const minDate = month ? `${month}-01` : "";
@@ -110,6 +89,17 @@ export const TransactionTable = ({ type, month }: TransactionTableProps) => {
       {/* Advanced Filter Panel */}
       {isFilterOpen && (
         <div className="card p-6 bg-gray-50/50 dark:bg-gray-900/50 border-dashed animate-in fade-in slide-in-from-top-2 duration-300">
+          <div className="flex items-center justify-between mb-4 pb-4 border-b border-gray-200 dark:border-gray-800">
+            <h3 className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Filter Transactions</h3>
+            {Object.values(filters).some((v) => v !== "" && v !== null) && (
+              <button
+                onClick={resetFilters}
+                className="text-[10px] font-black text-red-500 hover:text-red-600 uppercase tracking-widest flex items-center gap-1 transition-colors"
+              >
+                <X className="w-3 h-3" /> Clear All Filters
+              </button>
+            )}
+          </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6">
             {/* Date Range */}
             <div className="space-y-1.5 md:col-span-2">
@@ -354,7 +344,16 @@ export const TransactionTable = ({ type, month }: TransactionTableProps) => {
                     </p>
                   </td>
                   <td className="px-6 py-3 border-r border-gray-50/50 dark:border-gray-800/50 last:border-r-0">
-                    <div className="flex items-center justify-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <div className="flex items-center justify-center gap-2">
+                      {onEditClick && (
+                        <button
+                          onClick={() => onEditClick(tx)}
+                          className="p-1.5 text-gray-400 hover:text-blue-500 transition-colors"
+                          title="Edit transaction"
+                        >
+                          <Edit2 className="w-4 h-4" />
+                        </button>
+                      )}
                       <button
                         onClick={() => {
                           if (
@@ -366,6 +365,7 @@ export const TransactionTable = ({ type, month }: TransactionTableProps) => {
                           }
                         }}
                         className="p-1.5 text-gray-400 hover:text-red-500 transition-colors"
+                        title="Delete transaction"
                       >
                         <Trash2 className="w-4 h-4" />
                       </button>

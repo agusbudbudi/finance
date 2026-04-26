@@ -26,9 +26,9 @@ export interface Account {
 
 export interface AccountsStore {
   accounts: Account[];
-  setAccounts: (accounts: Account[]) => void;
-  addAccount: (account: Account) => void;
-  updateAccount: (id: string, updates: Partial<Account>) => void;
-  deleteAccount: (id: string) => void;
+  setAccounts: (accounts: Account[]) => Promise<void>;
+  addAccount: (account: Account) => Promise<void>;
+  updateAccount: (id: string, updates: Partial<Account>) => Promise<void>;
+  deleteAccount: (id: string) => Promise<void>;
   getAccountById: (id: string) => Account | undefined;
 }

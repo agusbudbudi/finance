@@ -6,6 +6,7 @@ import {
   AlertCircle,
   Trash2,
   Download,
+  Loader2,
 } from "lucide-react";
 import * as XLSX from "xlsx";
 import { useSimpleTransactionStore } from "../../stores/useSimpleTransactionStore";
@@ -25,6 +26,7 @@ export const BulkUploadModal: React.FC<BulkUploadModalProps> = ({
   const [data, setData] = useState<SimpleTransaction[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [progressCount, setProgressCount] = useState(0);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { addTransaction } = useSimpleTransactionStore();
 
@@ -121,9 +123,13 @@ export const BulkUploadModal: React.FC<BulkUploadModalProps> = ({
 
   const handleImport = async () => {
     setIsProcessing(true);
+    setProgressCount(0);
     try {
+      let count = 0;
       for (const tx of data) {
         await addTransaction(tx);
+        count++;
+        setProgressCount(count);
       }
       setData([]);
       onClose();
@@ -155,10 +161,19 @@ export const BulkUploadModal: React.FC<BulkUploadModalProps> = ({
           <button
             disabled={data.length === 0 || isProcessing}
             onClick={handleImport}
-            className="btn btn-primary bg-green-500 hover:bg-green-600 shadow-xl shadow-green-500/20 px-10 py-3 font-black"
+            className="btn btn-primary bg-green-500 hover:bg-green-600 shadow-xl shadow-green-500/20 px-10 py-3 font-black flex items-center justify-center gap-2"
           >
-            {isProcessing ? "Processing..." : "Confirm Import"}
-            <CheckCircle2 className="ml-2 w-5 h-5" />
+            {isProcessing ? (
+              <>
+                <Loader2 className="w-5 h-5 animate-spin" />
+                {`Processing (${progressCount})..`}
+              </>
+            ) : (
+              <>
+                Confirm Import
+                <CheckCircle2 className="w-5 h-5" />
+              </>
+            )}
           </button>
         </div>
       }

@@ -13,7 +13,7 @@
   ],
   "creditCards": ["BCA CC"],
   "categories": {
-    "Food & Drink": [
+    "Food & Beverage": [
       "Makan Siang",
       "Makan Malam",
       "Sarapan",
@@ -80,7 +80,14 @@
   "incomeCategories": {
     "Salary": ["Main Job", "Freelance", "Bonus", "Switching In"],
     "Investment": ["Dividend", "Capital Gain", "Interest", "Switching In"],
-    "Reimbursement": ["Medical", "Office", "Travel", "Switching In"],
-    "Other": ["Gift", "Cashback", "Refund", "Switching In"]
+    "Reimbursement": [
+      "Medical",
+      "Office",
+      "Travel",
+      "Food",
+      "Others",
+      "Switching In"
+    ],
+    "Other": ["Gift", "Cashback", "Refund", "Others", "Switching In"]
   }
 }

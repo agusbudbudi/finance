@@ -7,8 +7,8 @@ export const useBudgetStore = create<BudgetStore>((set, get) => ({
   budgets: StorageService.get<MonthlyBudget[]>("monthlyBudgets") || [],
   currentBudget: null,
 
-  setBudgets: (budgets: MonthlyBudget[]) => {
-    StorageService.set("monthlyBudgets", budgets);
+  setBudgets: async (budgets: MonthlyBudget[]) => {
+    await StorageService.set("monthlyBudgets", budgets);
     set({ budgets });
   },
 
@@ -16,13 +16,13 @@ export const useBudgetStore = create<BudgetStore>((set, get) => ({
     set({ currentBudget: budget });
   },
 
-  addBudget: (budget: MonthlyBudget) => {
+  addBudget: async (budget: MonthlyBudget) => {
     const budgets = [...get().budgets, budget];
-    StorageService.set("monthlyBudgets", budgets);
+    await StorageService.set("monthlyBudgets", budgets);
     set({ budgets });
   },
 
-  updateBudget: (id: string, updates: Partial<MonthlyBudget>) => {
+  updateBudget: async (id: string, updates: Partial<MonthlyBudget>) => {
     const budgets = get().budgets.map((budget) => {
       if (budget.id === id) {
         const updated = { ...budget, ...updates };
@@ -33,7 +33,7 @@ export const useBudgetStore = create<BudgetStore>((set, get) => ({
       return budget;
     });
 
-    StorageService.set("monthlyBudgets", budgets);
+    await StorageService.set("monthlyBudgets", budgets);
     set({ budgets });
 
     // Update current budget if it's the one being updated
@@ -43,7 +43,7 @@ export const useBudgetStore = create<BudgetStore>((set, get) => ({
     }
   },
 
-  updateAllocation: (
+  updateAllocation: async (
     budgetId: string,
     allocationId: string,
     updates: Partial<Allocation>,
@@ -61,7 +61,7 @@ export const useBudgetStore = create<BudgetStore>((set, get) => ({
     });
 
     set({ budgets });
-    StorageService.set("monthlyBudgets", budgets);
+    await StorageService.set("monthlyBudgets", budgets);
 
     if (get().currentBudget?.id === budgetId) {
       const updated = budgets.find((b) => b.id === budgetId);
@@ -69,7 +69,7 @@ export const useBudgetStore = create<BudgetStore>((set, get) => ({
     }
   },
 
-  addAllocation: (budgetId: string, allocation: Allocation) => {
+  addAllocation: async (budgetId: string, allocation: Allocation) => {
     const budgets = get().budgets.map((budget) => {
       if (budget.id === budgetId) {
         const updated = {
@@ -83,7 +83,7 @@ export const useBudgetStore = create<BudgetStore>((set, get) => ({
     });
 
     set({ budgets });
-    StorageService.set("monthlyBudgets", budgets);
+    await StorageService.set("monthlyBudgets", budgets);
 
     if (get().currentBudget?.id === budgetId) {
       const updated = budgets.find((b) => b.id === budgetId);
@@ -91,7 +91,7 @@ export const useBudgetStore = create<BudgetStore>((set, get) => ({
     }
   },
 
-  deleteAllocation: (budgetId: string, allocationId: string) => {
+  deleteAllocation: async (budgetId: string, allocationId: string) => {
     const budgets = get().budgets.map((budget) => {
       if (budget.id === budgetId) {
         const updated = {
@@ -105,7 +105,7 @@ export const useBudgetStore = create<BudgetStore>((set, get) => ({
     });
 
     set({ budgets });
-    StorageService.set("monthlyBudgets", budgets);
+    await StorageService.set("monthlyBudgets", budgets);
 
     if (get().currentBudget?.id === budgetId) {
       const updated = budgets.find((b) => b.id === budgetId);
@@ -113,8 +113,8 @@ export const useBudgetStore = create<BudgetStore>((set, get) => ({
     }
   },
 
-  completeAllocation: (budgetId: string, allocationId: string) => {
-    get().updateAllocation(budgetId, allocationId, {
+  completeAllocation: async (budgetId: string, allocationId: string) => {
+    await get().updateAllocation(budgetId, allocationId, {
       isCompleted: true,
       completedAt: new Date().toISOString(),
     });
@@ -124,7 +124,7 @@ export const useBudgetStore = create<BudgetStore>((set, get) => ({
     return get().budgets.find((b) => b.month === month);
   },
 
-  ensureMonthExists: (month: string) => {
+  ensureMonthExists: async (month: string) => {
     const existing = get().getBudgetByMonth(month);
     if (existing) return existing;
 
@@ -162,11 +162,11 @@ export const useBudgetStore = create<BudgetStore>((set, get) => ({
     };
     newBudget.summary = BudgetCalculator.calculateSummary(newBudget);
 
-    get().addBudget(newBudget);
+    await get().addBudget(newBudget);
     return newBudget;
   },
 
-  duplicateAllocationsFromMonth: (sourceMonth: string, targetMonth: string) => {
+  duplicateAllocationsFromMonth: async (sourceMonth: string, targetMonth: string) => {
     const sourceBudget = get().getBudgetByMonth(sourceMonth);
     const targetBudget = get().getBudgetByMonth(targetMonth);
 
@@ -193,7 +193,7 @@ export const useBudgetStore = create<BudgetStore>((set, get) => ({
       b.id === targetBudget.id ? updatedBudget : b,
     );
 
-    StorageService.set("monthlyBudgets", budgets);
+    await StorageService.set("monthlyBudgets", budgets);
     set({ budgets });
 
     if (get().currentBudget?.id === targetBudget.id) {
@@ -201,8 +201,8 @@ export const useBudgetStore = create<BudgetStore>((set, get) => ({
     }
   },
 
-  syncExpenses: (month: string, expenses: any[]) => {
-    const budget = get().ensureMonthExists(month);
+  syncExpenses: async (month: string, expenses: any[]) => {
+    const budget = await get().ensureMonthExists(month);
 
     // Robust Category Mapping
     const categoryMap: Record<string, string> = {
@@ -252,7 +252,7 @@ export const useBudgetStore = create<BudgetStore>((set, get) => ({
     
     // Update in list
     const budgets = get().budgets.map(b => b.id === budget.id ? updatedBudget : b);
-    StorageService.set("monthlyBudgets", budgets);
+    await StorageService.set("monthlyBudgets", budgets);
     set({ budgets });
 
     if (get().currentBudget?.id === budget.id) {
@@ -260,8 +260,8 @@ export const useBudgetStore = create<BudgetStore>((set, get) => ({
     }
   },
 
-  syncFreelanceIncome: (month: string, amount: number) => {
-    const budget = get().ensureMonthExists(month);
+  syncFreelanceIncome: async (month: string, amount: number) => {
+    const budget = await get().ensureMonthExists(month);
     
     const updatedBudget = {
       ...budget,
@@ -275,7 +275,7 @@ export const useBudgetStore = create<BudgetStore>((set, get) => ({
     updatedBudget.summary = BudgetCalculator.calculateSummary(updatedBudget);
     
     const budgets = get().budgets.map(b => b.id === budget.id ? updatedBudget : b);
-    StorageService.set("monthlyBudgets", budgets);
+    await StorageService.set("monthlyBudgets", budgets);
     set({ budgets });
 
     if (get().currentBudget?.id === budget.id) {

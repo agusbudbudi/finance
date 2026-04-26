@@ -103,31 +103,35 @@ export const MonthlyPlanner = () => {
       </div>
     );
 
-  const totalAllocated = activeBudget.allocations.reduce(
+  // Guard against old budget records that may not have allocations/income yet
+  const allocations = activeBudget.allocations ?? [];
+  const income = activeBudget.income ?? { total: 0, salary: 0, freelance: 0, other: 0 };
+
+  const totalAllocated = allocations.reduce(
     (sum, a) => sum + a.amount,
     0,
   );
-  const totalDistributed = activeBudget.allocations
+  const totalDistributed = allocations
     .filter((a) => a.isCompleted)
     .reduce((sum, a) => sum + a.amount, 0);
-  const remainingToAllocate = activeBudget.income.total - totalAllocated;
+  const remainingToAllocate = income.total - totalAllocated;
   const distributionPercentage =
     totalAllocated > 0 ? (totalDistributed / totalAllocated) * 100 : 0;
 
   const progress =
-    activeBudget.allocations.length > 0
-      ? (activeBudget.allocations.filter((a) => a.isCompleted).length /
-          activeBudget.allocations.length) *
+    allocations.length > 0
+      ? (allocations.filter((a) => a.isCompleted).length /
+          allocations.length) *
         100
       : 0;
 
-  const totalItems = activeBudget.allocations.length;
-  const completedItems = activeBudget.allocations.filter(a => a.isCompleted).length;
+  const totalItems = allocations.length;
+  const completedItems = allocations.filter(a => a.isCompleted).length;
   const plannedItems = totalItems - completedItems;
 
   // Handlers
   const handleToggleAllocation = (allocationId: string) => {
-    const alloc = activeBudget.allocations.find((a) => a.id === allocationId);
+    const alloc = allocations.find((a) => a.id === allocationId);
     if (alloc?.isCompleted) {
       // Once completed, it cannot be unchecked to maintain accounting integrity
       return;
@@ -210,10 +214,10 @@ export const MonthlyPlanner = () => {
     if (isNaN(amount) || amount < 0) return;
     updateBudget(activeBudget.id, {
       income: {
-        ...activeBudget.income,
+        ...income,
         salary: amount,
         total:
-          amount + activeBudget.income.freelance + activeBudget.income.other,
+          amount + income.freelance + income.other,
       },
     });
     
@@ -352,7 +356,7 @@ export const MonthlyPlanner = () => {
             title="Distribution Checklist"
             subtitle="Track and manage allocations"
             action={
-              activeBudget.allocations.length === 0 && (
+              allocations.length === 0 && (
                 <button
                   onClick={() => {
                     const prevIdx = MONTHS.indexOf(selectedMonth) - 1;
@@ -373,8 +377,8 @@ export const MonthlyPlanner = () => {
             }
           >
             <div className="space-y-4">
-              {activeBudget.allocations.length > 0 ? (
-                activeBudget.allocations.map((alloc) => (
+              {allocations.length > 0 ? (
+                allocations.map((alloc) => (
                   <div
                     key={alloc.id}
                     className={`group p-4 md:p-5 rounded-xl border-2 transition-all ${
@@ -404,10 +408,10 @@ export const MonthlyPlanner = () => {
                             className={`font-black tracking-tight flex items-center gap-2 ${alloc.isCompleted ? "text-green-900 dark:text-green-100 line-through" : "text-gray-900 dark:text-white"}`}
                           >
                             {alloc.name}
-                            {activeBudget.income.total > 0 && (
+                            {income.total > 0 && (
                               <span className="text-[10px] font-black text-primary-500 bg-primary-50 dark:bg-primary-900/20 px-2 py-0.5 rounded uppercase">
                                 {formatPercentage(
-                                  alloc.amount / activeBudget.income.total,
+                                  alloc.amount / income.total,
                                 )}
                               </span>
                             )}
@@ -498,12 +502,12 @@ export const MonthlyPlanner = () => {
                   ) : (
                     <div className="flex items-center gap-2">
                       <h3 className="text-3xl md:text-4xl font-black text-white">
-                        {formatCurrency(activeBudget.income.total)}
+                        {formatCurrency(income.total)}
                       </h3>
                       <button
                         onClick={() => {
                           setIsEditingSalary(true);
-                          setTempSalary(activeBudget.income.salary.toString());
+                          setTempSalary(income.salary.toString());
                         }}
                         className="p-1 hover:bg-white/10 rounded-xl text-white/50"
                       >

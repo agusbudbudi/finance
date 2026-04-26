@@ -5,22 +5,22 @@ import { StorageService } from "../services/storage/storageService";
 export const useAccountsStore = create<AccountsStore>((set, get) => ({
   accounts: StorageService.get<Account[]>("accounts") || [],
 
-  setAccounts: (accounts: Account[]) => {
-    StorageService.set("accounts", accounts);
+  setAccounts: async (accounts: Account[]) => {
+    await StorageService.set("accounts", accounts);
     set({ accounts });
   },
 
-  addAccount: (account: Account) => {
+  addAccount: async (account: Account) => {
     let updated = get().accounts;
     if (account.isSalaryAccount) {
       updated = updated.map((acc) => ({ ...acc, isSalaryAccount: false }));
     }
     updated = [...updated, account];
-    StorageService.set("accounts", updated);
+    await StorageService.set("accounts", updated);
     set({ accounts: updated });
   },
 
-  updateAccount: (id: string, updates: Partial<Account>) => {
+  updateAccount: async (id: string, updates: Partial<Account>) => {
     let updated = get().accounts;
     if (updates.isSalaryAccount) {
       updated = updated.map((acc) => ({ ...acc, isSalaryAccount: false }));
@@ -28,13 +28,13 @@ export const useAccountsStore = create<AccountsStore>((set, get) => ({
     updated = updated.map((acc) =>
       acc.id === id ? { ...acc, ...updates } : acc,
     );
-    StorageService.set("accounts", updated);
+    await StorageService.set("accounts", updated);
     set({ accounts: updated });
   },
 
-  deleteAccount: (id: string) => {
+  deleteAccount: async (id: string) => {
     const updated = get().accounts.filter((acc) => acc.id !== id);
-    StorageService.set("accounts", updated);
+    await StorageService.set("accounts", updated);
     set({ accounts: updated });
   },
 

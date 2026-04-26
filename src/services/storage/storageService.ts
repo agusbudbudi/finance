@@ -89,19 +89,24 @@ export class StorageService {
         // Encrypt for local storage
         const encrypted = await EncryptionService.encrypt(JSON.stringify(schemaItem), masterPassword);
         finalItemToStore = JSON.stringify(encrypted);
+        
+        // Update localStorage IMMEDIATELY before cloud sync to prevent data loss on page refresh
+        localStorage.setItem(this.STORAGE_PREFIX + key, finalItemToStore);
 
-        // Also sync to Supabase in background
-        SupabaseStorageService.set(key, data, masterPassword).catch((err) =>
-          console.error(`Cloud sync failed for ${key}:`, err),
-        );
+        // Also sync to Supabase and await it to ensure persistence
+        try {
+          await SupabaseStorageService.set(key, data, masterPassword);
+        } catch (err) {
+          console.error(`Cloud sync failed for ${key}:`, err);
+        }
       } else {
         // If not unlocked, we shouldn't really be saving sensitive financial data in plain text
         // But for things like 'settings' (unencrypted), we could allow it.
         // For now, let's just save it as is but wrap it.
         finalItemToStore = JSON.stringify(schemaItem);
+        localStorage.setItem(this.STORAGE_PREFIX + key, finalItemToStore);
       }
 
-      localStorage.setItem(this.STORAGE_PREFIX + key, finalItemToStore);
       return true;
     } catch (error) {
       console.error(`Error writing ${key}:`, error);
@@ -160,11 +165,11 @@ export class StorageService {
   /**
    * Import data (for restore)
    */
-  static importAll(data: Record<string, unknown>): boolean {
+  static async importAll(data: Record<string, unknown>): Promise<boolean> {
     try {
-      Object.entries(data).forEach(([key, value]) => {
-        this.set(key, value);
-      });
+      for (const [key, value] of Object.entries(data)) {
+        await this.set(key, value);
+      }
       return true;
     } catch (error) {
       console.error("Error importing data:", error);

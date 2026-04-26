@@ -6,7 +6,8 @@ import {
   AlertTriangle, 
   X, 
   ChevronRight,
-  Info
+  Info,
+  Loader2
 } from "lucide-react";
 import { Modal } from "../common/Modal";
 import { ExcelImportService, ImportResult, SheetPreview } from "../../services/import/excelImportService";
@@ -30,6 +31,8 @@ export const ExcelImportModal: React.FC<ExcelImportModalProps> = ({
   const [parsedData, setParsedData] = useState<Record<string, any> | null>(null);
   const [activeTab, setActiveTab] = useState<string>("Liquid Assets");
   const [error, setError] = useState<string | null>(null);
+  const [isSaving, setIsSaving] = useState(false);
+  const [progressCount, setProgressCount] = useState(0);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -55,14 +58,18 @@ export const ExcelImportModal: React.FC<ExcelImportModalProps> = ({
 
   const handleConfirmImport = async () => {
     if (!parsedData) return;
-    setStep("processing");
+    setIsSaving(true);
+    setProgressCount(0);
     try {
-      await ExcelImportService.importData(parsedData);
+      await ExcelImportService.importData(parsedData, (count) => {
+        setProgressCount(count);
+      });
       setStep("results");
     } catch (err) {
       console.error("Save failed:", err);
       setError("Failed to save imported data.");
-      setStep("upload");
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -72,6 +79,8 @@ export const ExcelImportModal: React.FC<ExcelImportModalProps> = ({
     setPreviews(null);
     setParsedData(null);
     setError(null);
+    setIsSaving(false);
+    setProgressCount(0);
     if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
@@ -130,8 +139,14 @@ export const ExcelImportModal: React.FC<ExcelImportModalProps> = ({
         <FileSpreadsheet className="w-6 h-6 text-emerald-500 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" />
       </div>
       <div className="text-center">
-        <p className="text-lg font-bold text-gray-900 dark:text-white">Processing Data...</p>
-        <p className="text-sm text-gray-500 font-medium mt-1">Validating and mapping your financial records</p>
+        <p className="text-lg font-bold text-gray-900 dark:text-white">
+          {isSaving ? `Saving Records (${progressCount})...` : "Processing Data..."}
+        </p>
+        <p className="text-sm text-gray-500 font-medium mt-1">
+          {isSaving 
+            ? "Writing data to secure cloud storage" 
+            : "Validating and mapping your financial records"}
+        </p>
       </div>
     </div>
   );
@@ -236,10 +251,17 @@ export const ExcelImportModal: React.FC<ExcelImportModalProps> = ({
           </button>
           <button
             onClick={handleConfirmImport}
-            className="flex-1 btn btn-primary py-3 shadow-xl"
-            disabled={results?.totalSuccess === 0}
+            className="flex-1 btn btn-primary py-3 shadow-xl flex items-center justify-center gap-2"
+            disabled={results?.totalSuccess === 0 || isSaving}
           >
-            Confirm Import ({results?.totalSuccess} rows)
+            {isSaving ? (
+              <>
+                <Loader2 className="w-4 h-4 animate-spin" />
+                {`Processing(${progressCount})..`}
+              </>
+            ) : (
+              `Confirm Import (${results?.totalSuccess} rows)`
+            )}
           </button>
         </div>
       </div>

@@ -12,6 +12,7 @@ import { SettingsPage } from "./pages/SettingsPage";
 import { SimpleModePage } from "./pages/SimpleModePage";
 import { SimpleSummaryPage } from "./pages/SimpleSummaryPage";
 import { SimpleIncomePage } from "./pages/SimpleIncomePage";
+import { SimpleBudgetPage } from "./pages/SimpleBudgetPage";
 import { MasterPasswordGuard } from "./components/auth/MasterPasswordGuard";
 import { AuthScreen } from "./components/auth/AuthScreen";
 import { useAuthStore } from "./stores/useAuthStore";
@@ -58,6 +59,7 @@ function App() {
           <Route path="simple" element={<SimpleModePage />} />
           <Route path="simple/income" element={<SimpleIncomePage />} />
           <Route path="simple/summary" element={<SimpleSummaryPage />} />
+          <Route path="simple/budget" element={<SimpleBudgetPage />} />
           <Route path="planner" element={<MonthlyPlanner />} />
           <Route path="credit-card" element={<CreditCardPage />} />
           <Route path="investment" element={<InvestmentPage />} />

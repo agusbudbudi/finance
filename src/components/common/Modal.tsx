@@ -49,7 +49,7 @@ export const Modal = ({
           <div className="w-12 h-1.5 bg-gray-200 dark:bg-gray-800 rounded-full"></div>
         </div>
 
-        <div className="px-6 py-5 border-b border-gray-50 dark:border-gray-900 flex items-center justify-between bg-gray-50/50 dark:bg-gray-900/50 shrink-0">
+        <div className="px-6 py-3 border-b border-gray-50 dark:border-gray-900 flex items-center justify-between bg-gray-50/50 dark:bg-gray-900/50 shrink-0">
           <h3 className="text-xl font-black text-gray-900 dark:text-white tracking-tight">
             {title}
           </h3>
@@ -66,7 +66,7 @@ export const Modal = ({
         </div>
 
         {footer && (
-          <div className="p-6 border-t border-gray-50 dark:border-gray-900 bg-white dark:bg-gray-950 shrink-0">
+          <div className="px-6 py-4 border-t border-gray-50 dark:border-gray-900 bg-white dark:bg-gray-950 shrink-0">
             {footer}
             {/* Handle safe area for mobile bottom sheets */}
             <div className="h-[env(safe-area-inset-bottom)] md:hidden"></div>

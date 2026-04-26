@@ -1,27 +1,47 @@
 import { useState } from "react";
 import { SimpleModeHeader } from "../components/simple-mode/SimpleModeHeader";
 import { TransactionTable } from "../components/simple-mode/TransactionTable";
-import { AddIncomeModal } from "../components/simple-mode/AddIncomeModal";
-import { PlusCircle } from "lucide-react";
+import { TransactionModal } from "../components/simple-mode/TransactionModal";
+import { SimpleTransaction } from "../types/simpleTransaction";
 
 export const SimpleIncomePage = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedMonth, setSelectedMonth] = useState(new Date().toISOString().slice(0, 7));
+  const [editingTx, setEditingTx] = useState<SimpleTransaction | null>(null);
+
+  const handleAddClick = () => {
+    setEditingTx(null);
+    setIsModalOpen(true);
+  };
+
+  const handleEditClick = (tx: SimpleTransaction) => {
+    setEditingTx(tx);
+    setIsModalOpen(true);
+  };
 
   return (
-    <div className="max-w-full space-y-6">
+    <div className="max-w-full space-y-6 pb-28 md:pb-0">
       <SimpleModeHeader 
         type="income" 
-        onAddClick={() => setIsModalOpen(true)} 
+        onAddClick={handleAddClick} 
         month={selectedMonth}
         onMonthChange={setSelectedMonth}
       />
       
-      <TransactionTable type="income" month={selectedMonth} />
+      <TransactionTable 
+        type="income" 
+        month={selectedMonth} 
+        onEditClick={handleEditClick}
+      />
 
-      <AddIncomeModal 
+      <TransactionModal 
         isOpen={isModalOpen} 
-        onClose={() => setIsModalOpen(false)} 
+        onClose={() => {
+          setIsModalOpen(false);
+          setEditingTx(null);
+        }} 
+        type="income"
+        initialData={editingTx}
       />
     </div>
   );

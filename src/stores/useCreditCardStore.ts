@@ -10,18 +10,18 @@ import { CreditCardCalculator } from "../services/calculations/creditCardCalcula
 export const useCreditCardStore = create<CreditCardStore>((set, get) => ({
   cards: StorageService.get<CreditCard[]>("creditCards") || [],
 
-  setCards: (cards: CreditCard[]) => {
-    StorageService.set("creditCards", cards);
+  setCards: async (cards: CreditCard[]) => {
+    await StorageService.set("creditCards", cards);
     set({ cards });
   },
 
-  addCard: (card: CreditCard) => {
+  addCard: async (card: CreditCard) => {
     const updated = [...get().cards, card];
-    StorageService.set("creditCards", updated);
+    await StorageService.set("creditCards", updated);
     set({ cards: updated });
   },
 
-  updateCard: (id: string, updates: Partial<CreditCard>) => {
+  updateCard: async (id: string, updates: Partial<CreditCard>) => {
     const updated = get().cards.map((card) => {
       if (card.id === id) {
         const merged = { ...card, ...updates };
@@ -44,11 +44,11 @@ export const useCreditCardStore = create<CreditCardStore>((set, get) => ({
       }
       return card;
     });
-    StorageService.set("creditCards", updated);
+    await StorageService.set("creditCards", updated);
     set({ cards: updated });
   },
 
-  addTransaction: (cardId: string, transaction: CreditCardTransaction) => {
+  addTransaction: async (cardId: string, transaction: CreditCardTransaction) => {
     const updated = get().cards.map((card) => {
       if (card.id === cardId) {
         // Simple logic: add to current cycle transactions if there were any,
@@ -78,11 +78,11 @@ export const useCreditCardStore = create<CreditCardStore>((set, get) => ({
       return card;
     });
 
-    StorageService.set("creditCards", updated);
+    await StorageService.set("creditCards", updated);
     set({ cards: updated });
   },
 
-  markStatementPaid: (cardId: string, statementId: string) => {
+  markStatementPaid: async (cardId: string, statementId: string) => {
     const updated = get().cards.map((card) => {
       if (card.id === cardId) {
         const updatedStatements = card.statements.map((stmt) =>
@@ -95,7 +95,7 @@ export const useCreditCardStore = create<CreditCardStore>((set, get) => ({
       return card;
     });
 
-    StorageService.set("creditCards", updated);
+    await StorageService.set("creditCards", updated);
     set({ cards: updated });
   },
 }));

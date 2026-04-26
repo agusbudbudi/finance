@@ -21,12 +21,12 @@ export interface FreelanceIncome {
 
 export interface FreelanceStore {
   incomes: FreelanceIncome[];
-  setIncomes: (incomes: FreelanceIncome[]) => void;
-  addIncome: (income: FreelanceIncome) => void;
+  setIncomes: (incomes: FreelanceIncome[]) => Promise<void>;
+  addIncome: (income: FreelanceIncome) => Promise<void>;
   allocateIncome: (
     incomeId: string,
     allocations: FreelanceAllocation[],
-  ) => void;
-  deleteIncome: (id: string) => void;
+  ) => Promise<void>;
+  deleteIncome: (id: string) => Promise<void>;
   getTotalIncome: () => number;
 }

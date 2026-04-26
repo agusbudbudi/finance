@@ -6,6 +6,8 @@ import { useFreelanceStore } from "../../stores/useFreelanceStore";
 import { useInvestmentStore } from "../../stores/useInvestmentStore";
 import { useProfileStore } from "../../stores/useProfileStore";
 import { useRecurringStore } from "../../stores/useRecurringStore";
+import { useSimpleTransactionStore } from "../../stores/useSimpleTransactionStore";
+import { useSimpleBudgetStore } from "../../stores/useSimpleBudgetStore";
 import { StorageService } from "./storageService";
 
 /**
@@ -44,4 +46,13 @@ export const rehydrateStores = () => {
   // Recurring
   const recurring = StorageService.get<any[]>("recurring_tx");
   if (recurring) useRecurringStore.setState({ subscriptions: recurring });
+
+  // Simple Transactions
+  const simpleTransactions = StorageService.get<any[]>("simpleTransactions");
+  if (simpleTransactions)
+    useSimpleTransactionStore.setState({ transactions: simpleTransactions });
+
+  // Simple Budgets
+  const simpleBudgets = StorageService.get<any[]>("simpleBudgets");
+  if (simpleBudgets) useSimpleBudgetStore.setState({ budgets: simpleBudgets });
 };

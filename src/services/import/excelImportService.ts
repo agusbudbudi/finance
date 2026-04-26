@@ -478,12 +478,49 @@ export class ExcelImportService {
   }
 
   /**
-   * Imports the parsed data into the system
+   * Imports the parsed data into the system, merging with existing records
    */
-  static async importData(data: Record<string, any>) {
-    for (const [key, value] of Object.entries(data)) {
-      if (value) {
-        await StorageService.set(key, value);
+  static async importData(data: Record<string, any>, onProgress?: (count: number) => void) {
+    let totalImported = 0;
+    const entries = Object.entries(data);
+    
+    for (const [key, value] of entries) {
+      if (value && Array.isArray(value)) {
+        // Report progress BEFORE starting the save to feel more responsive
+        totalImported += value.length;
+        if (onProgress) onProgress(totalImported);
+
+        // Merge with existing array data
+        const existing = StorageService.get<any[]>(key) || [];
+        
+        // Use a Map to avoid duplicates by ID if they exist
+        const mergedMap = new Map();
+        existing.forEach(item => {
+          if (item && item.id) mergedMap.set(item.id, item);
+        });
+        
+        value.forEach(item => {
+          if (item && item.id) mergedMap.set(item.id, item);
+          else {
+            // If no ID, just append (though our parser generates IDs)
+            existing.push(item);
+          }
+        });
+
+        // If we used the map for most items
+        const finalData = mergedMap.size > 0 ? Array.from(mergedMap.values()) : [...existing, ...value];
+        await StorageService.set(key, finalData);
+      } else if (value) {
+        totalImported += 1;
+        if (onProgress) onProgress(totalImported);
+
+        // For non-array data (like profile), just overwrite or merge if object
+        const existing = StorageService.get<any>(key);
+        if (existing && typeof existing === 'object' && typeof value === 'object' && !Array.isArray(value)) {
+          await StorageService.set(key, { ...existing, ...value });
+        } else {
+          await StorageService.set(key, value);
+        }
       }
     }
   }

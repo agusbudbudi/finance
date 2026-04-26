@@ -38,9 +38,9 @@ export interface CreditCard {
 
 export interface CreditCardStore {
   cards: CreditCard[];
-  setCards: (cards: CreditCard[]) => void;
-  addCard: (card: CreditCard) => void;
-  updateCard: (id: string, updates: Partial<CreditCard>) => void;
-  addTransaction: (cardId: string, transaction: CreditCardTransaction) => void;
-  markStatementPaid: (cardId: string, statementId: string) => void;
+  setCards: (cards: CreditCard[]) => Promise<void>;
+  addCard: (card: CreditCard) => Promise<void>;
+  updateCard: (id: string, updates: Partial<CreditCard>) => Promise<void>;
+  addTransaction: (cardId: string, transaction: CreditCardTransaction) => Promise<void>;
+  markStatementPaid: (cardId: string, statementId: string) => Promise<void>;
 }

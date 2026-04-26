@@ -8,9 +8,9 @@ import { useBudgetStore } from "./useBudgetStore";
 export const useExpenseStore = create<ExpenseStore>((set, get) => ({
   expenses: StorageService.get<Expense[]>("expenses") || [],
 
-  addExpense: (expense: Expense) => {
+  addExpense: async (expense: Expense) => {
     const updated = [expense, ...get().expenses];
-    StorageService.set("expenses", updated);
+    await StorageService.set("expenses", updated);
     set({ expenses: updated });
 
     // Sync with budget
@@ -23,13 +23,13 @@ export const useExpenseStore = create<ExpenseStore>((set, get) => ({
       const accountsStore = useAccountsStore.getState();
       const account = accountsStore.getAccountById(expense.accountId);
       if (account) {
-        accountsStore.updateAccount(expense.accountId, {
+        await accountsStore.updateAccount(expense.accountId, {
           balance: account.balance - expense.amount,
         });
       }
     } else if (expense.accountType === "credit_card") {
       const ccStore = useCreditCardStore.getState();
-      ccStore.addTransaction(expense.accountId, {
+      await ccStore.addTransaction(expense.accountId, {
         id: expense.id,
         date: expense.date,
         amount: expense.amount,
@@ -39,11 +39,11 @@ export const useExpenseStore = create<ExpenseStore>((set, get) => ({
     }
   },
 
-  updateExpense: (id: string, updates: Partial<Expense>) => {
+  updateExpense: async (id: string, updates: Partial<Expense>) => {
     const updated = get().expenses.map((e) =>
       e.id === id ? { ...e, ...updates } : e,
     );
-    StorageService.set("expenses", updated);
+    await StorageService.set("expenses", updated);
     set({ expenses: updated });
 
     // Sync with budget
@@ -55,12 +55,12 @@ export const useExpenseStore = create<ExpenseStore>((set, get) => ({
     }
   },
 
-  deleteExpense: (id: string) => {
+  deleteExpense: async (id: string) => {
     const expense = get().expenses.find((e) => e.id === id);
     if (!expense) return;
 
     const updated = get().expenses.filter((e) => e.id !== id);
-    StorageService.set("expenses", updated);
+    await StorageService.set("expenses", updated);
     set({ expenses: updated });
 
     // Sync with budget
@@ -73,7 +73,7 @@ export const useExpenseStore = create<ExpenseStore>((set, get) => ({
       const accountsStore = useAccountsStore.getState();
       const account = accountsStore.getAccountById(expense.accountId);
       if (account) {
-        accountsStore.updateAccount(expense.accountId, {
+        await accountsStore.updateAccount(expense.accountId, {
           balance: account.balance + expense.amount,
         });
       }

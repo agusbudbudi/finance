@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import { SimpleTransaction, SimpleTransactionStore } from "../types/simpleTransaction";
+import { SimpleTransaction, SimpleTransactionStore, SimpleTransactionFilters } from "../types/simpleTransaction";
 import { StorageService } from "../services/storage/storageService";
 import { useExpenseStore } from "./useExpenseStore";
 import { useAccountsStore } from "./useAccountsStore";
@@ -42,13 +42,13 @@ export const useSimpleTransactionStore = create<SimpleTransactionStore>((set, ge
         expense.accountId = account ? account.id : tx.fromBank;
       }
 
-      expenseStore.addExpense(expense);
+      await expenseStore.addExpense(expense);
 
       // If it's a transfer (toBank is set), we need to add balance to the destination
       if (tx.toBank && !tx.fromCC) {
         const destAccount = accountsStore.accounts.find(a => a.bank === tx.toBank || a.name === tx.toBank);
         if (destAccount) {
-          accountsStore.updateAccount(destAccount.id, {
+          await accountsStore.updateAccount(destAccount.id, {
             balance: destAccount.balance + tx.amount,
           });
         }
@@ -58,14 +58,14 @@ export const useSimpleTransactionStore = create<SimpleTransactionStore>((set, ge
       // Add balance to "toBank"
       const destAccount = accountsStore.accounts.find(a => a.bank === tx.toBank || a.name === tx.toBank);
       if (destAccount) {
-        accountsStore.updateAccount(destAccount.id, {
+        await accountsStore.updateAccount(destAccount.id, {
           balance: destAccount.balance + tx.amount,
         });
       }
 
       // Link to Freelance Store (Income Stream)
       const freelanceStore = useFreelanceStore.getState();
-      freelanceStore.addIncome({
+      await freelanceStore.addIncome({
         id: tx.id,
         date: tx.date,
         category: "Other", // Defaulting to "Other" for simple mode
@@ -81,11 +81,27 @@ export const useSimpleTransactionStore = create<SimpleTransactionStore>((set, ge
   },
 
   updateTransaction: async (id: string, updates: Partial<SimpleTransaction>) => {
-    const updated = get().transactions.map((t) =>
-      t.id === id ? { ...t, ...updates } : t,
-    );
-    await StorageService.set("simpleTransactions", updated);
-    set({ transactions: updated });
+    const tx = get().transactions.find((t) => t.id === id);
+    if (!tx) return;
+
+    // Safely revert old balances by deleting
+    await get().deleteTransaction(id);
+
+    // Apply new data
+    const updatedTx = { ...tx, ...updates };
+    
+    // Add transaction back (which applies new balances)
+    await get().addTransaction(updatedTx);
+
+    // Re-sort transactions by date descending to maintain order
+    const sorted = [...get().transactions].sort((a, b) => {
+      const dateDiff = new Date(b.date).getTime() - new Date(a.date).getTime();
+      if (dateDiff !== 0) return dateDiff;
+      return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+    });
+
+    await StorageService.set("simpleTransactions", sorted);
+    set({ transactions: sorted });
   },
 
   deleteTransaction: async (id: string) => {
@@ -157,5 +173,27 @@ export const useSimpleTransactionStore = create<SimpleTransactionStore>((set, ge
         fromCC: null,
       },
     });
+  },
+
+  applyFilters: (tx: SimpleTransaction) => {
+    const filters = get().filters;
+    
+    // Advanced Filters
+    const dateRangeMatch =
+      (!filters.startDate || tx.date >= filters.startDate) &&
+      (!filters.endDate || tx.date <= filters.endDate);
+
+    const fromMatch =
+      !filters.fromSource ||
+      tx.fromBank === filters.fromSource ||
+      tx.creditCardName === filters.fromSource;
+
+    const toMatch = !filters.toSource || tx.toBank === filters.toSource;
+
+    const categoryMatch = !filters.category || tx.category === filters.category;
+
+    const ccMatch = filters.fromCC === null || tx.fromCC === filters.fromCC;
+
+    return dateRangeMatch && fromMatch && toMatch && categoryMatch && ccMatch;
   },
 }));

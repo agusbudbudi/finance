@@ -32,11 +32,12 @@ export interface SimpleTransactionFilters {
 export interface SimpleTransactionStore {
   transactions: SimpleTransaction[];
   filters: SimpleTransactionFilters;
-  addTransaction: (tx: SimpleTransaction) => void;
-  updateTransaction: (id: string, updates: Partial<SimpleTransaction>) => void;
-  deleteTransaction: (id: string) => void;
+  addTransaction: (tx: SimpleTransaction) => Promise<void>;
+  updateTransaction: (id: string, updates: Partial<SimpleTransaction>) => Promise<void>;
+  deleteTransaction: (id: string) => Promise<void>;
   getTransactionsByMonth: (month: string) => SimpleTransaction[];
   getTransactionsByDate: (date: string) => SimpleTransaction[];
   setFilters: (filters: Partial<SimpleTransactionFilters>) => void;
   resetFilters: () => void;
+  applyFilters: (tx: SimpleTransaction) => boolean;
 }

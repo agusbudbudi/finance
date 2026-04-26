@@ -70,7 +70,7 @@ export const SettingsPage = () => {
     if (!file) return;
 
     const reader = new FileReader();
-    reader.onload = (e) => {
+    reader.onload = async (e) => {
       try {
         const content = e.target?.result as string;
         const data = JSON.parse(content);
@@ -80,7 +80,7 @@ export const SettingsPage = () => {
           throw new Error("Invalid backup format");
         }
 
-        const success = StorageService.importAll(data);
+        const success = await StorageService.importAll(data);
         if (success) {
           setImportStatus("success");
           setTimeout(() => window.location.reload(), 1500); // Reload to apply data

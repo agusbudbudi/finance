@@ -10,27 +10,27 @@ export const useRecurringStore = create<RecurringStore>((set, get) => ({
       month: s.month || new Date().toISOString().slice(0, 7),
     })) || [],
 
-  addSubscription: (sub: RecurringTransaction) => {
+  addSubscription: async (sub: RecurringTransaction) => {
     const updated = [...get().subscriptions, sub];
-    StorageService.set("recurring_tx", updated);
+    await StorageService.set("recurring_tx", updated);
     set({ subscriptions: updated });
   },
 
-  updateSubscription: (id: string, updates: Partial<RecurringTransaction>) => {
+  updateSubscription: async (id: string, updates: Partial<RecurringTransaction>) => {
     const updated = get().subscriptions.map((s) =>
       s.id === id ? { ...s, ...updates } : s,
     );
-    StorageService.set("recurring_tx", updated);
+    await StorageService.set("recurring_tx", updated);
     set({ subscriptions: updated });
   },
 
-  deleteSubscription: (id: string) => {
+  deleteSubscription: async (id: string) => {
     const updated = get().subscriptions.filter((s) => s.id !== id);
-    StorageService.set("recurring_tx", updated);
+    await StorageService.set("recurring_tx", updated);
     set({ subscriptions: updated });
   },
 
-  duplicateFromMonth: (sourceMonth: string, targetMonth: string) => {
+  duplicateFromMonth: async (sourceMonth: string, targetMonth: string) => {
     const sourceSubs = get().subscriptions.filter(
       (s) => s.month === sourceMonth,
     );
@@ -42,17 +42,17 @@ export const useRecurringStore = create<RecurringStore>((set, get) => ({
     }));
 
     const updated = [...get().subscriptions, ...newSubs];
-    StorageService.set("recurring_tx", updated);
+    await StorageService.set("recurring_tx", updated);
     set({ subscriptions: updated });
   },
 
-  postTransaction: (id: string, month: string) => {
+  postTransaction: async (id: string, month: string) => {
     const sub = get().subscriptions.find((s) => s.id === id);
     if (!sub) return;
 
     // 1. Create the expense entry
     const expenseStore = useExpenseStore.getState();
-    expenseStore.addExpense({
+    await expenseStore.addExpense({
       id: crypto.randomUUID(),
       date: `${month}-${sub.dueDay.toString().padStart(2, "0")}`,
       amount: sub.amount,
@@ -64,6 +64,6 @@ export const useRecurringStore = create<RecurringStore>((set, get) => ({
     });
 
     // 2. Update the subscription's last posted date
-    get().updateSubscription(id, { lastPosted: month });
+    await get().updateSubscription(id, { lastPosted: month });
   },
 }));

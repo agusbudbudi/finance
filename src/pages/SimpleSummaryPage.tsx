@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useSimpleTransactionStore } from "../stores/useSimpleTransactionStore";
 import { TrendingDown, TrendingUp, Layers, PieChart, Zap, Activity, CreditCard, ArrowRight } from "lucide-react";
 import { SimpleModeHeader } from "../components/simple-mode/SimpleModeHeader";
@@ -18,142 +18,131 @@ import {
 } from "recharts";
 
 export const SimpleSummaryPage = () => {
-  const { transactions, filters } = useSimpleTransactionStore();
+  const { transactions, applyFilters } = useSimpleTransactionStore();
   const [selectedMonth, setSelectedMonth] = useState(
     new Date().toISOString().slice(0, 7),
   );
-  const monthName = format(parseISO(`${selectedMonth}-01`), "MMMM");
-
-  const applyGlobalFilters = (tx: any) => {
-    // Advanced Filters
-    const dateRangeMatch =
-      (!filters.startDate || tx.date >= filters.startDate) &&
-      (!filters.endDate || tx.date <= filters.endDate);
-
-    const fromMatch =
-      !filters.fromSource ||
-      tx.fromBank === filters.fromSource ||
-      tx.creditCardName === filters.fromSource;
-
-    const toMatch = !filters.toSource || tx.toBank === filters.toSource;
-
-    const categoryMatch = !filters.category || tx.category === filters.category;
-
-    const ccMatch = filters.fromCC === null || tx.fromCC === filters.fromCC;
-
-    return dateRangeMatch && fromMatch && toMatch && categoryMatch && ccMatch;
-  };
-
-  const expenses = transactions.filter(
-    (tx) =>
-      (tx.type || "expense") === "expense" && 
-      tx.date.startsWith(selectedMonth) &&
-      applyGlobalFilters(tx),
-  );
-  const incomes = transactions.filter(
-    (tx) => 
-      tx.type === "income" && 
-      tx.date.startsWith(selectedMonth) &&
-      applyGlobalFilters(tx),
-  );
-
-  // --- REIMBURSEMENT (SWITCHING) STATS ---
-  const switchingOut = expenses.filter(
-    (tx) => tx.subCategory === "Switching Out",
-  );
-  const switchingIn = incomes.filter((tx) => tx.subCategory === "Switching In");
-  const totalSwitchingOut = switchingOut.reduce(
-    (sum, tx) => sum + tx.amount,
-    0,
-  );
-  const totalSwitchingIn = switchingIn.reduce((sum, tx) => sum + tx.amount, 0);
-  const netSwitching = totalSwitchingOut - totalSwitchingIn;
-
-  // --- EXPENSE STATS ---
-  const totalExpense = expenses.reduce((sum, tx) => sum + tx.amount, 0);
-  const totalPureExpense = totalExpense - totalSwitchingOut;
-  const expenseCategorySummary = expenses.reduce(
-    (acc, tx) => {
-      acc[tx.category] = (acc[tx.category] || 0) + tx.amount;
-      return acc;
-    },
-    {} as Record<string, number>,
-  );
-  const sortedExpenseCategories = Object.entries(expenseCategorySummary).sort(
-    (a, b) => b[1] - a[1],
-  );
-
-  const expenseSubCategorySummary = expenses.reduce(
-    (acc, tx) => {
-      const key = `${tx.category} > ${tx.subCategory}`;
-      acc[key] = (acc[key] || 0) + tx.amount;
-      return acc;
-    },
-    {} as Record<string, number>,
-  );
-  const sortedExpenseSubCategories = Object.entries(
-    expenseSubCategorySummary,
-  ).sort((a, b) => b[1] - a[1]);
-
-  // --- INCOME STATS ---
-  const totalIncome = incomes.reduce((sum, tx) => sum + tx.amount, 0);
-  const totalPureIncome = totalIncome - totalSwitchingIn;
-  const incomeCategorySummary = incomes.reduce(
-    (acc, tx) => {
-      acc[tx.category] = (acc[tx.category] || 0) + tx.amount;
-      return acc;
-    },
-    {} as Record<string, number>,
-  );
-  const sortedIncomeCategories = Object.entries(incomeCategorySummary).sort(
-    (a, b) => b[1] - a[1],
-  );
-
-  const incomeSubCategorySummary = incomes.reduce(
-    (acc, tx) => {
-      const key = `${tx.category} > ${tx.subCategory}`;
-      acc[key] = (acc[key] || 0) + tx.amount;
-      return acc;
-    },
-    {} as Record<string, number>,
-  );
-  const sortedIncomeSubCategories = Object.entries(
-    incomeSubCategorySummary,
-  ).sort((a, b) => b[1] - a[1]);
+  const monthName = useMemo(() => format(parseISO(`${selectedMonth}-01`), "MMMM"), [selectedMonth]);
 
   const [activeTab, setActiveTab] = useState<"graph" | "income" | "spending" | "ccSpending">(
     "graph",
   );
 
-  // --- CC SPENDING STATS ---
-  const ccExpenses = expenses.filter((tx) => tx.fromCC);
-  const totalCCExpense = ccExpenses.reduce((sum, tx) => sum + tx.amount, 0);
-  const ccSwitchingOut = ccExpenses.filter((tx) => tx.subCategory === "Switching Out");
-  const totalCCSwitchingOut = ccSwitchingOut.reduce((sum, tx) => sum + tx.amount, 0);
-  const totalPureCCExpense = totalCCExpense - totalCCSwitchingOut;
+  const {
+    expenses,
+    incomes,
+    switchingOut,
+    switchingIn,
+    totalSwitchingOut,
+    totalSwitchingIn,
+    netSwitching,
+    totalExpense,
+    totalPureExpense,
+    sortedExpenseCategories,
+    sortedExpenseSubCategories,
+    totalIncome,
+    totalPureIncome,
+    sortedIncomeCategories,
+    sortedIncomeSubCategories,
+    totalCCExpense,
+    totalPureCCExpense,
+    sortedCCCategories,
+    sortedCCSubCategories,
+  } = useMemo(() => {
+    const expenses = transactions.filter(
+      (tx) =>
+        (tx.type || "expense") === "expense" && 
+        tx.date.startsWith(selectedMonth) &&
+        applyFilters(tx),
+    );
+    const incomes = transactions.filter(
+      (tx) => 
+        tx.type === "income" && 
+        tx.date.startsWith(selectedMonth) &&
+        applyFilters(tx),
+    );
 
-  const ccCategorySummary = ccExpenses.reduce(
-    (acc, tx) => {
+    // --- REIMBURSEMENT (SWITCHING) STATS ---
+    const switchingOut = expenses.filter((tx) => tx.subCategory === "Switching Out");
+    const switchingIn = incomes.filter((tx) => tx.subCategory === "Switching In");
+    const totalSwitchingOut = switchingOut.reduce((sum, tx) => sum + tx.amount, 0);
+    const totalSwitchingIn = switchingIn.reduce((sum, tx) => sum + tx.amount, 0);
+    const netSwitching = totalSwitchingOut - totalSwitchingIn;
+
+    // --- EXPENSE STATS ---
+    const totalExpense = expenses.reduce((sum, tx) => sum + tx.amount, 0);
+    const totalPureExpense = totalExpense - totalSwitchingOut;
+    const expenseCategorySummary = expenses.reduce((acc, tx) => {
       acc[tx.category] = (acc[tx.category] || 0) + tx.amount;
       return acc;
-    },
-    {} as Record<string, number>,
-  );
-  const sortedCCCategories = Object.entries(ccCategorySummary).sort(
-    (a, b) => b[1] - a[1],
-  );
+    }, {} as Record<string, number>);
+    const sortedExpenseCategories = Object.entries(expenseCategorySummary).sort((a, b) => b[1] - a[1]);
 
-  const ccSubCategorySummary = ccExpenses.reduce(
-    (acc, tx) => {
+    const expenseSubCategorySummary = expenses.reduce((acc, tx) => {
       const key = `${tx.category} > ${tx.subCategory}`;
       acc[key] = (acc[key] || 0) + tx.amount;
       return acc;
-    },
-    {} as Record<string, number>,
-  );
-  const sortedCCSubCategories = Object.entries(ccSubCategorySummary).sort(
-    (a, b) => b[1] - a[1],
-  );
+    }, {} as Record<string, number>);
+    const sortedExpenseSubCategories = Object.entries(expenseSubCategorySummary).sort((a, b) => b[1] - a[1]);
+
+    // --- INCOME STATS ---
+    const totalIncome = incomes.reduce((sum, tx) => sum + tx.amount, 0);
+    const totalPureIncome = totalIncome - totalSwitchingIn;
+    const incomeCategorySummary = incomes.reduce((acc, tx) => {
+      acc[tx.category] = (acc[tx.category] || 0) + tx.amount;
+      return acc;
+    }, {} as Record<string, number>);
+    const sortedIncomeCategories = Object.entries(incomeCategorySummary).sort((a, b) => b[1] - a[1]);
+
+    const incomeSubCategorySummary = incomes.reduce((acc, tx) => {
+      const key = `${tx.category} > ${tx.subCategory}`;
+      acc[key] = (acc[key] || 0) + tx.amount;
+      return acc;
+    }, {} as Record<string, number>);
+    const sortedIncomeSubCategories = Object.entries(incomeSubCategorySummary).sort((a, b) => b[1] - a[1]);
+
+    // --- CC SPENDING STATS ---
+    const ccExpenses = expenses.filter((tx) => tx.fromCC);
+    const totalCCExpense = ccExpenses.reduce((sum, tx) => sum + tx.amount, 0);
+    const ccSwitchingOut = ccExpenses.filter((tx) => tx.subCategory === "Switching Out");
+    const totalCCSwitchingOut = ccSwitchingOut.reduce((sum, tx) => sum + tx.amount, 0);
+    const totalPureCCExpense = totalCCExpense - totalCCSwitchingOut;
+
+    const ccCategorySummary = ccExpenses.reduce((acc, tx) => {
+      acc[tx.category] = (acc[tx.category] || 0) + tx.amount;
+      return acc;
+    }, {} as Record<string, number>);
+    const sortedCCCategories = Object.entries(ccCategorySummary).sort((a, b) => b[1] - a[1]);
+
+    const ccSubCategorySummary = ccExpenses.reduce((acc, tx) => {
+      const key = `${tx.category} > ${tx.subCategory}`;
+      acc[key] = (acc[key] || 0) + tx.amount;
+      return acc;
+    }, {} as Record<string, number>);
+    const sortedCCSubCategories = Object.entries(ccSubCategorySummary).sort((a, b) => b[1] - a[1]);
+
+    return {
+      expenses,
+      incomes,
+      switchingOut,
+      switchingIn,
+      totalSwitchingOut,
+      totalSwitchingIn,
+      netSwitching,
+      totalExpense,
+      totalPureExpense,
+      sortedExpenseCategories,
+      sortedExpenseSubCategories,
+      totalIncome,
+      totalPureIncome,
+      sortedIncomeCategories,
+      sortedIncomeSubCategories,
+      totalCCExpense,
+      totalPureCCExpense,
+      sortedCCCategories,
+      sortedCCSubCategories,
+    };
+  }, [transactions, selectedMonth, applyFilters]);
 
   return (
     <div className="max-w-full space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500 pb-20">
@@ -217,7 +206,7 @@ export const SimpleSummaryPage = () => {
       {activeTab === "graph" && (
         <div className="space-y-12 animate-in fade-in slide-in-from-bottom-4 duration-500">
           {/* Main Highlights moved here into Graph tab */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 relative z-10">
+          <div className="grid grid-cols-1 lg:grid-cols-3 md:grid-cols-2 gap-6 relative z-10">
             {/* Informative Pure Income Card */}
             <div className="card group relative overflow-hidden bg-white dark:bg-gray-950 border border-gray-100 dark:border-gray-800 shadow-lg shadow-black/2">
               <div className="absolute top-0 left-0 w-1.5 h-full bg-green-500"></div>
@@ -309,6 +298,37 @@ export const SimpleSummaryPage = () => {
                   <p className="text-[10px] font-bold text-gray-400 uppercase">
                     Tracking {expenses.length} Total Items
                   </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Informative CC Spending Card */}
+            <div className="card group relative overflow-hidden bg-white dark:bg-gray-950 border border-gray-100 dark:border-gray-800 shadow-lg shadow-black/2">
+              <div className="absolute top-0 left-0 w-1.5 h-full bg-primary-500"></div>
+              <div className="p-6">
+                <div className="flex items-center justify-between mb-6">
+                  <div>
+                    <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">
+                      {monthName} CC Usage
+                    </p>
+                    <h3 className="text-3xl font-black text-gray-900 dark:text-white tracking-tighter">
+                      Rp {totalCCExpense.toLocaleString("id-ID")}
+                    </h3>
+                  </div>
+                  <div className="w-12 h-12 rounded-2xl bg-primary-50 dark:bg-primary-900/20 flex items-center justify-center text-primary-500 transition-transform group-hover:scale-110 duration-500">
+                    <CreditCard className="w-6 h-6" />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="bg-gray-50 dark:bg-gray-900/50 p-3 rounded-lg border border-gray-100 dark:border-gray-800 col-span-2">
+                    <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1">
+                      Info
+                    </p>
+                    <p className="text-xs font-bold text-gray-500 dark:text-gray-400">
+                      Total spending placed on credit cards this month.
+                    </p>
+                  </div>
                 </div>
               </div>
             </div>
@@ -564,12 +584,24 @@ const SummaryChart = ({
     .filter(([label]) => !label.includes("Switching"))
     .reduce((sum, [, value]) => sum + value, 0);
 
-  const chartData = data
+  const allFilteredData = data
     .filter(([label]) => !label.includes("Switching"))
     .map(([label, value]) => ({
       name: label.split(" > ")[1] || label,
       value,
     }));
+
+  const top10Data = allFilteredData.slice(0, 10);
+  const othersData = allFilteredData.slice(10);
+  
+  const chartData = top10Data;
+  if (othersData.length > 0) {
+    const othersValue = othersData.reduce((sum, item) => sum + item.value, 0);
+    chartData.push({
+      name: "Others",
+      value: othersValue,
+    });
+  }
 
   const COLORS =
     colorScheme === "green"

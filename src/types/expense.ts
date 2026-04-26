@@ -30,8 +30,8 @@ export interface Expense {
 
 export interface ExpenseStore {
   expenses: Expense[];
-  addExpense: (expense: Expense) => void;
-  updateExpense: (id: string, updates: Partial<Expense>) => void;
-  deleteExpense: (id: string) => void;
+  addExpense: (expense: Expense) => Promise<void>;
+  updateExpense: (id: string, updates: Partial<Expense>) => Promise<void>;
+  deleteExpense: (id: string) => Promise<void>;
   getExpensesByMonth: (month: string) => Expense[];
 }

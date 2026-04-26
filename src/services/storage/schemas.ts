@@ -7,6 +7,7 @@ export const SCHEMA_VERSIONS = {
   freelanceIncome: "1.0.0",
   settings: "1.0.0",
   simpleTransactions: "1.0.0",
+  simpleBudgets: "1.0.0",
 } as const;
 
 export interface StorageSchema<T> {
